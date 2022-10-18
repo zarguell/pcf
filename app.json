@@ -1,0 +1,28 @@
+{
+  "name": "Pentest collaboration framework",
+  "description": "Toolkit for pentest collaboration",
+  "repository": "https://gitlab.com/invuls/pentest-projects/pcf",
+  "logo": "https://assets.gitlab-static.net/uploads/-/system/project/avatar/17720181/icon_mini_good.png",
+  "keywords": [
+    "pcf",
+    "python",
+    "pentest",
+    "collaboration",
+    "security"
+  ],
+  "env": {
+    "BASIC_AUTH_LOGIN": {
+        "description": "Login for basic authorization (leave this field blank if don't want to turn on basic authorization).",
+        "required": false,
+        "value": ""
+    },
+    "BASIC_AUTH_PASSWORD": {
+        "description": "Password for basic authorization (leave this field blank if don't want to turn on basic authorization).",
+        "required": false,
+        "value": ""
+    }
+  },
+  "addons": [
+    "heroku-postgresql"
+  ]
+}

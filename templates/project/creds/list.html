@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include 'header.html' %}
+<body>
+<div id="segment_id">
+    {% include 'menu.html' %}
+    <div class="ui grid">
+        <div class="ui column" style="width: 75px; padding-top: 50px;">
+            {% include 'project/sidebar.html' %}
+        </div>
+        <script>
+            $(document).ready(function () {
+                var table = $('#creds_list').DataTable({
+                    "order": [[1, "asc"]],
+                    "iDisplayLength": 50,
+                    aLengthMenu: [
+                        [10, 25, 50, 100, 200, -1],
+                        [10, 25, 50, 100, 200, "All"]
+                    ],
+                    'columnDefs': [
+                        {
+                            'targets': 5,
+                            'searchable': false,
+                            'orderable': false,
+                        }],
+                    "initComplete": function (settings, json) {
+                        div_block = $('#creds_list_length')[0];
+                        div_block.insertAdjacentHTML('beforeEnd', '<a style="margin-left: 15px;" class="ui vertical animated button blue" tabindex="0" href="/project/{{current_project['id']}}/credentials/new_creds">' +
+                            '<div class="hidden content">Add</div>' +
+                            '<div class="visible content">' +
+                            '<i class="plus icon"></i></div></a>' +
+                            '<a style="margin-left: 15px; width:100px;" class="ui vertical animated button purple" tabindex="0" href="/project/{{current_project['id']}}/credentials/import_creds">' +
+                            '<div class="hidden content">Multiple add</div>' +
+                            '<div class="visible content">' +
+                            '<i class="users icon"></i></div></a>' +
+                            '<button style="margin-left: 15px;" class="ui vertical animated button orange" tabindex="0" onclick=goto_export() >' +
+                            '<div class="hidden content">Export</div><div class="visible content"><i class="download icon"></i></div></button>');
+                    }
+                });
+                $(function () {
+                    $('.ui.fluid.search.dropdown').dropdown({
+                        fullTextSearch: true
+                    });
+                    $('.copyRaw').dropdown({});
+                });
+            });
+
+            const copyToClipboard = str => {
+                const el = document.createElement('textarea');
+                el.value = str;
+                el.setAttribute('readonly', '');
+                el.style.position = 'absolute';
+                el.style.left = '-9999px';
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+            };
+
+            function goto_export() {
+                var element = document.getElementById('export_button');
+                element.scrollIntoView({
+                    block: 'start',
+                    behavior: 'smooth'
+                });
+            }
+
+            function copy(elem_button, text) {
+                tr = $(elem_button).closest('tr')[0];
+                td = tr.getElementsByTagName('td');
+                copy_str = ''
+                login = td[0].attributes['data-value'].value;
+                clr_pass = td[2].attributes['data-value'].value;
+                hash_pass = td[1].attributes['data-value'].value;
+                if (text === 'login') {
+                    copy_str = login;
+                } else if (text === 'password') {
+                    copy_str = clr_pass;
+                } else if (text === 'hash') {
+                    copy_str = hash_pass;
+                } else if (text === 'login:password') {
+                    copy_str = login + ':' + clr_pass;
+                } else if (text === 'login password') {
+                    copy_str = login + ' ' + clr_pass;
+                } else if (text === '-u login -p password') {
+                    copy_str = "-u '" + login.replace("'", "'\"'\"'") + "' -p '" + clr_pass.replace("'", "'\"'\"'") + "'";
+                }
+                ;
+
+                copyToClipboard(copy_str);
+
+
+                $('body')
+                    .toast({
+                        class: 'success',
+                        position: 'bottom right',
+                        message: `Copied!`
+                    });
+            };
+        </script>
+        <style>
+            tr.odd {
+                background-color: #fffdc2;
+            }
+
+            tr.even {
+                background-color: #c3ffcd;
+            }
+
+            .ui.menu:last-child {
+                margin-bottom: 0px;
+            }
+        </style>
+        <div class="ui column" style="width: calc(100% - 75px)">
+            {% set creds_array = db.select_project_creds(current_project['id']) %}
+            <h1 class="ui dividing header">Credentials: {{ len(creds_array) }}</h1>
+            <div class="ui container" style="width: 100%">
+                <table id="creds_list" class="ui table">
+                    <thead>
+                    <tr id="table_header">
+                        <th><h4>login / email</h4></th>
+                        <th><h4>hash</h4></th>
+                        <th><h4>password</h4></th>
+                        <th><h4>comment</h4></th>
+                        <th><h4>service</h4></th>
+                        <th style="width: 100px;"><h4>action</h4></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for current_cred in creds_array %}
+                        <tr>
+                            <td data-value="{{ current_cred['login'] }}">
+                                <a style="word-break: break-all; white-space: pre-line;" href="/project/{{ current_project['id'] }}/credentials/{{ current_cred['id'] }}/" class="link-2">{{ current_cred['login'] }}</a>
+                            </td>
+                            <td data-value="{{ current_cred['hash'] }}">
+                                {% if current_cred['hash'] %}
+                                    <div class="text-block-31" style="word-break: break-all; white-space:pre-wrap;">{{ current_cred['hash'] }}</div>
+                                {% endif %}
+                            </td>
+                            <td data-value="{{ current_cred['cleartext'] }}">
+                                {% if current_cred['cleartext'] %}
+                                    <div class="text-block-31"
+                                         style="word-break: break-all; white-space:pre-wrap;">{{ current_cred['cleartext'] }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="text-block-31"
+                                     style="word-break: break-all; white-space:pre-wrap;">{{ current_cred['description'] }}</div>
+                            </td>
+                            <td>
+                                <ul class="ui list">
+                                    {% set addresses = json_unpack(current_cred['services']) %}
+                                    {% for port_id in addresses %}
+                                        {% set port = db.select_port(port_id)[0] %}
+                                        {% for host in addresses[port_id] %}
+                                            {% if host=="0" %}
+                                                {% set ip = db.select_host_by_port_id(port_id)[0] %}
+                                                <li>{{ (ip['ip']) }}{% if port['port'] != 0 %}:{{ (port['port']) }}{% endif %}</li>
+                                            {% else %}
+                                                {% set hostname = db.select_hostname(host)[0] %}
+                                                <li>{{ (hostname['hostname']) }}{% if port['port'] != 0 %}:{{ (port['port']) }}{% endif %}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="ui dropdown teal button copyRaw" style="width: 95px;">
+                                    <i class="copy icon" style="margin-left: 10px;"></i>Copy<i class="dropdown icon"></i>
+                                    <div class="menu">
+                                        <div class="item" style="min-height: 0px" onclick="copy(this, 'login')">login</div>
+                                        <div class="item" style="min-height: 0px" onclick="copy(this, 'password')">cleartext</div>
+                                        <div class="item" style="min-height: 0px" onclick="copy(this, 'hash')">hash</div>
+                                        <div class="item" style="min-height: 0px" onclick="copy(this, 'login:password')">login:password</div>
+                                        <div class="item" style="min-height: 0px" onclick="copy(this, 'login password')">login password</div>
+                                        <div class="item" style="min-height: 0px" onclick="copy(this, '-u login -p password')">-u 'User' -p 'Pass'</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="ui divider"></div>
+                <form class="ui form" method="post" style="width:75%" action="/project/{{ current_project['id'] }}/credentials/export">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <h1 class="ui header">Export</h1>
+                    <div class="ui two fields">
+                        <div class="ui field">
+                            <div class="ui field">
+                                <div class="ui labeled input">
+                                    <div class="ui label" style="width:199px;">
+                                        <i class="terminal icon"></i>Divider:
+                                    </div>
+                                    <input type="text" name="divider" placeholder=":" value=":">
+                                </div>
+                            </div>
+                            <div class="ui field" style="margin-top:15px;" id="export_button">
+                                <div class="ui labeled input">
+                                    <div class="ui label">
+                                        <i class="key icon"></i>Additional dictionaries:
+                                    </div>
+                                    <select class="ui fluid search dropdown" multiple="" name="password_wordlist">
+                                        <option value="">None</option>
+                                        <option value="top10k">Top-10k passwords</option>
+                                        <option value="top1000">Top-1000 passwords</option>
+                                        <option value="top100">Top-100 passwords</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui field">
+                            <div class="ui item checkbox" style="margin-top: 10px">
+                                <input type="checkbox" name="empty_passwords" value="1">
+                                <label>Take rows with empty passwords</label>
+                            </div>
+                            <br>
+                            <div class="ui item checkbox" style="margin-top: 10px">
+                                <input type="checkbox" name="login_as_password" value="1">
+                                <label>Add logins to password list</label>
+                            </div>
+                            <br>
+                            <div class="ui item checkbox" style="margin-top: 10px">
+                                <input type="checkbox" name="show_in_browser" value="1">
+                                <label>Just show results in browser</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui field">
+                        <button class="ui button orange" type="submit" name="export_type" value="passwords">Passwords</button>
+                        <button class="ui button orange" type="submit" name="export_type" value="user_pass">User&Pass</button>
+                        <button class="ui button orange" type="submit" name="export_type" value="user_pass_variations">User&Pass variations</button>
+                        <button class="ui button orange" type="submit" name="export_type" value="usernames">Usernames</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% include 'footer.html' %}
+    </div>
+</div>
+</body>
+</html>

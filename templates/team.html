@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include 'header.html' %}
+<body>
+<script>
+    $(document).ready(function () {
+        $('.menu .item').tab({
+            history: true
+        });
+    });
+
+    $(function () {
+        $('.ui.dropdown.selection').dropdown();
+    });
+</script>
+<style>
+    .ui.selection.dropdown {
+        min-width: 100%;
+    }
+
+    .ui.menu {
+        margin-top: 0px;
+    }
+
+    tr.odd {
+        background-color: #fffdc2;
+    }
+
+    tr.even {
+        background-color: #c3ffcd;
+    }
+
+    .ui.menu:last-child {
+        margin-bottom: 0px;
+    }
+
+</style>
+{% include 'menu.html' %}
+
+<script>
+    $(document)
+        .ready(function () {
+            $('.ui.dropdown').dropdown({
+                on: 'hover'
+            });
+            $('.ui.menu a.item')
+                .on('click', function () {
+                    $(this)
+                        .addClass('active')
+                        .siblings()
+                        .removeClass('active')
+                    ;
+                })
+            ;
+        });
+
+    $(function () {
+        $('.message .close')
+            .on('click', function () {
+                $(this)
+                    .closest('.message')
+                    .transition('fade')
+                ;
+            });
+    });
+
+    function delete_prompt(func, message) {
+        if (confirm(message))
+            return true;
+        return false;
+    };
+
+    function set_config(name, display_name) {
+
+        var elem = document.getElementById('edit_config_id');
+
+        if (elem) {
+            elem.value = name;
+            elem.innerText = display_name;
+            elem.selected = true;
+            $('.ui.dropdown').dropdown({
+                on: 'hover'
+            });
+        } else {
+            var select = document.getElementById('select_config_type');
+            var opt = document.createElement('option');
+            opt.value = name;
+            opt.innerText = display_name;
+            opt.id = 'edit_config_id';
+            select.appendChild(opt);
+            opt.selected = true;
+            $('.ui.dropdown').dropdown({
+                on: 'hover'
+            });
+        }
+    };
+    var collapsedGroups = {};
+    var collapsedGroups_archive = {};
+    var active_projects = null;
+    var archived_projects = null;
+    $(document).ready(function () {
+        active_projects = $('#online-projects').DataTable(
+            {
+                "order": [[3, "desc"]],
+                "iDisplayLength": -1,
+                "autoWidth": false,
+                aLengthMenu: [
+                    [5, 10, 25, 50, 100, 200, -1],
+                    [5, 10, 25, 50, 100, 200, "All"]
+                ],
+                columns: [
+                    {"width": "10%"},
+                    {"width": "40%"},
+                    {"width": "20%"},
+                    null,
+                    null,
+                    null,
+                    null,
+                    {"width": "125px"}
+                ],
+                rowGroup: {
+                    dataSrc: 3,
+                    startRender: function (rows, group) {
+                        var collapsed = !!collapsedGroups[group];
+
+                        rows.nodes().each(function (r) {
+                            r.style.display = collapsed ? '' : 'none';
+                        });
+
+                        return $('<tr/>')
+                            .append('<td colspan="8" style="cursor: pointer;"><i class="ui icon folder"></i>' + group + ' (' + rows.count() + ')</td>')
+                            .attr('data-name', group)
+                            .toggleClass('collapsed', collapsed);
+                    }
+                },
+                columnDefs: [
+                    {
+                        target: 3,
+                        visible: false,
+                        searchable: false
+                    }
+                ]
+            }
+        );
+        archived_projects = $('#archived-projects').DataTable(
+            {
+                "order": [[3, "desc"]],
+                "iDisplayLength": -1,
+                "autoWidth": false,
+                aLengthMenu: [
+                    [5, 10, 25, 50, 100, 200, -1],
+                    [5, 10, 25, 50, 100, 200, "All"]
+                ],
+                columns: [
+                    {"width": "10%"},
+                    {"width": "40%"},
+                    {"width": "20%"},
+                    null,
+                    null,
+                    null,
+                    null,
+                    {"width": "125px"}
+                ],
+                rowGroup: {
+                    dataSrc: 3,
+                    startRender: function (rows, group) {
+                        var collapsed = !!collapsedGroups_archive[group];
+
+                        rows.nodes().each(function (r) {
+                            r.style.display = collapsed ? '' : 'none';
+                        });
+
+                        return $('<tr/>')
+                            .append('<td colspan="8" style="cursor: pointer;"><i class="ui icon folder"></i>' + group + ' (' + rows.count() + ')</td>')
+                            .attr('data-name', group)
+                            .toggleClass('collapsed', collapsed);
+                    }
+                },
+                columnDefs: [
+                    {
+                        target: 3,
+                        visible: false,
+                        searchable: false
+                    }
+                ]
+            }
+        );
+
+        $('#online-projects tbody').on('click', 'tr.dtrg-start', function () {
+            var name = $(this).data('name');
+            collapsedGroups[name] = !collapsedGroups[name];
+            active_projects.draw();
+        });
+
+        $('#archived-projects tbody').on('click', 'tr.dtrg-start', function () {
+            var name = $(this).data('name');
+            collapsedGroups_archive[name] = !collapsedGroups_archive[name];
+            archived_projects.draw();
+        });
+
+        empty_elems = document.querySelectorAll('[data-name="Empty folder"]');
+        for (elem of empty_elems) {
+            elem.click();
+        }
+    });
+
+    function filename_change(obj) {
+        button_obj = $('#file_button')[0];
+        if (obj.files.length === 1) {
+            button_obj.innerText = " " + obj.files[0].name;
+        } else if (obj.files.length > 1) {
+            button_obj.innerText = " selected " + obj.files.length + " files";
+        } else {
+            button_obj.innerText = " Open file";
+        }
+    }
+</script>
+
+<h2 class="ui dividing header">Team: {{ (current_team['name']) }}</h2>
+<div class="ui grid" align="left" style="height: calc( 100% - 85px);">
+    <div class="column" style="width: 120px;">
+        <div class="ui vertical fluid tabular menu" style="min-width: 120px;">
+            <a class="item active" data-tab="about">
+                About <i class="info circle icon"></i>
+            </a>
+            <a class="item" data-tab="users">
+                Users <i class="users icon"></i>
+            </a>
+
+            <a class="item" data-tab="projects">
+                Projects <i class="travel icon"></i>
+            </a>
+
+            <a class="item" data-tab="logs">
+                Logs <i class="file alternate outline icon"></i>
+            </a>
+
+            <a class="item" data-tab="configs">
+                Configs <i class="setting icon"></i>
+            </a>
+        </div>
+    </div>
+    <div class="column" style="width: calc(100% - 135px); margin-left: 10px; height: 100%">
+
+        <div class="ui tab active" data-tab="about">
+            <form class="ui form" method="post" action="/team/{{ (current_team['id']) }}/" onsubmit="return delete_prompt(this,'Are you sure to edit or delete team?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="change_info" value="1"/>
+                <div class="ui field">
+                    <div class="ui labeled input">
+                        <div class="ui label" style="width: 130px;">
+                            <i class="users icon"></i>Team name:
+                        </div>
+                        <input type="text" name="name" placeholder="RedTeam" required
+                               value="{{ (current_team['name']) }}">
+                    </div>
+                </div>
+
+                <div class="ui field">
+                    <div class="ui labeled input">
+                        <div class="ui label">
+                            <i class="envelope icon"></i>Admin email:
+                        </div>
+                        <input type="email" name="email" required placeholder="iljashaposhnikov@gmail.com"
+                               value="{{ (current_team['admin_email']) }}">
+                    </div>
+                </div>
+
+                <div class="ui field">
+                    <div class="ui labeled input">
+                        <div class="ui label" style="width: 130px;">
+                            <i class="sticky note outline icon"></i>Description:
+                        </div>
+                        <textarea rows="2" name="description">{{ (current_team['description']) }}</textarea>
+                    </div>
+                </div>
+                <button type="submit" name="action" value="Save" class="ui primary button"><i class="save icon"></i>Save</button>
+                <button type="submit" name="action" value="Delete" class="ui red button"><i class="trash icon"></i>Delete</button>
+                {% if team_info_errors is defined %}
+                    {% if team_info_errors %}
+                        <div class="ui error message visible">
+                            <i class="close icon"></i>
+                            <div class="header">
+                                There were some errors:
+                            </div>
+                            <ul class="list">
+                                {% for error in team_info_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <div class="ui success message visible">
+                            <i class="close icon"></i>
+                            <div class="header">
+                                Team information was updated!
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="ui tab" data-tab="users">
+            <div align="right" style="margin-right: 100px;">
+                <form class="ui form" action="/team/{{ (current_team['id']) }}/#/users" method="post">
+                    <div class="ui action input">
+                        <input type="text" placeholder="test@example.com" name="email" type="email" required>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <input type="hidden" name="add_user" value="1"/>
+                        <input type="hidden" name="role" value="tester"/>
+                        <button class="ui button blue" type="submit"><i class="plus icon"></i>Add</button>
+                    </div>
+                </form>
+            </div>
+            <div class="ui grid">
+                <div class="eight wide column">
+                    <h2>Administrators</h2>
+                    {% set count = [1] %}
+                    {% for user_id in json_unpack(current_team['users']) %}
+                        {% set curr_tester = json_unpack(current_team['users'])[user_id] %}
+                        {% if curr_tester=='admin' %}
+                            {% if count.append(count.pop() + 1) %} {% endif %}
+                            {% set user_data = db.select_user_by_id(user_id)[0] %}
+                            <div class="ui piled segment {% if count[0] % 2 %}blue{% else %}red{% endif %} team_profile_segment">
+                                <div class="ui dropdown item">
+                                    <h3>
+                                        <i class="id card icon"></i>{{ (user_data['fname'] + ' ' + user_data['lname'] + ' - ' + user_data['email']) }}<i
+                                            class="dropdown icon"></i></h3>
+                                    <div class="menu" style="width: 100%;">
+                                        <a class="item" href="/profile/{{ user_data['id'] }}/" target="_blank"
+                                           rel="noopener noreferrer"><i class="user icon"></i>Profile</a>
+                                        <a class="item"
+                                           onclick="document.getElementById('devote_admin_{{ user_data['id'] }}').submit()"><i
+                                                class="angle double down icon"></i>Devote</a>
+                                        <a class="item"
+                                           onclick="document.getElementById('kick_admin_{{ user_data['id'] }}').submit()"><i
+                                                class="trash icon"></i>Kick</a>
+                                        <form method="post" action="user/{{ user_data['id'] }}/devote"
+                                              onsubmit="return delete_prompt(this,'Are you sure to devote {{ (user_data['email']) }}?');"
+                                              id="devote_admin_{{ user_data['id'] }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        </form>
+                                        <form method="post" action="user/{{ user_data['id'] }}/kick"
+                                              onsubmit="return delete_prompt(this,'Are you sure to kick {{ (user_data['email']) }}?')"
+                                              id="kick_admin_{{ user_data['id'] }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="eight wide column">
+                    <h2>Testers</h2>
+                    {% set count = [1] %}
+                    {% for user_id in json_unpack(current_team['users']) %}
+                        {% set curr_tester = json_unpack(current_team['users'])[user_id] %}
+                        {% if curr_tester=='tester' %}
+                            {% set user_data = db.select_user_by_id(user_id)[0] %}
+                            {% if count.append(count.pop() + 1) %} {% endif %}
+                            <div class="ui piled segment {% if count[0] % 2 %}blue{% else %}red{% endif %} team_profile_segment">
+                                <div class="ui dropdown item">
+                                    <h3>
+                                        <i class="id card icon"></i>{{ (user_data['fname'] + ' ' + user_data['lname'] + ' - ' + user_data['email']) }}<i
+                                            class="dropdown icon"></i></h3>
+                                    <div class="menu" style="width: 100%;">
+                                        <a class="item" href="/profile/{{ user_data['id'] }}/" target="_blank"
+                                           rel="noopener noreferrer"><i class="user icon"></i>Profile</a>
+                                        <a class="item"
+                                           onclick="document.getElementById('tester_set_admin_{{ user_data['id'] }}').submit()"><i
+                                                class="angle double up icon"></i>Set
+                                            admin</a>
+                                        <a class="item"
+                                           onclick="document.getElementById('tester_kick_{{ user_data['id'] }}').submit()"><i
+                                                class="trash icon"></i>Kick</a>
+                                        <form method="post" action="user/{{ user_data['id'] }}/set_admin"
+                                              onsubmit="return delete_prompt(this,'Are you sure to set admin {{ (user_data['email']) }}?')"
+                                              id="tester_set_admin_{{ user_data['id'] }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        </form>
+                                        <form method="post" action="user/{{ user_data['id'] }}/kick"
+                                              onsubmit="return delete_prompt(this,'Are you sure to kick {{ (user_data['email']) }}?')"
+                                              id="tester_kick_{{ user_data['id'] }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if add_tester_errors is defined and add_tester_errors %}
+                        <div class="ui error message visible" style="min-width: 300px;">
+                            <i class="close icon"></i>
+                            <div class="header">
+                                There were some errors:
+                            </div>
+                            <ul class="list">
+                                {% for error in add_tester_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    {% if (edit_error is defined) and (edit_error != None) and (edit_error != '') %}
+                        <div class="ui error message visible" style="min-width: 300px;">
+                            <i class="close icon"></i>
+                            <div class="header">
+                                {{ (edit_error) }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="ui tab" data-tab="projects">
+            <a href="/new_project" class="ui button purple" style="float: right"><i class="plus icon"></i>New
+                project</a>
+            <div class="ui top attached tabular menu" style="margin-bottom: 10px">
+                <a class="item active" data-tab="active">
+                    Active
+                </a>
+                <a class="item" data-tab="archived">
+                    <i class="archive icon"></i>Archived
+                </a>
+            </div>
+
+            <div class="ui tab active" data-tab="active">
+                <table id="online-projects" class="ui table" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Scope</th>
+                        <th style="display: none;">Folder</th>
+                        <th>Type</th>
+                        <th>Start date</th>
+                        <th>Finish date</th>
+                        <th style="width: 130px;">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set projects = db.select_team_projects(current_team['id']) %}
+                    {% for project in projects %}
+                        {% if project['status']==1 %}
+                            {% if not (project['auto_archive']==1 and project['end_date']< time()) %}
+                                <tr class="custom-clickable-row">
+                                    <td style="word-break: break-word; white-space:pre-wrap;"><h3 style="margin-left: 20px;">{{ (project['name']) }}</h3></td>
+                                    <td style="word-break: break-word; white-space:pre-wrap;">{{ (project['description']) }}</td>
+                                    <td style="word-break: break-word; white-space:pre-line;">{{ '\n'.join(project['scope'].strip('\r\t\n ').split('\n')[:5]) -}}
+                                        {% if len(project['scope'].strip('\r\t\n ').split('\n')) > 5 -%}
+                                            <div title="{{ '\n'.join(project['scope'].strip('\r\t\n ').split('\n')[5:]) }}" style="float:left;">. . .</div>
+                                            <div style="display:none;float:left;">{{ '\n'.join(project['scope'].strip('\r\t\n ').split('\n')[5:]) }}</div>{% endif -%}</td>
+                                    <td style="display: none;" data-value="{{ project['folder'].strip('\r\t\n ') }}" style="word-break: break-word; white-space:pre-wrap;">{% if project['folder'].strip('\r\t\n ') != '' %}{{ (project['folder']) }}{% else %}Empty folder{% endif %}</td>
+                                    <td>{{ (project['type']) }}</td>
+                                    <td data-order="{{ (project['start_date']) }}">{{ format_date(project['start_date'],date_format_template) }}</td>
+                                    <td data-order="{{ (project['end_date']) }}">{{ format_date(project['end_date'],date_format_template) }}</td>
+                                    <td>
+                                        <form method="post"
+                                              action="/project/{{ project['id'] }}/settings/#/archived">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <a href="/project/{{ project['id'] }}/"
+                                               class="ui vertical animated button blue"
+                                               tabindex="0">
+                                                <div class="hidden content">Open</div>
+                                                <div class="visible content">
+                                                    <i class="share icon"></i>
+                                                </div>
+                                            </a>
+                                            <button type="submit" name="action" value="Archive"
+                                                    class="ui vertical animated button red" tabindex="0">
+                                                <div class="hidden content">Archive</div>
+                                                <div class="visible content">
+                                                    <i class="archive icon"></i>
+                                                </div>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="ui tab" data-tab="archived">
+                <table id="archived-projects" class="ui table" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Scope</th>
+                        <th style="display: none;">Folder</th>
+                        <th>Type</th>
+                        <th>Start date</th>
+                        <th>Finish date</th>
+                        <th style="width: 130px;">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for project in projects %}
+                        {% if project['status']==0 or (project['auto_archive']==1 and project['end_date']< time()) %}
+                            <tr class="custom-clickable-row">
+                                <td><h3 style="margin-left: 20px;">{{ (project['name']) }}</h3></td>
+                                <td style="word-break: break-word; white-space:pre-wrap;">{{ (project['description']) }}</td>
+                                <td style="word-break: break-word; white-space:pre-line;">{{ '\n'.join(project['scope'].strip('\r\t\n ').split('\n')[:5]) -}}
+                                    {% if len(project['scope'].strip('\r\t\n ').split('\n')) > 5 -%}
+                                        <div title="{{ '\n'.join(project['scope'].strip('\r\t\n ').split('\n')[5:]) }}" style="float:left;">. . .</div>
+                                        <div style="display:none;float:left;">{{ '\n'.join(project['scope'].strip('\r\t\n ').split('\n')[5:]) }}</div>{% endif -%}</td>
+                                <td style="display: none;" data-value="{{ project['folder'].strip('\r\t\n ') }}" style="word-break: break-word; white-space:pre-wrap;">{% if project['folder'].strip('\r\t\n ') != '' %}{{ (project['folder']) }}{% else %}Empty folder{% endif %}</td>
+                                <td>{{ (project['type']) }}</td>
+                                <td data-order="{{ (project['start_date']) }}">{{ format_date(project['start_date'],date_format_template) }}</td>
+                                <td data-order="{{ (project['end_date']) }}">{{ format_date(project['end_date'],date_format_template) }}</td>
+                                <td>
+                                    <form method="post" action="/project/{{ project['id'] }}/settings/#/active">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <a class="ui vertical animated button blue"
+                                           href="/project/{{ project['id'] }}/reports/"
+                                           tabindex="0">
+                                            <div class="hidden content">Open</div>
+                                            <div class="visible content">
+                                                <i class="share icon"></i>
+                                            </div>
+                                        </a>
+                                        <button type="submit" name="action" value="Activate"
+                                                class="ui vertical animated button green" tabindex="0">
+                                            <div class="hidden content">Activate</div>
+                                            <div class="visible content">
+                                                <i class="play circle icon"></i>
+                                            </div>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="ui tab" data-tab="logs" style="height: 100%">
+            <div class="ui input" style="min-width: 100%; height:calc(100% - 50px)">
+                <textarea rows="2" style="min-width: 100%; height:100%;">
+{% set log_dict = db.get_log_by_team_id(current_team['id'])[:100] %}{% for row in log_dict %}{% set current_project = db.select_projects(row['project']) %}{{ format_date(row['date'],'%d-%m-%Y %H:%M:%S') }} - Project: {% if current_project -%}{{ (current_project[0]['name']) }}{% endif %} User:{{ (db.select_user_by_id(row['user_id'])[0]['email']) }} -- {{ (row['description']) }}
+{% endfor %}</textarea>
+            </div>
+            <a href="/team/{{ current_team['id'] }}/logs" target="_blank" rel="noopener noreferrer" class="ui button blue" style="margin-top:10px;"><i class="share icon"></i>Full log</a>
+        </div>
+
+        <div class="ui tab" data-tab="configs" style="height: 100%">
+            <div class="ui equal height grid" style="height: 100%">
+                <div class="three column row" style="height: 100%">
+                    <div class="column" style="height: 100%">
+                        <h2>Variables</h2>
+                        <form class="ui form" method="post" action="/team/{{ (current_team['id']) }}/#/configs">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="add_config" value="1"/>
+                            <div class="ui grid">
+                                <div class="six wide column">
+                                    <input type="text" placeholder="key string" name="config_value">
+                                </div>
+                                <div class="six wide column">
+                                    <div style="width: 100%;">
+                                        <select class="ui dropdown selection" id="select_config_type" name="config_name">
+                                            <option value="shodan" selected="">Shodan API key</option>
+                                            <option value="zeneye">ZenEye API key</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="four wide column">
+                                    <button type="submit" name="action" value="Add" class="ui vertical animated button blue">
+                                        <div class="hidden content">Add</div>
+                                        <div class="visible content">
+                                            <i class="plus icon"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        {% set team_configs = db.select_configs(team_id=current_team['id']) %}
+                        {% for current_config in team_configs %}
+                            <form class="ui form" method="post" action="/team/{{ (current_team['id']) }}/#/configs">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <input type="hidden" name="add_config" value="1"/>
+                                <input type="hidden" name="config_name" value="{{ (current_config['name']) }}"/>
+                                <input type="hidden" name="config_value" value="delete"/>
+                                <label>{{ (current_config['display_name']) }}:</label>
+
+                                <div class="ui grid">
+                                    <div class="six wide column">
+                                        <input type="text" value="**********" readonly>
+                                    </div>
+                                    <div class="ten wide column">
+
+                                        <button type="button" onclick="set_config('{{ (current_config["name"]) }}','{{ (current_config["display_name"]) }}');"
+                                                class="ui vertical animated button purple">
+                                            <div class="hidden content">Edit</div>
+                                            <div class="visible content">
+                                                <i class="edit icon"></i>
+                                            </div>
+                                        </button>
+
+                                        <button type="submit" name="action" value="Delete" class="ui vertical animated button red">
+                                            <div class="hidden content">Delete</div>
+                                            <div class="visible content">
+                                                <i class="trash icon"></i>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        {% endfor %}
+                        <h2>Report templates</h2>
+                        <label>More information about report templates <a
+                                href="https://gitlab.com/invuls/pentest-projects/pcf/-/wikis/Reports%20moderation"
+                                target="_blank" rel="noopener noreferrer">here</a>.</label>
+                        <form class="ui form" enctype="multipart/form-data" method="post"
+                              action="/team/{{ (current_team['id']) }}/#/configs">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="add_template" value="1"/>
+                            <div class="ui grid">
+                                <div class="six wide column">
+                                    <input type="text" name="template_name" required placeholder="Report name">
+                                </div>
+                                <div class="ten wide column">
+                                    <label for="new_report" class="ui icon button">
+                                        <i class="file icon"></i>
+                                        <div id="file_button" style="float: right;">Open File</div>
+                                    </label>
+                                    <input type="file" id="new_report" name="file" onchange="filename_change(this);" style="display:none" required>
+                                    <button type="submit" class="ui vertical animated button blue">
+                                        <div class="hidden content">Add</div>
+                                        <div class="visible content">
+                                            <i class="plus icon"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        {% set team_templates = db.select_report_templates(team_id=current_team['id']) %}
+                        {% for current_template in team_templates %}
+                            <form class="ui form" method="post" action="/team/{{ (current_team['id']) }}/#/configs">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <input type="hidden" name="delete_template" value="1"/>
+                                <input type="hidden" name="template_id" value="{{ current_template['id'] }}"/>
+                                <div class="ui grid">
+                                    <div class="six wide column">
+                                        <input type="text" value="{{ (current_template['name']) }}" readonly>
+                                    </div>
+                                    <div class="ten wide column">
+                                        <a class="ui vertical animated button green" href="/static/files/templates/{{ current_template['id'] }}" style="width: 70px;">
+                                            <div class="hidden content">Download</div>
+                                            <div class="visible content">
+                                                <i class="download icon"></i>
+                                            </div>
+                                        </a>
+
+                                        <button type="submit" value="Delete" class="ui vertical animated button red">
+                                            <div class="hidden content">Delete</div>
+                                            <div class="visible content">
+                                                <i class="trash icon"></i>
+                                            </div>
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </form>
+                        {% endfor %}
+                        {% if add_report_errors is defined  and add_report_errors %}
+                            {% for error in add_report_errors %}
+                                <div class="ui error message visible" style="min-width: 300px;">
+                                    <i class="close icon"></i>
+                                    <div class="header">
+                                        There were some errors:
+                                    </div>
+                                    <ul class="list">
+                                        {% for error in add_report_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="column" style="height: 100%">
+                        <h2>Issues rules</h2>
+                        <label>More information about issue rules <a
+                                href="https://gitlab.com/invuls/pentest-projects/pcf/-/wikis/Issue-rules#rules-logics"
+                                target="_blank" rel="noopener noreferrer">here</a>.</label>
+                        <form class="ui form" method="get" action="/new_issue_rule">
+                            <input type="hidden" name="team_id" value="{{ current_team['id'] }}">
+                            <div class="ui grid">
+                                <div class="eight wide column">
+                                    <input type="text" name="issue_rule_name" required placeholder="New rule name">
+                                </div>
+                                <div class="eight wide column">
+                                    <button type="submit" name="action" class="ui vertical animated button blue">
+                                        <div class="hidden content">Add</div>
+                                        <div class="visible content">
+                                            <i class="plus icon"></i>
+                                        </div>
+                                    </button>
+                                    <a type="button" name="action" class="ui vertical animated button orange" href="/import_issue_rules?team_id={{ current_team['id'] }}">
+                                        <div class="hidden content">File</div>
+                                        <div class="visible content">
+                                            <i class="file icon"></i>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                        <script>
+                            $(document).ready(function () {
+                                rules_table = $('#issue_rules').DataTable(
+                                    {
+                                        "order": [[1, "desc"]],
+                                        "iDisplayLength": -1,
+                                        "bLengthChange": false,
+                                        "columnDefs": [{
+                                            "targets": 0,
+                                            "orderable": false,
+                                            "width": 20
+                                        }, {
+                                            "targets": 1,
+                                            "orderable": true
+                                        }, {
+                                            "targets": 2,
+                                            "orderable": false,
+                                            "width": 135
+                                        }],
+                                        language: {
+                                            searchPlaceholder: "Search...",
+                                            search: ""
+                                        },
+                                        autoWidth: false,
+                                        "paging": false,
+                                        "bInfo": false,
+                                        "initComplete": function (settings, json) {
+                                            div_block = $('#issue_rules_wrapper').children()[0].children[0].children[0];
+                                            div_block.innerHTML = div_block.innerHTML + `<button class="ui icon green button" type="button" onclick="download_selected_issue_rules();" title="Download selected rules" ><i class="download icon "></i></button><button class="ui icon red button" type="button" title="Delete selected rules" onclick="delete_selected_issue_rules();" style="margin-left: 15px;"><i class="trash icon"></i></button>`;
+                                        }
+                                    }
+                                );
+
+                                var data = $.getJSON("/team/{{ current_team['id'] }}/rules.json", function (data) {
+
+                                    row_html = `<tr>
+                                        <td style="width: 20px;">
+                                            <div class="ui fitted big checkbox">
+                                                <input type="checkbox" class="issue_rule_checkbox" data-value="ISSUE_ID">
+                                                <label></label>
+                                            </div>
+                                        </td>
+                                        <td>ISSUE_NAME</td>
+                                        <td style="width: 135px;">
+                                            <a class="ui icon blue button" href="/issue_rule/ISSUE_ID/" target="_blank" rel="noopener noreferrer">
+                                                <i class="linkify icon"></i></i>
+                                            </a>
+                                            <button type="button" onclick="download_issue_rule('ISSUE_ID');" class="ui icon green button">
+                                                <i class="download icon"></i>
+                                            </button>
+                                            <button class="ui icon red button" type="button" onclick="delete_issue_rule('ISSUE_ID');">
+                                                <i class="trash icon"></i>
+                                            </button>
+                                        </td>
+                                    </tr>`;
+                                    for (i = 0; i < data.length; i++) {
+                                        row_tmp = row_html
+                                            .replaceAll('ISSUE_NAME', $('<span>').text(data[i]['name']).html())
+                                            .replaceAll('ISSUE_ID', data[i]['id']);
+                                        rules_table.row.add($(row_tmp));
+                                    }
+                                    rules_table.draw();
+                                });
+                            });
+
+                            function addHiddenField(form, props) {
+                                Object.keys(props).forEach(fieldName => {
+                                    var field = form[fieldName];
+                                    if (!field) {
+                                        field = document.createElement('input');
+                                        field.type = 'hidden';
+                                        field.name = fieldName;
+                                        form.appendChild(field);
+                                    }
+                                    field.value = props[fieldName];
+                                });
+                            }
+
+
+                            function download_issue_rule(rule_id) {
+                                download_form = $('#download_rule_form')[0];
+
+                                // delete old elements
+
+                                var id_count = $('[id=issue_rule_id]');
+                                if (id_count.length > 0) {
+                                    $('[id=issue_rule_id]').remove();
+                                }
+
+
+                                var mi = document.createElement("input");
+                                mi.setAttribute('type', 'hidden');
+                                mi.setAttribute('value', rule_id.toString());
+                                mi.setAttribute('name', "rule_id");
+                                mi.setAttribute('id', "issue_rule_id");
+                                download_form.appendChild(mi);
+
+                                download_form.submit();
+                            }
+
+                            csrf_token = "{{ csrf_token() }}"
+
+                            function delete_issue_rule(rule_id) {
+                                if (confirm("Are you sure to delete an issue rule?")) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '/delete_issue_rules',
+                                        data: {
+                                            'rule_id': rule_id.toString(),
+                                            'csrf_token': csrf_token
+                                        },
+                                        contentType: 'application/x-www-form-urlencoded',
+                                        xhrFields: {
+                                            withCredentials: true
+                                        },
+                                        success: function (data) {
+                                            document.location.reload();
+                                        },
+                                        error: function (data) {
+                                            document.location.reload();
+                                        }
+                                    });
+                                }
+                            }
+
+                            function delete_selected_issue_rules() {
+                                var checkboxes = document.getElementsByClassName("issue_rule_checkbox");
+
+                                var rule_ids = [];
+                                for (var i = 0; i < checkboxes.length; i++) {
+                                    if (checkboxes[i].checked) {
+                                        rule_id = checkboxes[i].dataset["value"];
+                                        rule_ids.push(rule_id)
+                                    }
+                                }
+
+                                if (rule_ids.length > 0) {
+                                    if (confirm("Are you sure to delete " + rule_ids.length.toString() + " issue rules?")) {
+                                        post_data = 'csrf_token=' + csrf_token.toString() + '&';
+                                        for (var i = 0; i < rule_ids.length; i++) {
+                                            post_data += 'rule_id=' + rule_ids[i].toString() + '&';
+                                        }
+
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '/delete_issue_rules',
+                                            data: post_data,
+                                            contentType: 'application/x-www-form-urlencoded',
+                                            xhrFields: {
+                                                withCredentials: true
+                                            },
+                                            success: function (data) {
+                                                document.location.reload();
+                                            },
+                                            error: function (data) {
+                                                document.location.reload();
+                                            }
+                                        });
+                                    }
+                                }
+
+                            }
+
+
+                            function download_selected_issue_rules() {
+                                download_form = $('#download_rule_form')[0];
+
+                                // delete old elements
+
+                                var id_count = $('[id=issue_rule_id]');
+                                if (id_count.length > 0) {
+                                    $('[id=issue_rule_id]').remove();
+                                }
+
+                                var checkboxes = document.getElementsByClassName("issue_rule_checkbox");
+
+                                var rule_ids = [];
+                                for (var i = 0; i < checkboxes.length; i++) {
+                                    if (checkboxes[i].checked) {
+                                        rule_id = checkboxes[i].dataset["value"];
+                                        rule_ids.push(rule_id)
+                                    }
+                                }
+
+                                if (rule_ids.length > 0) {
+
+                                    for (var i = 0; i < rule_ids.length; i++) {
+                                        rule_id = rule_ids[i];
+                                        var mi = document.createElement("input");
+                                        mi.setAttribute('type', 'hidden');
+                                        mi.setAttribute('value', rule_id);
+                                        mi.setAttribute('name', "rule_id");
+                                        mi.setAttribute('id', "issue_rule_id");
+                                        download_form.appendChild(mi);
+                                    }
+
+                                    download_form.submit();
+
+                                }
+                            }
+
+                            checked = true;
+
+                            function select_issue_rules() {
+                                var checkboxes = document.getElementsByClassName("issue_rule_checkbox");
+                                for (var i = 0; i < checkboxes.length; i++) {
+                                    checkboxes[i].checked = checked;
+                                }
+                                checked = !checked;
+                            }
+
+                        </script>
+                        <form method="post" action="/download_issue_rules" id="download_rule_form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        </form>
+                        <div style="width: 100%; height: calc(100% - 200px); overflow: auto;margin-top: 20px">
+                            <table id="issue_rules" class="ui table" style="width:100%">
+                                <thead>
+                                <tr>
+                                    <th style="width: 20px;">
+                                        <div class="ui fitted big checkbox">
+                                            <input type="checkbox" onclick="select_issue_rules();">
+                                            <label></label>
+                                        </div>
+                                    </th>
+                                    <th>Name</th>
+                                    <th style="width: 135px;">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if add_report_errors is defined  and add_report_errors %}
+                            {% for error in add_report_errors %}
+                                <div class="ui error message visible" style="min-width: 300px;">
+                                    <i class="close icon"></i>
+                                    <div class="header">
+                                        There were some errors:
+                                    </div>
+                                    <ul class="list">
+                                        {% for error in add_report_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="column" style="height: 100%">
+                        <h2>Issues templates</h2>
+                        <label>More information about issue templates <a
+                                href="https://gitlab.com/invuls/pentest-projects/pcf/-/wikis/Issue-templates"
+                                target="_blank" rel="noopener noreferrer">here</a>.</label>
+                        <form class="ui form" method="get" action="/new_issue_template">
+                            <input type="hidden" name="team_id" value="{{ current_team['id'] }}">
+                            <div class="ui grid">
+                                <div class="eight wide column">
+                                    <input type="text" name="issue_template_name" required placeholder="New template name">
+                                </div>
+                                <div class="eight wide column">
+                                    <button type="submit" name="action" class="ui vertical animated button blue">
+                                        <div class="hidden content">Add</div>
+                                        <div class="visible content">
+                                            <i class="plus icon"></i>
+                                        </div>
+                                    </button>
+                                    <a type="button" name="action" class="ui vertical animated button orange" href="/import_issue_templates?team_id={{ current_team['id'] }}">
+                                        <div class="hidden content">File</div>
+                                        <div class="visible content">
+                                            <i class="file icon"></i>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                        <script>
+                            $(document).ready(function () {
+                                $('#issue_templates').DataTable(
+                                    {
+                                        "order": [[1, "desc"]],
+                                        "iDisplayLength": -1,
+                                        "bLengthChange": false,
+                                        "columnDefs": [{
+                                            "targets": 0,
+                                            "orderable": false,
+                                            "width": 20
+                                        }, {
+                                            "targets": 1,
+                                            "orderable": true
+                                        }, {
+                                            "targets": 2,
+                                            "orderable": false,
+                                            "width": 135
+                                        }],
+                                        language: {
+                                            searchPlaceholder: "Search...",
+                                            search: ""
+                                        },
+                                        autoWidth: false,
+                                        "paging": false,
+                                        "bInfo": false,
+                                        "initComplete": function (settings, json) {
+                                            div_block = $('#issue_templates_wrapper').children()[0].children[0].children[0];
+                                            div_block.innerHTML = div_block.innerHTML + `<button class="ui icon green button" type="button" title="Download selected templates" onclick="download_selected_issue_templates();"><i class="download icon "></i></button><button class="ui icon red button" title="Delete selected rules" type="button" onclick="delete_selected_issue_template();" style="margin-left: 15px;"><i class="trash icon"></i></button>`;
+                                        }
+                                    }
+                                );
+                            });
+
+                            function addHiddenField(form, props) {
+                                Object.keys(props).forEach(fieldName => {
+                                    var field = form[fieldName];
+                                    if (!field) {
+                                        field = document.createElement('input');
+                                        field.type = 'hidden';
+                                        field.name = fieldName;
+                                        form.appendChild(field);
+                                    }
+                                    field.value = props[fieldName];
+                                });
+                            }
+
+
+                            function download_issue_template(template_id) {
+                                download_form = $('#download_template_form')[0];
+
+                                // delete old elements
+
+                                var id_count = $('[id=issue_template_id]');
+                                if (id_count.length > 0) {
+                                    $('[id=issue_template_id]').remove();
+                                }
+
+
+                                var mi = document.createElement("input");
+                                mi.setAttribute('type', 'hidden');
+                                mi.setAttribute('value', template_id.toString());
+                                mi.setAttribute('name', "template_id");
+                                mi.setAttribute('id', "issue_template_id");
+                                download_form.appendChild(mi);
+
+                                download_form.submit();
+                            }
+
+                            csrf_token = "{{ csrf_token() }}"
+
+                            function delete_issue_template(template_id) {
+                                if (confirm("Are you sure to delete an issue template?")) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '/delete_issue_templates',
+                                        data: {
+                                            'template_id': template_id.toString(),
+                                            'csrf_token': csrf_token
+                                        },
+                                        contentType: 'application/x-www-form-urlencoded',
+                                        xhrFields: {
+                                            withCredentials: true
+                                        },
+                                        success: function (data) {
+                                            document.location.reload();
+                                        },
+                                        error: function (data) {
+                                            document.location.reload();
+                                        }
+                                    });
+                                }
+                            }
+
+                            function delete_selected_issue_template() {
+                                var checkboxes = document.getElementsByClassName("issue_template_checkbox");
+
+                                var template_ids = [];
+                                for (var i = 0; i < checkboxes.length; i++) {
+                                    if (checkboxes[i].checked) {
+                                        template_id = checkboxes[i].dataset["value"];
+                                        template_ids.push(template_id)
+                                    }
+                                }
+
+                                if (template_ids.length > 0) {
+                                    if (confirm("Are you sure to delete " + template_ids.length.toString() + " issue templates?")) {
+                                        post_data = 'csrf_token=' + csrf_token.toString() + '&';
+                                        for (var i = 0; i < template_ids.length; i++) {
+                                            post_data += 'template_id=' + template_ids[i].toString() + '&';
+                                        }
+
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '/delete_issue_templates',
+                                            data: post_data,
+                                            contentType: 'application/x-www-form-urlencoded',
+                                            xhrFields: {
+                                                withCredentials: true
+                                            },
+                                            success: function (data) {
+                                                document.location.reload();
+                                            },
+                                            error: function (data) {
+                                                document.location.reload();
+                                            }
+                                        });
+                                    }
+                                }
+
+                            }
+
+
+                            function download_selected_issue_templates() {
+                                download_form = $('#download_template_form')[0];
+
+                                // delete old elements
+
+                                var id_count = $('[id=issue_template_id]');
+                                if (id_count.length > 0) {
+                                    $('[id=issue_template_id]').remove();
+                                }
+
+                                var checkboxes = document.getElementsByClassName("issue_template_checkbox");
+
+                                var template_ids = [];
+                                for (var i = 0; i < checkboxes.length; i++) {
+                                    if (checkboxes[i].checked) {
+                                        template_id = checkboxes[i].dataset["value"];
+                                        template_ids.push(template_id)
+                                    }
+                                }
+
+                                if (template_ids.length > 0) {
+
+                                    for (var i = 0; i < template_ids.length; i++) {
+                                        template_id = template_ids[i];
+                                        var mi = document.createElement("input");
+                                        mi.setAttribute('type', 'hidden');
+                                        mi.setAttribute('value', template_id);
+                                        mi.setAttribute('name', "template_id");
+                                        mi.setAttribute('id', "issue_template_id");
+                                        download_form.appendChild(mi);
+                                    }
+
+                                    download_form.submit();
+
+                                }
+                            }
+
+                            checked = true;
+
+                            function select_issue_templates() {
+                                var checkboxes = document.getElementsByClassName("issue_template_checkbox");
+                                for (var i = 0; i < checkboxes.length; i++) {
+                                    checkboxes[i].checked = checked;
+                                }
+                                checked = !checked;
+                            }
+
+                        </script>
+                        <form method="post" action="/download_issue_templates" id="download_template_form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        </form>
+                        {% set team_issue_templates = db.select_issue_templates(team_id=current_team['id']) %}
+                        <div style="width: 100%; height: calc(100% - 200px); overflow: auto;margin-top: 20px">
+                            <table id="issue_templates" class="ui table" style="width:100%">
+                                <thead>
+                                <tr>
+                                    <th style="width: 20px;">
+                                        <div class="ui fitted big checkbox">
+                                            <input type="checkbox" onclick="select_issue_templates();">
+                                            <label></label>
+                                        </div>
+                                    </th>
+                                    <th>Name</th>
+                                    <th style="width: 135px;">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for current_template in team_issue_templates %}
+                                    <tr>
+                                        <td style="width: 20px;">
+                                            <div class="ui fitted big checkbox">
+                                                <input type="checkbox" class="issue_template_checkbox" data-value="{{ current_template['id'] }}">
+                                                <label></label>
+                                            </div>
+                                        </td>
+                                        <td>{{ (current_template['tpl_name']) }}</td>
+                                        <td style="width: 135px;">
+                                            <a class="ui icon blue button" href="/issue_template/{{ current_template['id'] }}/" target="_blank" rel="noopener noreferrer">
+                                                <i class="linkify icon"></i></i>
+                                            </a>
+                                            <button type="button" onclick="download_issue_template('{{ current_template['id'] }}');" class="ui icon green button">
+                                                <i class="download icon"></i>
+                                            </button>
+                                            <button class="ui icon red button" type="button" onclick="delete_issue_template('{{ current_template['id'] }}');">
+                                                <i class="trash icon"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if add_report_errors is defined  and add_report_errors %}
+                            {% for error in add_report_errors %}
+                                <div class="ui error message visible" style="min-width: 300px;">
+                                    <i class="close icon"></i>
+                                    <div class="header">
+                                        There were some errors:
+                                    </div>
+                                    <ul class="list">
+                                        {% for error in add_report_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include 'header.html' %}
+{% if external_js %}
+    <script src="https://cdn.quilljs.com/2.0.0-dev.4/quill.min.js"></script>
+{% else %}
+    <script src="/static/js/quill.min.js"></script>
+{% endif %}
+{% if external_css %}
+    <link href="https://cdn.quilljs.com/2.0.0-dev.4/quill.snow.css" rel="stylesheet">
+{% else %}
+    <link href="/static/css/quill.snow.css" rel="stylesheet">
+{% endif %}
+
+<body>
+<div id="segment_id">
+    {% include 'menu.html' %}
+    <div class="ui grid" style="height: 100%">
+        <div class="ui column" style="width: 75px; padding-top: 50px;">
+            {% include 'project/sidebar.html' %}
+        </div>
+        <div class="ui column" style="width: calc(100% - 75px); height: 100%;">
+            <div>
+                <h1 class="ui header" style="float: left">Notes</h1>
+                <form style="float:right" action="/project/{{ current_project['id'] }}/notes/add" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="ui action input" style="float:right">
+                        <input name="name" type="text" required maxlength="20" placeholder="Note name">
+                        <button type="submit" class="ui button blue"><i class="plus icon"></i>Add</button>
+                    </div>
+                </form>
+            </div>
+            <div class="ui divider" style="float:left; width: 100%"></div>
+            <script>
+                $(document)
+                    .ready(function () {
+                        $('.menu .item').tab({
+                            history: true
+                        });
+                    });
+                var editor_array = [''];
+                var quill_array = [''];
+
+                function submitnote(number, note_id, action, name = '') {
+                    if (action === 'Delete') {
+                        if (delete_prompt(this, 'Are you sure to delete note?') == false) {
+                            return false;
+                        }
+                    }
+                    if (action === 'Rename') {
+                        if (delete_prompt(this, 'Did you save note before renaming?') == false) {
+                            return false;
+                        }
+                        $.ajax({
+                            url: '/project/{{current_project['id']}}/notes/edit',
+                            type: 'post',
+                            async: false,
+                            cache: false,
+                            data: {
+                                'csrf_token': '{{ csrf_token() }}',
+                                'note_id': note_id,
+                                'action': action,
+                                'text': name
+                            },
+                            success: function (data) {
+                                window.location.reload(true);
+                            }
+                        });
+                    } else {
+                        $.ajax({
+                            url: '/project/{{current_project['id']}}/notes/edit',
+                            type: 'post',
+                            async: false,
+                            cache: false,
+                            data: {
+                                'csrf_token': '{{ csrf_token() }}',
+                                'note_id': note_id,
+                                'action': action,
+                                'text': editor_array[number][0].childNodes[0].innerHTML
+                            },
+                            success: function (data) {
+                                $('body')
+                                    .toast({
+                                        class: 'success',
+                                        position: 'bottom left',
+                                        message: `Note was updated!`
+                                    });
+                            }
+                        });
+                    }
+                    ;
+                    if (action === 'Delete') {
+                        setTimeout(function () {
+                        }, 3000);
+                        window.location.reload(true);
+                    }
+                };
+
+                function delete_prompt(func, message) {
+                    if (confirm(message))
+                        return true;
+                    return false;
+                };
+
+                var Parchment = Quill.import("parchment");
+
+                let CustomClass = new Parchment.constructor('custom', 'ql-custom', {
+                    scope: Parchment.Scope.INLINE
+                });
+
+                Quill.register(CustomClass, true);
+            </script>
+
+
+            <div class="ui container" style="width: 100%;height: calc(100% - 100px);float: left;">
+                <div class="ui grid" style="height: 100%">
+                    <div class="column" style="width: 200px; height: 100%; overflow: auto;">
+                        <div class="ui vertical fluid tabular menu" style="min-width: 120px;">
+                            {% set notes_arr = db.select_project_notes(current_project['id']) %}
+                            {% for current_note in notes_arr %}
+                                <a class="item" data-tab="note_{{ current_note['id'] }}" style="margin-left: 10px;">
+                                    {{ (current_note['name']) }}<i class="edit outline icon"></i>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="column" style="width: calc(100% - 200px);  height: 100%;">
+                        {% for current_note in notes_arr %}
+                            <div class="ui tab" data-tab="note_{{ current_note['id'] }}" style="height: 100%;">
+                                <form id="note-form-{{ loop.index }}" style="height: 100%"
+                                      action="/project/{{ current_project['id'] }}/notes/edit" method="post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <input type="hidden" name="note_id" value="{{ (current_note['id']) }}"/>
+                                    <textarea type="hidden" id="textarea-{{ loop.index }}" style="display: none;">{{ current_note['text'] }}</textarea>
+                                    <div style="float: left; margin-bottom: 15px; width: 100%; height: calc(100% - 10px)">
+                                        <div id="toolbar-container_{{ loop.index }}">
+                                            <span class="ql-formats">
+                                              <select class="ql-font"></select>
+                                              <select class="ql-size"></select>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <button class="ql-bold"></button>
+                                              <button class="ql-italic"></button>
+                                              <button class="ql-underline"></button>
+                                              <button class="ql-strike"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <select class="ql-color"></select>
+                                              <select class="ql-background"></select>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <button class="ql-script" value="sub"></button>
+                                              <button class="ql-script" value="super"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <button class="ql-header" value="1"></button>
+                                              <button class="ql-header" value="2"></button>
+                                              <button class="ql-blockquote"></button>
+                                              <button class="ql-code-block"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <button class="ql-list" value="ordered"></button>
+                                              <button class="ql-list" value="bullet"></button>
+                                              <button class="ql-indent" value="-1"></button>
+                                              <button class="ql-indent" value="+1"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <button class="ql-direction" value="rtl"></button>
+                                              <select class="ql-align"></select>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <button class="ql-link"></button>
+                                              <button class="ql-image"></button>
+                                              <button class="ql-video"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                              <button class="ql-clean"></button>
+                                              <button type="button" id="ql-print-{{ loop.index }}"><i class="ui icon print"></i></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-table" title="Insert table"></button>
+                                                <button type="button" style="float: left;" id="insert-row-below-{{ loop.index }}"  title="Insert row below">
+                                                    <i class="ui icon arrow down" style="cursor:pointer;"></i>
+                                                </button>
+
+                                                <button type="button" style="float: left;" id="insert-row-above-{{ loop.index }}"  title="Insert row above">
+                                                    <i class="ui icon arrow up" style="cursor:pointer;"></i>
+                                                </button>
+                                                <button type="button" style="float: left;" id="insert-column-left-{{ loop.index }}"  title="Insert column left">
+                                                    <i class="ui icon arrow left" style="cursor:pointer;"></i>
+                                                </button>
+
+                                                <button type="button" style="float: left;" id="insert-column-right-{{ loop.index }}"  title="Insert column right">
+                                                    <i class="ui icon arrow right" style="cursor:pointer;"></i>
+                                                </button>
+
+                                                <button type="button" style="float: left;" id="delete-row-{{ loop.index }}"  title="Delete row">
+                                                    <i class="ui icon fast backward rotated" style="cursor:pointer;"></i>
+                                                </button>
+
+
+                                                <button type="button" style="float: left;" id="delete-column-{{ loop.index }}"  title="Delete column">
+                                                    <i class="ui icon fast backward" style="cursor:pointer;"></i>
+                                                </button>
+                                                <button type="button" style="float: left;" id="delete-table-{{ loop.index }}"  title="Delete table">
+                                                    <i class="ui icon trash alternate" style="cursor:pointer;"></i>
+                                                </button>
+
+                                            </span>
+                                        </div>
+                                        <div id="editor_{{ loop.index }}" name="text" style="height: calc(100% - 70px); max-height: calc(100% - 70px); overflow: auto;"></div>
+                                    </div>
+                                    <div class="ui checkbox">
+                                        <input type="checkbox" id="checkbox-{{ loop.index }}" name="checkbox">
+                                        <label>Autosave (15 seconds)</label>
+                                    </div>
+                                    <button name="action" type="button" value="Delete"
+                                            onclick="submitnote({{ loop.index }}, '{{ current_note['id'] }}', 'Delete');"
+                                            class="ui button red" style="float: right"><i class="ui trash icon"></i>Delete
+                                    </button>
+                                    <button name="action" type="button" value="Update" class="ui button purple"
+                                            style="float: right"
+                                            onclick="submitnote({{ loop.index }}, '{{ current_note['id'] }}', 'Update');">
+                                        <i class="ui sync icon"></i>Update
+                                    </button>
+                                    <div class="ui action input" style="float: right; margin-right:10px;">
+                                        <input type="text" required maxlength="20" placeholder="Note name" value="{{ (current_note['name']) }}" id="node_name_{{ loop.index }}">
+                                        <button type="button" class="ui icon blue button" onclick="submitnote(0,'{{ current_note['id'] }}','Rename', document.getElementById('node_name_{{ loop.index }}').value);">
+                                            <i class="edit icon"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <script>
+
+                                document.getElementById('node_name_{{ loop.index }}').addEventListener('keydown', function (k) {
+                                    if (k.keyCode == 13) return false;
+                                });
+
+                                var quill_{{ loop.index }} = new Quill('#editor_{{loop.index}}', {
+                                    modules: {
+                                        syntax: true,
+                                        toolbar: '#toolbar-container_{{ loop.index }}',
+                                        table: true
+                                    },
+                                    placeholder: 'Compose an epic...',
+                                    theme: 'snow',
+                                    height: '500px',
+
+                                });
+
+                                // table options
+
+                                const table_{{ loop.index }} = quill_{{ loop.index }}.getModule('table');
+                                document.querySelector('#insert-row-above-{{ loop.index }}').addEventListener('click', function () {
+                                    table_{{ loop.index }}.insertRowAbove();
+                                });
+                                document.querySelector('#insert-row-below-{{ loop.index }}').addEventListener('click', function () {
+                                    table_{{ loop.index }}.insertRowBelow();
+                                });
+                                document.querySelector('#insert-column-left-{{ loop.index }}').addEventListener('click', function () {
+                                    table_{{ loop.index }}.insertColumnLeft();
+                                });
+                                document.querySelector('#insert-column-right-{{ loop.index }}').addEventListener('click', function () {
+                                    table_{{ loop.index }}.insertColumnRight();
+                                });
+                                document.querySelector('#delete-row-{{ loop.index }}').addEventListener('click', function () {
+                                    table_{{ loop.index }}.deleteRow();
+                                });
+                                document.querySelector('#delete-column-{{ loop.index }}').addEventListener('click', function () {
+                                    table_{{ loop.index }}.deleteColumn();
+                                });
+                                document.querySelector('#delete-table-{{ loop.index }}').addEventListener('click', function () {
+                                    table_{{ loop.index }}.deleteTable();
+                                });
+
+
+                                var customButton = document.querySelector('#ql-print-{{ loop.index }}');
+                                customButton.addEventListener('click', function () {
+                                    window.open('/project/{{ current_project['id'] }}/print_note/{{ current_note['id'] }}/', '_blank').focus();
+                                });
+
+                                text_val = $('#textarea-{{ loop.index }}')[0].value;
+                                delta = quill_{{ loop.index }}.clipboard.convert({html: text_val});
+
+                                quill_{{ loop.index }}.setContents(delta, 'silent');
+
+                                //editor_array.push(editor);
+                                //editor_array.push(quill);
+                                editor_array.push($('#editor_{{loop.index}}'));
+                                quill_array.push(quill_{{ loop.index }});
+
+                                function autosubmit_{{loop.index}}() {
+                                    if ($('#checkbox-{{loop.index}}').is(":checked")) {
+                                        submitnote({{loop.index}}, '{{current_note['id']}}', 'Update');
+                                    }
+                                }
+
+                                var interval = setInterval(autosubmit_{{loop.index}}, 15000);
+
+                            </script>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+
+        </script>
+        {% include 'footer.html' %}
+    </div>
+</div>
+</body>
+</html>

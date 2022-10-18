@@ -1,0 +1,133 @@
+1. project
+	1.1 name
+	1.2 start_date
+	1.3 end_date
+	1.4 testers {user_id}
+		1.4.1 email
+		1.4.2 fname
+		1.4.3 lname
+	1.5 folder
+	1.6 report_title
+	1.7 description
+		
+2. issues {issue_id}
+	2.1 name
+	2.2 cve
+	2.3 cwe
+	2.4 cvss
+	2.5 criticality [critical, high, medium, low, info]
+	2.6 services {port_id}
+		2.6.1 ip
+		2.6.2 is_ip   # True/False
+		2.6.3 hostnames [hostname_id,...]
+	2.7 description
+	2.8 url_path
+	2.9 pocs [poc_id,...]
+	2.10 status
+	2.11 type # custom/web/credentials/service
+	2.12 fix
+	2.13 param
+	2.14 fields {field_name,...}
+	    2.14.1 value
+	    2.14.2 type # text/number/float/boolean
+	2.15 technical
+	2.16 risks
+	2.17 references
+	2.18 intruder
+	
+3. hosts {host_ip}
+	3.0 ip
+	3.1 hostnames[hostname_id,...]
+	3.2 ports [port_id,...]
+	3.3 comment
+	3.4 issues [issue_id,...]
+
+4. pocs {poc_id}
+	4.1 filename
+	4.2 comment
+	4.3 url
+	4.4 path
+	4.5 content
+	4.6 content_base64
+	4.7 content_hex
+	4.8 content_image # image without resize (only docx)
+	4.9 service {port_id}
+		4.9.1 ip
+		4.9.2 is_ip   # True/False
+		4.9.3 hostnames [hostname_id,...]
+	4.10 filetype # text/image
+	4.11 priority # 0/1
+	
+5. ports {port_id}
+	5.1 port
+	5.2 is_tcp  # True / False
+	5.3 comment
+	5.4 service
+
+6. hostnames {hostname_id}
+	6.1 hostname
+	6.2 comment
+
+7. grouped_issues {issue_name}
+	7.1 issues [issue_id,...]
+
+8. functions {function_name}
+    8.1 format_date
+
+9. notes {note_id}
+    9.1 name
+    9.2 host_id (or  '')
+    9.3 html
+    9.4 markdown
+10. paths {path_id}
+    10.1 host_out
+    10.2 network_out
+    10.3 host_in
+    10.4 network_in
+    10.5 description
+    10.6 type
+
+11. networks {network_id}
+    11.1 name
+    11.2 ip
+    11.3 mask
+    11.4 comment
+    11.5 is_ipv6
+    11.6 asn
+    11.7 access_from {port_id}
+		11.7.1 ip
+		11.7.2 is_ip   # True/False
+		11.7.3 hostnames [hostname_id,...]
+    11.8 internal_ip
+    11.9 cmd
+
+12. credentials {creds_id}
+	12.1 login
+	12.2 hash
+	12.3 hash_type
+	12.4 cleartext
+	12.5 description
+	12.5 source
+	12.6 service {port_id}
+		12.6.1 ip
+		12.6.2 is_ip   # True/False
+		12.6.3 hostnames [hostname_id,...]
+
+13. tasks {task_id}
+	13.1 name
+	13.2 description
+	13.3 start_date # unix_time
+	13.4 finish_date # unix_time
+	13.5 criticality # info/low/medium/high/critical
+	13.6 status # todo/progress/review/done
+	13.7 users # [user_id,...]
+	13.8 teams # [team_id,...]
+	13.9 services # {port_id:["0", hostname_id],...}
+
+
+Functions
+
+latex_escape(s: str) -> str # escape string to insert it inside latex template
+docx_image(image_id: poc_uuid, width=None: millimeters, height=None: millimeters) # insert image to docx with resizing
+format_date(unix_time: int, str_format: str) -> str # convert UNIX-time into date string
+ips_in_subnets(ips_arr: list, networks_arr: list) -> bool # If at least 1 ip is at least in 1 network

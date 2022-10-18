@@ -1,0 +1,141 @@
+<script>
+    $(document).ready(function () {
+        path = window.location.pathname;
+        elem_id = 'menu_stats';
+        if (path.includes('/host')) {
+            elem_id = 'menu_hosts';
+        } else if (path.includes('/services/')) {
+            elem_id = 'menu_services';
+        } else if (path.includes('/networks/')) {
+            elem_id = 'menu_networks';
+        } else if (path.includes('/issue')) {
+            elem_id = 'menu_issues';
+        } else if (path.includes('/files/')) {
+            elem_id = 'menu_files';
+        } else if (path.includes('/tools/')) {
+            elem_id = 'menu_tools';
+        } else if (path.includes('/credentials/')) {
+            elem_id = 'menu_creds';
+        } else if (path.includes('/notes/')) {
+            elem_id = 'menu_notes';
+        } else if (path.includes('/chats/')) {
+            elem_id = 'menu_chats';
+        } else if (path.includes('/reports/')) {
+            elem_id = 'menu_reports';
+        } else if (path.includes('/settings/')) {
+            elem_id = 'menu_settings';
+        }
+        ;
+        console.log(elem_id);
+        document.getElementById(elem_id).classList.add("active");
+
+        $('#sidebar').sticky({context: '#segment_id'});
+        $('#up_down_buttons').sticky({context: '#segment_id'});
+
+
+    });
+</script>
+
+<style>
+    .ui.menu:last-child {
+        margin-bottom: 0px;
+    }
+
+    #segment_id {
+        height: calc(100% - 26px);
+    }
+</style>
+{% set project_counters = db.select_project_stats_divbar(current_project['id']) %}
+<div class="ui sticky" id="sidebar" style="padding-right: 15px; z-index: 999;">
+    <div class="ui vertical icon menu sidebar_menu" style="margin-top: 0px;" id="sidebar_menu">
+        <div data-tooltip="Statistics" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/" class="red item" id="menu_stats">
+                <i class="bar chart large icon"></i>
+            </a>
+        </div>
+        <div data-tooltip="Hosts" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/hosts/" class="orange item" id="menu_hosts">
+                <i class="server large icon"></i>
+                {% if project_counters['hosts_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['hosts_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Services" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/services/" class="yellow item" id="menu_services">
+                <i class="fork large icon"></i>
+                {% if project_counters['services_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['services_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Networks" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/networks/" class="olive item" id="menu_networks">
+                <i class="sitemap large icon"></i>
+                {% if project_counters['networks_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['networks_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Issues" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/issues/" class="green item" id="menu_issues">
+                <i class="bug large icon"></i>
+                {% if project_counters['issues_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['issues_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Files" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/files/" class="teal item" id="menu_files">
+                <i class="folder open large icon"></i>
+                {% if project_counters['files_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['files_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Tools" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/tools/" class="blue item" id="menu_tools">
+                <i class="wrench large icon"></i>
+            </a>
+        </div>
+        <div data-tooltip="Credentials" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/credentials/" class="violet item" id="menu_creds">
+                <i class="users large icon"></i>
+                {% if project_counters['creds_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['creds_counter'] }}</div>
+                {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Notes" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/notes/" class="purple item" id="menu_notes">
+                <i class="sticky note outline large icon"></i>
+                {% if project_counters['notes_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['notes_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Chats" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/chats/" class="pink item" id="menu_chats">
+                <i class="comments large icon"></i>
+                {% if project_counters['chats_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['chats_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Reports" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/reports/" class="brown item" id="menu_reports">
+                <i class="file pdf large icon"></i>
+                {% if project_counters['reports_counter'] %}
+                    <div class="floating ui grey label tiny" style="margin-top:10px;z-index: 999;">{{ project_counters['reports_counter'] }}</div> {% endif %}
+            </a>
+        </div>
+        <div data-tooltip="Settings" data-position="right center" data-inverted="">
+            <a href="/project/{{ current_project['id'] }}/settings/" class="grey item" id="menu_settings">
+                <i class="cog large icon"></i>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<div class="ui vertical icon menu scroll_menu" style="position:fixed; bottom:10px;left:17px;" id="scroll_menu">
+    <a onclick="window.scrollTo(0,0);" class="red item">
+        <i class="arrow up icon"></i>
+    </a>
+    <a onclick="window.scrollTo(0,document.body.scrollHeight);" class="green item" >
+        <i class="arrow down icon"></i>
+    </a>
+</div>
