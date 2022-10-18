@@ -11,7 +11,7 @@ RUN mkdir /pcf
 
 ADD . /pcf
 
-RUN chown -r 1001:1001 /pcf
+RUN chown -R 1001:1001 /pcf
 
 WORKDIR /pcf
 
