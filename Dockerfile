@@ -7,6 +7,11 @@ FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
 
 USER 0
 
+RUN dnf update -y --nodocs && \
+    dnf install -y git gcc gcc-c++ make && \
+    dnf clean all && \
+    rm -rf /var/cache/yum
+
 RUN mkdir /pcf
 
 ADD . /pcf
