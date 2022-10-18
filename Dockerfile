@@ -5,11 +5,17 @@ ARG BASE_TAG=latest
 
 FROM ${BASE_REGISTRY}/${BASE_IMAGE}:${BASE_TAG}
 
+USER 0
+
 RUN mkdir /pcf
 
 ADD . /pcf
 
+RUN chown -r 1001:1001 /pcf
+
 WORKDIR /pcf
+
+USER 1001
 
 RUN pip install -r requirements_unix.txt
 
