@@ -738,21 +738,7 @@ class ExportHosts(FlaskForm):
     service = StringField('service', default='')
     issue_name = StringField('issue_name', default='')
     comment = StringField('comment', default='')
-    threats = SelectMultipleField('threats', choices=[('high', 'high'),
-                                                      ('medium', 'medium'),
-                                                      ('low', 'low'),
-                                                      ('info', 'info'),
-                                                      ('check', 'check'),
-                                                      ('checked', 'checked'),
-                                                      ('noscope', 'noscope'),
-                                                      ("recheck", "recheck"),
-                                                      ("firewall", "firewall"),
-                                                      ("offline", "offline"),
-                                                      ("inwork", "inwork"),
-                                                      ("scope", "scope"),
-                                                      ("critical", "critical"),
-                                                      ("slow", "slow")
-                                                      ])
+    threats = NonValidatingSelectMultipleField('threads')
     separator = StringField('separator', default='[newline]')
     filename = StringField('filename', default='export')
     filetype = StringField('filetype',
@@ -814,7 +800,20 @@ class ReportGenerate(FlaskForm):
                               default='')
     file = FileField('file',
                      validators=[])
+
+    example_template = StringField('example_template',
+                                   validators=[AnyOf([
+                                       '',
+                                       "./documentation/report/examples/security_analysis_docx/example.docx",
+                                       "./documentation/report/examples/security_analysis_latex/security_analysis_latex.zip",
+                                       "./documentation/report/examples/simple_txt/ip_hostnames_list.txt",
+                                       "./documentation/report/examples/simple_txt/ip_port_list_csv.txt"
+                                   ])],
+                                   default='',
+                                   )
+
     extentions = StringField('extentions',
+
                              validators=[],
                              default='')
 
