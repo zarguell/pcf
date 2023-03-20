@@ -2494,7 +2494,8 @@ def shodan_page_form(project_id, current_project, current_user):
                                 if "vulns" in shodan_json:
                                     vulns = shodan_json['vulns']
                                     for cve in vulns:
-                                        cvss = float(vulns[cve]['cvss']) if 'cvss' in vulns[cve] and vulns[cve]['cvss'] else 0
+                                        cvss = float(vulns[cve]['cvss']) if 'cvss' in vulns[cve] and vulns[cve][
+                                            'cvss'] else 0
                                         summary = str(vulns[cve]['summary']) if 'summary' in vulns[cve] else ''
                                         services = {port_id: ["0"]}
 
@@ -5976,26 +5977,29 @@ def pingcastle_page_form(project_id, current_project, current_user):
                 risk_rules = scan_obj.riskrules
                 for risk_obj in risk_rules.findAll('healthcheckriskrule'):
                     issue_points = int(risk_obj.points.text)
-                    issue_category = risk_obj.category.text  # PrivilegedAccounts
-                    issue_model = risk_obj.model.text  # AccountTakeOver
-                    issue_riskid = risk_obj.riskid.text.replace('-', '_')  # A_AdminSDHolder
+                    issue_category = risk_obj.category.text  # PrivilegedAccounts / Anomalies
+                    issue_model = risk_obj.model.text  # AccountTakeOver / GoldenTicket
+                    issue_riskid = risk_obj.riskid.text.replace('-', '_')  # A_AdminSDHolder / A-Krbtgt
                     issue_briefly = risk_obj.rationale.text
-                    issue_links = issues_database[issue_riskid + '_Documentation'].replace(' ', '') if (
-                                                                                                               issue_riskid + '_Documentation') in issues_database else ''
-                    issue_purpose = issues_database[issue_riskid + '_Description'] if (
-                                                                                              issue_riskid + '_Description') in issues_database else ''
-                    issue_fix = issues_database[issue_riskid + '_Solution'] if (
-                                                                                       issue_riskid + '_Solution') in issues_database else ''
-                    issue_technical_description = issues_database[issue_riskid + '_TechnicalExplanation'] if (
-                                                                                                                     issue_riskid + '_TechnicalExplanation') in issues_database else ''
-                    issue_name = 'PingCastle: {}'.format(issues_database[issue_riskid + '_Title'] if (
-                                                                                                             issue_riskid + '_Title') in issues_database else risk_obj.riskid.text)
+                    issue_links = issues_database[issue_riskid + '_Documentation'].replace(' ', '') \
+                        if (issue_riskid + '_Documentation') in issues_database else ''
+                    issue_purpose = issues_database[issue_riskid + '_Description'] \
+                        if (issue_riskid + '_Description') in issues_database else ''
+                    issue_fix = issues_database[issue_riskid + '_Solution'] \
+                        if (issue_riskid + '_Solution') in issues_database else ''
+                    issue_technical_description = issues_database[issue_riskid + '_TechnicalExplanation'] \
+                        if (issue_riskid + '_TechnicalExplanation') in issues_database else ''
+                    issue_name = 'PingCastle: {}'.format(
+                        issues_database[issue_riskid + '_Title']
+                        if (issue_riskid + '_Title') in issues_database else risk_obj.riskid.text
+                    )
 
-                    issue_full_description = 'Brief: {}\n\nTechnical information: {}\n\nTest purpose: {}\n\nLinks: \n{}'.format(
+                    issue_full_description = 'Brief: {}\n\nTest purpose: {}\n\nPoints: {}\nCategory: {}\nModel:{}'.format(
                         issue_briefly,
-                        issue_technical_description,
                         issue_purpose,
-                        issue_links
+                        issue_points,
+                        issue_category,
+                        issue_model
                     )
                     if issue_points < 1:
                         issue_cvss = 0
@@ -6008,7 +6012,9 @@ def pingcastle_page_form(project_id, current_project, current_user):
 
                     issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_full_description, '', issue_cvss,
                                                                 current_user['id'], dc_ports_dict, 'need to recheck',
-                                                                current_project['id'], fix=issue_fix)
+                                                                current_project['id'], fix=issue_fix,
+                                                                technical=issue_technical_description,
+                                                                references=issue_links)
     return render_template('project/tools/import/pingcastle.html',
                            current_project=current_project,
                            tab_name='PingCastle',
@@ -6254,7 +6260,6 @@ def aiodnsbrute_page_form(project_id, current_project, current_user):
 
     if not errors:
 
-
         # json files
         for file in form.json_files.data:
             if file.filename:
@@ -6273,7 +6278,7 @@ def aiodnsbrute_page_form(project_id, current_project, current_user):
                     for ip_str in ip_list_tmp:
                         try:
                             ip_obj = ipaddress.ip_address(ip_str)
-                            if not(ip_obj.version == 6 and form.ignore_ipv6.data == 1):
+                            if not (ip_obj.version == 6 and form.ignore_ipv6.data == 1):
                                 ip_list.append(ip_str)
                         except:
                             pass
@@ -6291,15 +6296,16 @@ def aiodnsbrute_page_form(project_id, current_project, current_user):
                                 host_id = host_id[0]['id']
                             else:
                                 host_id = db.insert_host(current_project['id'],
-                                               ip_str, current_user['id'],
-                                               form.hosts_description.data)
+                                                         ip_str, current_user['id'],
+                                                         form.hosts_description.data)
 
                             hostnames_existed = [x['hostname'] for x in db.select_ip_hostnames(host_id)]
 
                             for hostname_new in hostnames_list:
                                 if hostname_new not in hostnames_existed:
-                                    hostname_id = db.insert_hostname(host_id,hostname_new, form.hostnames_description.data,current_user['id'])
-
+                                    hostname_id = db.insert_hostname(host_id, hostname_new,
+                                                                     form.hostnames_description.data,
+                                                                     current_user['id'])
 
         # csv load
         for file in form.csv_files.data:
@@ -6344,8 +6350,6 @@ def aiodnsbrute_page_form(project_id, current_project, current_user):
                                 hostname_id = db.insert_hostname(host_id, hostname_new,
                                                                  form.hostnames_description.data,
                                                                  current_user['id'])
-
-
 
     return render_template('project/tools/import/aiodnsbrute.html',
                            current_project=current_project,

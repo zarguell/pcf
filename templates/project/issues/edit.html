@@ -513,7 +513,7 @@
 
     </script>
 
-    <div class="ui modal">
+    <div class="ui modal" style="position: absolute; left: 30%; height: auto; top: 30%;">
         <div class="header" id="poc_header">
             Upload PoC: 1 of 1
         </div>
@@ -572,11 +572,11 @@
                 </form>
             </div>
         </div>
-        <div class="ui indicating progress" id="progress_bar" style="width: 90%; margin-left: auto; margin-right: auto;">
+        <div class="ui active progress" id="progress_bar" style="width: 90%; margin-left: auto; margin-right: auto; height: 50px;">
             <div class="bar">
-                <div class="progress"></div>
+                <div class="progress" style="top:20px; overflow: initial; background: unset; top: 20px;"></div>
             </div>
-            <div class="label">Uploading file</div>
+            <div class="label" style="top: 35px; border: unset !important; background-color: unset !important;">Uploading file</div>
         </div>
         <div class="actions">
             <button class="ui black deny button" id="next_file_button">
