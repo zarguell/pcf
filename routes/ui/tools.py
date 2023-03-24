@@ -635,7 +635,6 @@ def nessus_page_form(project_id, current_project, current_user):
                 # 5. Add issues
 
                 db_issues = db.select_project_issues(current_project['id'])
-                issues_list = []
                 issues_update_services = {}  # {issue_id:{port_id:["0",hostname_id]}}
                 issue_create_list = []
                 for host in scan_result.hosts:
@@ -664,9 +663,9 @@ def nessus_page_form(project_id, current_project, current_user):
                         plugin_id = int(issue.plugin_id)
                         issue_name = 'Nessus: {}'.format(issue.plugin_name)
                         issue_output = ''
-                        if hasattr(issue,
-                                   '__vuln_info') and 'description' in issue.__vuln_info and issue.description.strip(
-                            '\n') != '':
+                        if hasattr(issue, '__vuln_info') and \
+                                'description' in issue.__vuln_info and \
+                                issue.description.strip('\n') != '':
                             issue_output = issue.description.strip('\n')
                         elif 'plugin_output' in issue.get_vuln_info and issue.get_vuln_info['plugin_output']:
                             issue_output = issue.get_vuln_info['plugin_output'].strip('\n')
@@ -674,16 +673,28 @@ def nessus_page_form(project_id, current_project, current_user):
                             issue_info = issue.synopsis
                         except KeyError:
                             issue_info = ''
-                        issue_description = 'Plugin name: {}\r\n\r\nInfo: \r\n{} \r\n\r\nOutput: \r\n {}'.format(
-                            issue.plugin_name,
-                            issue_info,
-                            issue_output)
-                        issue_cve = issue.cve.replace('[', '').replace(']', '').replace("'", '').replace(",",
-                                                                                                         ', ') if issue.cve else ''
+
+                        if form.add_technical_info.data:
+                            issue_description = 'Plugin name: {}\r\n\r\nInfo: \r\n{} \r\n\r\nOutput: \r\n {}'.format(
+                                issue.plugin_name,
+                                issue_info,
+                                issue_output
+                            )
+                        else:
+                            issue_description = 'Plugin name: {}\r\n\r\nInfo: \r\n{} \r\n'.format(
+                                issue.plugin_name,
+                                issue_info
+                            )
+                        issue_cve = issue.cve \
+                            .replace('[', '') \
+                            .replace(']', '') \
+                            .replace("'", '') \
+                            .replace(",", ', ') if issue.cve else ''
                         issue_severity = float(issue.severity)
 
-                        if issue_severity == 0 and ('risk_factor' not in issue.get_vuln_info or issue.get_vuln_info[
-                            'risk_factor'] == 'None'):
+                        if issue_severity == 0 and \
+                                ('risk_factor' not in issue.get_vuln_info or
+                                 issue.get_vuln_info['risk_factor'] == 'None'):
                             issue_cvss = 0
                         elif 'cvss3_base_score' in issue.get_vuln_info:
                             issue_cvss = float(issue.get_vuln_info['cvss3_base_score'])
@@ -696,8 +707,8 @@ def nessus_page_form(project_id, current_project, current_user):
                         issue_status = 'need to check'
                         issue_cwe = 0
                         issue_type = 'custom'
-                        issue_fix = issue.solution if hasattr(issue,
-                                                              '__vuln_info') and 'solution' in issue.__vuln_info else ''
+                        issue_fix = issue.solution if hasattr(issue, '__vuln_info') and \
+                                                      'solution' in issue.__vuln_info else ''
                         issue_param = ''
 
                         # prepare services

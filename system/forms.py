@@ -639,6 +639,7 @@ class NmapForm(FlaskForm):
 class NessusForm(FlaskForm):
     xml_files = MultipleFileField('xml_files')
     add_info_issues = IntegerField('add_info_issues', default=0)
+    add_technical_info = IntegerField('add_technical_info', default=1)
     hosts_description = StringField('hosts_description', default='Added from Nessus scan')
     hostnames_description = StringField('hostnames_description', default='Added from Nessus scan')
     ports_description = StringField('ports_description', default='Added from Nessus scan')
