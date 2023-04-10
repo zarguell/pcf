@@ -568,7 +568,7 @@
                                                 <div class="field">
                                                     <div class="ui input">
                                                         <input type="{% if fields[field_name]['type'] == 'text' %}text{% else %}number{% endif %}"
-                                                               value="{% if fields[field_name]['type'] == 'text' %}{{ fields[field_name]['value'] }}{% else %}{{ fields[field_name]['value'] | int }}{% endif %}" placeholder="Field value" name="additional_field_value">
+                                                               value="{% if fields[field_name]['type'] == 'text' %}{{ fields[field_name]['val'] }}{% else %}{{ fields[field_name]['val'] | int }}{% endif %}" placeholder="Field value" name="additional_field_value">
                                                     </div>
                                                 </div>
                                                 <div class="field">
@@ -631,7 +631,7 @@
                                                 <div class="field">
                                                     <div class="ui input">
                                                         <input type="{% if variables[variable_name]['type'] == 'text' %}text{% else %}number{% endif %}" placeholder="Default value" name="variable_value"
-                                                               value="{% if variables[variable_name]['type'] == 'text' %}{{ variables[variable_name]['value'] }}{% else %}{{ variables[variable_name]['value'] | int }}{% endif %}">
+                                                               value="{% if variables[variable_name]['type'] == 'text' %}{{ variables[variable_name]['val'] }}{% else %}{{ variables[variable_name]['val'] | int }}{% endif %}">
                                                     </div>
                                                 </div>
                                                 <div class="field">

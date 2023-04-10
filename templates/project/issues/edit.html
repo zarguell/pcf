@@ -1322,17 +1322,17 @@
                                                         <div class="ui input">
                                                             {% if fields[field_name]['type'] == 'text' %}
                                                                 <input type="text"
-                                                                       value="{{ (fields[field_name]['value']) }}"
+                                                                       value="{{ (fields[field_name]['val']) }}"
                                                                        placeholder="Field value"
                                                                        name="additional_field_value">
                                                             {% elif fields[field_name]['type'] == 'float' %}
                                                                 <input type="number" step="any"
-                                                                       value="{{ fields[field_name]['value'] | float }}"
+                                                                       value="{{ fields[field_name]['val'] | float }}"
                                                                        placeholder="Field value"
                                                                        name="additional_field_value">
                                                             {% else %}
                                                                 <input type="number"
-                                                                       value="{{ fields[field_name]['value'] | int }}"
+                                                                       value="{{ fields[field_name]['val'] | int }}"
                                                                        placeholder="Field value"
                                                                        name="additional_field_value">
                                                             {% endif %}
@@ -1406,13 +1406,13 @@
                                                     <div class="field">
                                                         <div class="ui input">
                                                             <input type="text"
-                                                                   value="{{ (db.select_files(fields[field_name]['value'])[0]['filename']) }}"
+                                                                   value="{{ (db.select_files(fields[field_name]['val'])[0]['filename']) }}"
                                                                    readonly>
                                                         </div>
                                                     </div>
                                                     <div class="field">
                                                         <a class="ui button blue" type="button"
-                                                           href="/static/files/fields/{{ fields[field_name]['value'] }}">
+                                                           href="/static/files/fields/{{ fields[field_name]['val'] }}">
                                                             <i class="download icon"></i>Download
                                                         </a>
                                                         <button class="ui button red" type="button"
@@ -1469,7 +1469,7 @@
                     {%  set issue_fields = json_unpack(current_issue['fields']) %}
                     $(document).ready(function () {
                         var c1 = new CVSS("cvssboard_metrics", {});
-                        cvss_vector = '{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['value'] }}{% endif %}';
+                        cvss_vector = '{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}';
                         if (cvss_vector !== '') {
                             c1.set(cvss_vector);
                         }
@@ -1592,7 +1592,7 @@
                         <div class="ui label" style="width: 125px;">
                             <i class="hashtag icon"></i>Vector:
                         </div>
-                        <input id="cvss_tab_vector" style="min-width: 350px;" type="text" name="cvss_vector" placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['value'] }}{% endif %}">
+                        <input id="cvss_tab_vector" style="min-width: 350px;" type="text" name="cvss_vector" placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}">
                     </div>
                     <button type="button" onclick="update_cvss();" class="ui blue button"><i class="icon save"></i>Save</button>
                     <div class="ui divider"></div>
@@ -1663,11 +1663,11 @@
                                 <div class="ui label" style="width: 125px;">
                                     <i class="hashtag icon"></i>Vector:
                                 </div>
-                                <input id="owasp_vector" style="min-width: 590px;" type="text" name="owasp_vector" placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3" value="{% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['value'] }}{% endif %}">
+                                <input id="owasp_vector" style="min-width: 590px;" type="text" name="owasp_vector" placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3" value="{% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
                             </div>
                             <button type="button" onclick="update_owasp();" class="ui blue button"><i class="icon save"></i>Save</button>
                             <div>
-                                <b>VECTOR: </b><a id="score" target="_blank">({% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['value'] }}{% endif %})</a>
+                                <b>VECTOR: </b><a id="score" target="_blank">({% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %})</a>
                                 <button type="button" class="ui orange button" onclick="copy_owasp();"><i class="icon copy"></i>Copy vector</button>
                                 <br>
                             </div>

@@ -1997,7 +1997,7 @@ def project_issue_create(args, current_user=None, current_token=None,
         "fields": {
             "nessus_id": {
               "type": "number",
-              "value": 1337
+              "val": 1337
             }
         },
         "dublicate_find": true
@@ -2042,7 +2042,7 @@ def project_issue_create(args, current_user=None, current_token=None,
     add_fields_dict = {}
     for field_name in additional_fields:
         field_type = additional_fields[field_name]['type']
-        field_value = additional_fields[field_name]['value']
+        field_value = additional_fields[field_name]['val']
         if field_type in ["text", "number", "float", "boolean"]:
             # add text field
             try:
@@ -2055,7 +2055,7 @@ def project_issue_create(args, current_user=None, current_token=None,
                 elif field_type == "boolean":
                     type_func = lambda x: bool(int(x))
                 add_fields_dict[field_name] = {
-                    'value': type_func(field_value),
+                    'val': type_func(field_value),
                     'type': field_type
                 }
             except:
@@ -2120,7 +2120,7 @@ def project_issue_edit(args, current_user=None, current_token=None,
         "fields": {
             "nessus_id": {
               "type": "number",
-              "value": 1337
+              "val": 1337
             }
         }
     }
@@ -2216,7 +2216,7 @@ def project_issue_edit(args, current_user=None, current_token=None,
     if args['fields'] != None:
         for field_name in args['fields']:
             field_type = args['fields'][field_name]['type']
-            field_value = args['fields'][field_name]['value']
+            field_value = args['fields'][field_name]['val']
             if field_type in ["text", "number", "float", "boolean"]:
                 # add text field
                 try:
@@ -2229,7 +2229,7 @@ def project_issue_edit(args, current_user=None, current_token=None,
                     elif field_type == "boolean":
                         type_func = lambda x: bool(int(x))
                     add_fields_dict[field_name] = {
-                        'value': type_func(field_value),
+                        'val': type_func(field_value),
                         'type': field_type
                     }
                 except:
@@ -2616,12 +2616,12 @@ def project_rules_use(args, current_user=None, current_token=None,
         # fix search rules
         for search_rule in current_rule['search_rules']:
             if search_rule['type'] == 'substring':
-                search_rule['value'] = sql_to_regexp(search_rule['value'])
+                search_rule['val'] = sql_to_regexp(search_rule['val'])
 
         # fix extract_vars
         for extract_rule in current_rule['extract_vars']:
             if extract_rule['type'] == 'substring':
-                extract_rule['value'] = extract_to_regexp(extract_rule['value'])
+                extract_rule['val'] = extract_to_regexp(extract_rule['val'])
 
         # fix replace_rules
         for replace_rule in current_rule['replace_rules']:
@@ -2685,9 +2685,9 @@ def project_rules_use(args, current_user=None, current_token=None,
                     new_name = field_name.strip('_\t\n\r')
                     for issue_field_name in current_issue['fields']:
                         if issue_field_name == new_name and current_issue['fields'][issue_field_name]['type'] != 'file':
-                            compare_str = str(current_issue['fields'][issue_field_name]['value'])
+                            compare_str = str(current_issue['fields'][issue_field_name]['val'])
                 # check
-                reg_exp = search_rule['value']
+                reg_exp = search_rule['val']
                 try:
                     found = bool(run_function_timeout(
                         re.match, int(config['timeouts']['regexp_timeout']),
@@ -2753,10 +2753,10 @@ def project_rules_use(args, current_user=None, current_token=None,
                     try:
                         search_result = run_function_timeout(
                             re.search, int(config['timeouts']['regexp_timeout']),
-                            pattern=extract_rule['value'],
+                            pattern=extract_rule['val'],
                             string=compare_str
                         )
-                        # search_result = re.search(extract_rule['value'], compare_str)
+                        # search_result = re.search(extract_rule['val'], compare_str)
                         variable_value = str(search_result.group(1))
                     except Exception as e:
                         pass
@@ -2875,13 +2875,13 @@ def project_rules_use(args, current_user=None, current_token=None,
                             if field_name in replace_rule['vars']:
                                 try:
                                     if current_template['variables'][field_name]["type"] == "boolean":
-                                        current_template['variables'][field_name]["value"] = bool(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = bool(replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "number":
-                                        current_template['variables'][field_name]["value"] = int(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = int(replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "float":
-                                        current_template['variables'][field_name]["value"] = float(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = float(replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "text":
-                                        current_template['variables'][field_name]["value"] = str(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = str(replace_rule['vars'][field_name])
                                     issue_changed = True
                                 except Exception as e:
                                     pass
@@ -2890,7 +2890,7 @@ def project_rules_use(args, current_user=None, current_token=None,
                         def replace_tpl_text(text: str):
                             for variable_name in add_variables_dict:
                                 variable_type = add_variables_dict[variable_name]['type']
-                                variable_value = add_variables_dict[variable_name]['value']
+                                variable_value = add_variables_dict[variable_name]['val']
                                 if variable_type == 'boolean':
                                     variable_value = int(variable_value)
                                 text = text.replace('__' + variable_name + '__', str(variable_value))
@@ -2915,7 +2915,7 @@ def project_rules_use(args, current_user=None, current_token=None,
 
                         for field_name in issue_fields:
                             if issue_fields[field_name]['type'] == 'text':
-                                issue_fields[field_name]['value'] = replace_tpl_text(issue_fields[field_name]['value'])
+                                issue_fields[field_name]['val'] = replace_tpl_text(issue_fields[field_name]['val'])
 
                         current_issue = {
                             'id': current_issue['id'],

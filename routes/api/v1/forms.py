@@ -181,7 +181,7 @@ issue_create_args = {
     "fields": fields.Dict(
         keys=fields.String(validate=validate.Regexp('^[a-zA-Z0-9]+$', error='Wrong variable name! ^[a-zA-Z0-9]+$')),
         values=fields.Dict(
-            keys=fields.String(validate=validate.OneOf(['type', 'value']), required=True),
+            keys=fields.String(validate=validate.OneOf(['type', 'val']), required=True),
             values=fields.String(required=False, missing='')
         ),
         required=False,
@@ -212,7 +212,7 @@ issue_edit_args = {
     "fields": fields.Dict(keys=fields.String(required=True, validate=validate.Regexp('^[a-zA-Z0-9]+$',
                                                                                      error='Wrong variable name! ^[a-zA-Z0-9]+$')),
                           values=fields.Dict(
-                              keys=fields.String(validate=validate.OneOf(['type', 'value']), required=True),
+                              keys=fields.String(validate=validate.OneOf(['type', 'val']), required=True),
                               values=fields.String(required=False, missing='')
                           ),
                           required=False,

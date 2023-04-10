@@ -196,7 +196,8 @@ def project_index(project_id, current_project, current_user):
 
     user_ids = db.select_project_users(current_project['id'])
 
-    user_json = {x['id']: {'email': htmlspecialchars(x['email']), 'fname': htmlspecialchars(x['fname']), 'lname': htmlspecialchars(x['lname'])} for x in user_ids}
+    user_json = {x['id']: {'email': htmlspecialchars(x['email']), 'fname': htmlspecialchars(x['fname']),
+                           'lname': htmlspecialchars(x['lname'])} for x in user_ids}
 
     team_json = {}
 
@@ -218,7 +219,6 @@ def project_index(project_id, current_project, current_user):
 @check_project_access
 @send_log_data
 def hosts(project_id, current_project, current_user):
-
     return render_template('project/hosts/list.html',
                            current_project=current_project,
                            tab_name='Hosts')
@@ -571,7 +571,7 @@ def new_issue_form(project_id, current_project, current_user):
                         elif field_type == "boolean":
                             type_func = lambda x: bool(int(x))
                         add_fields_dict[field_name] = {
-                            'value': type_func(field_value),
+                            'val': type_func(field_value),
                             'type': field_type
                         }
                     except:
@@ -597,7 +597,7 @@ def new_issue_form(project_id, current_project, current_user):
                     file_move_list.append([tmp_file_path, file_path, field_id, filename])
                     add_fields_dict[file_field_name] = {}
                     add_fields_dict[file_field_name]['type'] = 'file'
-                    add_fields_dict[file_field_name]['value'] = field_id
+                    add_fields_dict[file_field_name]['val'] = field_id
                 file_counter += 1
 
     if not errors:
@@ -802,7 +802,7 @@ def edit_issue_with_template_form(project_id, issue_id, template_id, current_pro
                         type_func = lambda x: bool(int(x))
 
                     add_variables_dict[variable_name] = {
-                        'value': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
+                        'val': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
                         'type': variable_type
                     }
                 except:
@@ -812,7 +812,7 @@ def edit_issue_with_template_form(project_id, issue_id, template_id, current_pro
         def replace_tpl_text(text: str):
             for variable_name in add_variables_dict:
                 variable_type = add_variables_dict[variable_name]['type']
-                variable_value = add_variables_dict[variable_name]['value']
+                variable_value = add_variables_dict[variable_name]['val']
                 if variable_type == 'boolean':
                     variable_value = int(variable_value)
                 text = text.replace('__' + variable_name + '__', str(variable_value))
@@ -838,7 +838,7 @@ def edit_issue_with_template_form(project_id, issue_id, template_id, current_pro
 
         for field_name in issue_fields:
             if issue_fields[field_name]['type'] == 'text':
-                issue_fields[field_name]['value'] = replace_tpl_text(issue_fields[field_name]['value'])
+                issue_fields[field_name]['val'] = replace_tpl_text(issue_fields[field_name]['val'])
 
         for old_field_name in old_issue_fields:
             if old_field_name not in issue_fields:
@@ -936,7 +936,8 @@ def hosts_hostnames_list(project_id, current_project, current_user):
 @check_project_access
 @send_log_data
 def networks_list(project_id, current_project, current_user):
-    hosts_hostnames = [{'id': x['id'], 'network': '{}/{}'.format(x['ip'], x['mask'])} for x in db.select_project_networks(current_project['id'])]
+    hosts_hostnames = [{'id': x['id'], 'network': '{}/{}'.format(x['ip'], x['mask'])} for x in
+                       db.select_project_networks(current_project['id'])]
     return json.dumps(hosts_hostnames)
 
 
@@ -1059,11 +1060,11 @@ def issues_edit_fields(project_id, issue_id, current_project, current_user,
         # check old text fields
         for field_name in old_field_dict:
             field_type = old_field_dict[field_name]['type']
-            field_value = old_field_dict[field_name]['value']
+            field_value = old_field_dict[field_name]['val']
             if field_type == 'file':
                 add_fields_dict[field_name] = {
                     'type': field_type,
-                    'value': field_value
+                    'val': field_value
                 }
 
         if len(form.additional_field_name.data) == \
@@ -1084,7 +1085,7 @@ def issues_edit_fields(project_id, issue_id, current_project, current_user,
                         elif field_type == "boolean":
                             type_func = lambda x: bool(int(x))
                         add_fields_dict[field_name] = {
-                            'value': type_func(field_value),
+                            'val': type_func(field_value),
                             'type': field_type
                         }
                     except:
@@ -1125,11 +1126,11 @@ def issues_edit_file_fields(project_id, issue_id, current_project, current_user,
         # check old text fields
         for field_name in old_field_dict:
             field_type = old_field_dict[field_name]['type']
-            field_value = old_field_dict[field_name]['value']
+            field_value = old_field_dict[field_name]['val']
             if field_type != 'file' or field_name in old_files_list:
                 add_fields_dict[field_name] = {
                     'type': field_type,
-                    'value': field_value
+                    'val': field_value
                 }
             elif field_type == 'file':
                 if field_name not in old_files_list:
@@ -1159,7 +1160,7 @@ def issues_edit_file_fields(project_id, issue_id, current_project, current_user,
                     shutil.move(tmp_file_path, file_path)
                     add_fields_dict[field_name] = {}
                     add_fields_dict[field_name]['type'] = 'file'
-                    add_fields_dict[field_name]['value'] = field_id
+                    add_fields_dict[field_name]['val'] = field_id
 
                     file_data = b''
                     if config["files"]["poc_storage"] == 'database':
@@ -1437,7 +1438,8 @@ def networks_graph_json(project_id, current_project, current_user):
                 'name': '{} ({}/{})'.format(current_network['name'], current_network['ip'], current_network['mask'])
             }
         })
-        current_network['ip_obj'] = ipaddress.ip_network('{}/{}'.format(current_network['ip'], current_network['mask']), False)
+        current_network['ip_obj'] = ipaddress.ip_network('{}/{}'.format(current_network['ip'], current_network['mask']),
+                                                         False)
 
     j.append({
         'group': 'nodes',
@@ -2044,20 +2046,36 @@ def project_add_credentials_multiple_form(project_id, current_project, current_u
 
     # indexes check
     file_lines = file_data.split('\n')
-    array_lines = [[y for y in line.split(form.delimiter.data)] for line in file_lines]
+    array_lines = [[y.strip("\n\r") for y in line.split(form.delimiter.data)] for line in file_lines]
     column_indexes = [
         form.login_num.data,
         form.hash_num.data,
         form.cleartext_num.data,
         form.comment_num.data,
-        form.source_num.data
+        form.source_num.data,
+        form.host_num.data,
     ]
     # without 0
     clr_column_indexes = list(filter(lambda a: a > 0, column_indexes))
     if not clr_column_indexes:
-        errors.append("No comumn numbers were selected!")
+        errors.append("No column numbers were selected!")
     if len(clr_column_indexes) > len(set(clr_column_indexes)):
         errors.append("Some column indexes are same!")
+
+    # check for IP
+    if not errors:
+        host_error = False
+        try:
+            if form.host.data:
+                ipaddress.ip_address(form.host.data)
+            if form.host_num.data:
+                for line in array_lines:
+                    tmp_host = line[form.host_num.data - 1]
+                    ipaddress.ip_address(tmp_host)
+        except Exception as e:
+            host_error = True
+        if host_error:
+            errors.append("Your IP-field is wrong or one of input rows (IP column) is corrupted!")
     if errors:
         return render_template('project/creds/multiple.html',
                                current_project=current_project, errors=errors,
@@ -2093,6 +2111,7 @@ def project_add_credentials_multiple_form(project_id, current_project, current_u
         cleartext = form.cleartext_password.data
         comment = form.comment.data
         source = form.info_source.data
+        host = form.host.data
         if form.login_num.data > 0:
             login = line[form.login_num.data - 1]
         if form.hash_num.data > 0:
@@ -2101,12 +2120,56 @@ def project_add_credentials_multiple_form(project_id, current_project, current_u
             cleartext = line[form.cleartext_num.data - 1]
         if form.source_num.data > 0:
             login = line[form.source_num.data - 1]
-        add = 1
-        if form.do_not_check_dublicates.data == '0':
-            found = db.select_creds_dublicates(current_project['id'], login, hash, cleartext, comment, source, form.hash_type.data)
-            if found: add = 0
+        if form.host_num.data > 0:
+            host = line[form.host_num.data - 1]
 
-        if add:
+        host_id = None
+        port_id = None
+        services_dict = {}
+
+        if host:
+            # check if host exists
+
+            # rechecking of string
+            host_obj = ipaddress.ip_address(host)
+
+            host_id = db.select_project_host_by_ip(current_project['id'], host)
+
+            if host_id:
+                host_id = host_id[0]['id']
+            else:
+                host_id = db.insert_host(current_project['id'], host, current_user['id'],
+                                         "Source: Multiple credentials form")
+
+            port_id = db.select_host_port(host_id)[0]['id']
+            services_dict[port_id] = ["0"]
+
+        found_duplicate = False
+        # Always true for now. (TODO!!!)
+        if form.do_not_check_dublicates.data == 0:
+            found_list = db.select_creds_dublicates(current_project['id'], login, hash,
+                                                    cleartext, comment, source,
+                                                    form.hash_type.data)
+            if found_list:
+                found_duplicate = True
+                for found_cred in found_list:
+                    j = json.loads(found_cred['services'])
+                    edited = False
+                    if port_id not in j:
+                        j[port_id] = ["0"]
+                        edited = True
+                    else:
+                        if "0" not in j[port_id]:
+                            j[port_id].append("0")
+                            edited = True
+
+                    if edited:
+                        db.update_creds(found_cred['id'], found_cred['login'],
+                                        found_cred['hash'], found_cred['hash_type'],
+                                        found_cred['cleartext'], found_cred['description'],
+                                        found_cred['source'], j)
+
+        if not found_duplicate:
             if form.check_pwd.data != '' and hash != '' and \
                     form.hash_type.data != '':
                 # TODO: add more hashes
@@ -2177,7 +2240,7 @@ def project_add_credentials_multiple_form(project_id, current_project, current_u
                                               cleartext,
                                               comment,
                                               source,
-                                              [],
+                                              services_dict,
                                               current_user['id'], current_project['id'])
 
     return render_template('project/creds/multiple.html',
@@ -2819,7 +2882,6 @@ def project_new_services_form(project_id, current_project, current_user):
 @check_project_access
 @send_log_data
 def project_reports(project_id, current_project, current_user):
-
     example_files = {
         "./documentation/report/examples/security_analysis_docx/example.docx": ".docx - example report",
         "./documentation/report/examples/security_analysis_latex/security_analysis_latex.zip": ".tex - example report",
@@ -2841,7 +2903,8 @@ def project_reports(project_id, current_project, current_user):
 def project_report_export(project_id, current_project, current_user):
     project_dict = db.select_report_info_sorted(current_project['id'])
     for poc_id in project_dict['pocs']:
-        project_dict['pocs'][poc_id]["content_base64"] = project_dict['pocs'][poc_id]["content_base64"].decode('charmap')
+        project_dict['pocs'][poc_id]["content_base64"] = project_dict['pocs'][poc_id]["content_base64"].decode(
+            'charmap')
 
     final_json = {
         "project": project_dict['project'],
@@ -3143,9 +3206,12 @@ def generate_report(project_id, current_project, current_user):
                             "credentials": project_dict['credentials'],
                             "functions": {
                                 "format_date": lambda unix_time,
-                                                      str_format: datetime.datetime.fromtimestamp(int(unix_time)).strftime(str_format),
+                                                      str_format: datetime.datetime.fromtimestamp(
+                                    int(unix_time)).strftime(str_format),
                                 "docx_image": docx_image,
-                                "ips_in_subnets": lambda ip_arr, network_arr: True in [ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for ip in ip_arr for network in network_arr]
+                                "ips_in_subnets": lambda ip_arr, network_arr: True in [
+                                    ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for ip in ip_arr
+                                    for network in network_arr]
                             }
                         },
                         jinja_env=SandboxedEnvironment(autoescape=True)
@@ -3245,11 +3311,14 @@ def generate_report(project_id, current_project, current_user):
                                                                            image_id + '.png')
                                                 image_object = InlineImage(template_obj, tmp_image_path)
                                                 if width and height:
-                                                    image_object = InlineImage(template_obj, tmp_image_path, width=Mm(width), height=Mm(height))
+                                                    image_object = InlineImage(template_obj, tmp_image_path,
+                                                                               width=Mm(width), height=Mm(height))
                                                 elif width:
-                                                    image_object = InlineImage(template_obj, tmp_image_path, width=Mm(width))
+                                                    image_object = InlineImage(template_obj, tmp_image_path,
+                                                                               width=Mm(width))
                                                 elif height:
-                                                    image_object = InlineImage(template_obj, tmp_image_path, height=Mm(height))
+                                                    image_object = InlineImage(template_obj, tmp_image_path,
+                                                                               height=Mm(height))
                                                 else:
                                                     image_object = InlineImage(template_obj, tmp_image_path)
                                                 return image_object
@@ -3263,7 +3332,8 @@ def generate_report(project_id, current_project, current_user):
                                                     template_images.append(tmp_image_path)
                                                     original_image_path = path.join('./static/files/poc/', poc_id)
                                                     shutil.copyfile(original_image_path, tmp_image_path)
-                                                    project_dict['pocs'][poc_id]['content_image'] = InlineImage(template_obj, tmp_image_path)
+                                                    project_dict['pocs'][poc_id]['content_image'] = InlineImage(
+                                                        template_obj, tmp_image_path)
                                             run_function_timeout(
                                                 template_obj.render, int(config["timeouts"]["report_timeout"]),
                                                 {
@@ -3282,9 +3352,13 @@ def generate_report(project_id, current_project, current_user):
                                                     "credentials": project_dict['credentials'],
                                                     "functions": {
                                                         "format_date": lambda unix_time,
-                                                                              str_format: datetime.datetime.fromtimestamp(int(unix_time)).strftime(str_format),
+                                                                              str_format: datetime.datetime.fromtimestamp(
+                                                            int(unix_time)).strftime(str_format),
                                                         "docx_image": docx_image,
-                                                        "ips_in_subnets": lambda ip_arr, network_arr: True in [ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for ip in ip_arr for network in network_arr]
+                                                        "ips_in_subnets": lambda ip_arr, network_arr: True in [
+                                                            ipaddress.ip_address(ip) in ipaddress.ip_network(network,
+                                                                                                             False) for
+                                                            ip in ip_arr for network in network_arr]
                                                     }
                                                 },
                                                 jinja_env=SandboxedEnvironment(autoescape=True)
@@ -3309,9 +3383,12 @@ def generate_report(project_id, current_project, current_user):
                                             latex_escape=latex_str_escape,
                                             functions={
                                                 "format_date": lambda unix_time,
-                                                                      str_format: datetime.datetime.fromtimestamp(int(unix_time)).strftime(str_format),
+                                                                      str_format: datetime.datetime.fromtimestamp(
+                                                    int(unix_time)).strftime(str_format),
                                                 "latex_escape": latex_str_escape,
-                                                "ips_in_subnets": lambda ip_arr, network_arr: True in [ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for ip in ip_arr for network in network_arr]
+                                                "ips_in_subnets": lambda ip_arr, network_arr: True in [
+                                                    ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for
+                                                    ip in ip_arr for network in network_arr]
                                             }
                                         )
                                         f = open(file_path, 'w', encoding='utf-8')
@@ -3400,9 +3477,11 @@ def generate_report(project_id, current_project, current_user):
                                                     latex_escape=latex_str_escape,
                                                     functions={
                                                         "format_date": lambda unix_time,
-                                                                              str_format: datetime.datetime.fromtimestamp(int(unix_time)).strftime(str_format),
+                                                                              str_format: datetime.datetime.fromtimestamp(
+                                                            int(unix_time)).strftime(str_format),
                                                         "latex_escape": latex_str_escape,
-                                                        "ip_in_subnet": lambda ip, network: ipaddress.ip_address(ip) in ipaddress.ip_network(network, False)
+                                                        "ip_in_subnet": lambda ip, network: ipaddress.ip_address(
+                                                            ip) in ipaddress.ip_network(network, False)
                                                     }
                                                     )
                 if rendered_txt:
@@ -3611,7 +3690,7 @@ def project_create_issue_from_template_form(project_id, current_project, current
                     elif variable_type == "boolean":
                         type_func = lambda x: bool(int(x))
                     add_variables_dict[variable_name] = {
-                        'value': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
+                        'val': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
                         'type': variable_type
                     }
                 except:
@@ -3621,7 +3700,7 @@ def project_create_issue_from_template_form(project_id, current_project, current
         def replace_tpl_text(text: str):
             for variable_name in add_variables_dict:
                 variable_type = add_variables_dict[variable_name]['type']
-                variable_value = add_variables_dict[variable_name]['value']
+                variable_value = add_variables_dict[variable_name]['val']
                 if variable_type == 'boolean':
                     variable_value = int(variable_value)
                 text = text.replace('__' + variable_name + '__', str(variable_value))
@@ -3647,7 +3726,7 @@ def project_create_issue_from_template_form(project_id, current_project, current
 
         for field_name in issue_fields:
             if issue_fields[field_name]['type'] == 'text':
-                issue_fields[field_name]['value'] = replace_tpl_text(issue_fields[field_name]['value'])
+                issue_fields[field_name]['val'] = replace_tpl_text(issue_fields[field_name]['val'])
 
         issue_id = db.insert_new_issue(issue_name, issue_description,
                                        issue_url_path, issue_cvss,
@@ -3973,12 +4052,12 @@ def project_issue_rules_form(project_id, current_project, current_user):
         # fix search rules
         for search_rule in current_rule['search_rules']:
             if search_rule['type'] == 'substring':
-                search_rule['value'] = sql_to_regexp(search_rule['value'])
+                search_rule['val'] = sql_to_regexp(search_rule['val'])
 
         # fix extract_vars
         for extract_rule in current_rule['extract_vars']:
             if extract_rule['type'] == 'substring':
-                extract_rule['value'] = extract_to_regexp(extract_rule['value'])
+                extract_rule['val'] = extract_to_regexp(extract_rule['val'])
 
         # fix replace_rules
         for replace_rule in current_rule['replace_rules']:
@@ -4042,9 +4121,9 @@ def project_issue_rules_form(project_id, current_project, current_user):
                     new_name = field_name.strip('_\t\n\r')
                     for issue_field_name in current_issue['fields']:
                         if issue_field_name == new_name and current_issue['fields'][issue_field_name]['type'] != 'file':
-                            compare_str = str(current_issue['fields'][issue_field_name]['value'])
+                            compare_str = str(current_issue['fields'][issue_field_name]['val'])
                 # check
-                reg_exp = search_rule['value']
+                reg_exp = search_rule['val']
                 try:
                     found = bool(run_function_timeout(
                         re.match, int(config["timeouts"]["regexp_timeout"]),
@@ -4103,17 +4182,18 @@ def project_issue_rules_form(project_id, current_project, current_user):
                         # check for additional fields
                         new_name = field_name.strip('_')
                         for issue_field_name in current_issue['fields']:
-                            if issue_field_name == new_name and current_issue['fields'][issue_field_name]['type'] != 'file':
+                            if issue_field_name == new_name and current_issue['fields'][issue_field_name][
+                                'type'] != 'file':
                                 compare_str = str(current_issue['fields'][issue_field_name]['val'])
 
                     variable_value = ''
                     try:
                         search_result = run_function_timeout(
                             re.search, int(config["timeouts"]["regexp_timeout"]),
-                            pattern=extract_rule['value'],
+                            pattern=extract_rule['val'],
                             string=compare_str
                         )
-                        # search_result = re.search(extract_rule['value'], compare_str)
+                        # search_result = re.search(extract_rule['val'], compare_str)
                         variable_value = str(search_result.group(1))
                     except Exception as e:
                         pass
@@ -4151,7 +4231,8 @@ def project_issue_rules_form(project_id, current_project, current_user):
                             # check for additional fields
                             new_name = field_name.strip('_')
                             for issue_field_name in current_issue['fields']:
-                                if issue_field_name == new_name and current_issue['fields'][issue_field_name]['type'] != 'file':
+                                if issue_field_name == new_name and current_issue['fields'][issue_field_name][
+                                    'type'] != 'file':
                                     found = True
                                     field_original_value = str(current_issue['fields'][issue_field_name]['val'])
                                     special_var = True
@@ -4195,7 +4276,8 @@ def project_issue_rules_form(project_id, current_project, current_user):
                                 except Exception as e:
                                     pass
                     else:
-                        current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'], current_user['email'])[0]
+                        current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'],
+                                                                               current_user['email'])[0]
                         current_template['variables'] = json.loads(current_template['variables'])
                         replace_rule['template_obj'] = current_template
 
@@ -4225,13 +4307,17 @@ def project_issue_rules_form(project_id, current_project, current_user):
                             if field_name in replace_rule['vars']:
                                 try:
                                     if current_template['variables'][field_name]["type"] == "boolean":
-                                        current_template['variables'][field_name]["value"] = bool(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = bool(
+                                            replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "number":
-                                        current_template['variables'][field_name]["value"] = int(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = int(
+                                            replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "float":
-                                        current_template['variables'][field_name]["value"] = float(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = float(
+                                            replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "text":
-                                        current_template['variables'][field_name]["value"] = str(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = str(
+                                            replace_rule['vars'][field_name])
                                 except Exception as e:
                                     pass
                         add_variables_dict = current_template['variables']
@@ -4239,7 +4325,7 @@ def project_issue_rules_form(project_id, current_project, current_user):
                         def replace_tpl_text(text: str):
                             for variable_name in add_variables_dict:
                                 variable_type = add_variables_dict[variable_name]['type']
-                                variable_value = add_variables_dict[variable_name]['value']
+                                variable_value = add_variables_dict[variable_name]['val']
                                 if variable_type == 'boolean':
                                     variable_value = int(variable_value)
                                 text = text.replace('__' + variable_name + '__', str(variable_value))
@@ -4264,7 +4350,7 @@ def project_issue_rules_form(project_id, current_project, current_user):
 
                         for field_name in issue_fields:
                             if issue_fields[field_name]['type'] == 'text':
-                                issue_fields[field_name]['value'] = replace_tpl_text(issue_fields[field_name]['value'])
+                                issue_fields[field_name]['val'] = replace_tpl_text(issue_fields[field_name]['val'])
 
                         current_issue = {
                             'id': current_issue['id'],
@@ -4289,8 +4375,10 @@ def project_issue_rules_form(project_id, current_project, current_user):
                         }
                 # submit issue
                 db.update_issue_with_fields(current_issue['id'], current_issue['name'], current_issue['description'],
-                                            current_issue['url_path'], current_issue['cvss'], json.loads(current_issue['services']),
-                                            current_issue['status'], current_issue['cve'], current_issue['cwe'], current_issue['fix'],
+                                            current_issue['url_path'], current_issue['cvss'],
+                                            json.loads(current_issue['services']),
+                                            current_issue['status'], current_issue['cve'], current_issue['cwe'],
+                                            current_issue['fix'],
                                             current_issue['type'], current_issue['param'], current_issue['fields'],
                                             current_issue['technical'], current_issue['risks'],
                                             current_issue['references'], current_issue['intruder'])

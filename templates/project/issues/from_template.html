@@ -136,7 +136,7 @@
                                     <div class="field">
                                         <div class="ui input" style="max-width: 400px;">
                                             <input id="template_value" type="{% if variables[variable_name]['type'] == 'text' %}text{% else %}number{% endif %}" placeholder="Default value" onchange="update_fields();" name="variable_value"
-                                                   value="{% if variables[variable_name]['type'] == 'text' %}{{ (variables[variable_name]['value']) }}{% else %}{{ variables[variable_name]['value'] | int }}{% endif %}">
+                                                   value="{% if variables[variable_name]['type'] == 'text' %}{{ (variables[variable_name]['val']) }}{% else %}{{ variables[variable_name]['val'] | int }}{% endif %}">
                                         </div>
                                     </div>
                                 </div>
@@ -377,11 +377,11 @@
                                                             <div class="field">
                                                                 <div class="ui input">
                                                                     {% if fields[field_name]['type'] == 'text' %}
-                                                                        <input type="text" id="additional_field-{{ (field_name) }}" class="additional_field" readonly value="{{ (fields[field_name]['value']) }}" placeholder="Field value" name="additional_field_value">
+                                                                        <input type="text" id="additional_field-{{ (field_name) }}" class="additional_field" readonly value="{{ (fields[field_name]['val']) }}" placeholder="Field value" name="additional_field_value">
                                                                     {% elif fields[field_name]['type'] == 'float' %}
-                                                                        <input type="number" readonly step="any" value="{{ fields[field_name]['value'] | float }}" placeholder="Field value" name="additional_field_value">
+                                                                        <input type="number" readonly step="any" value="{{ fields[field_name]['val'] | float }}" placeholder="Field value" name="additional_field_value">
                                                                     {% else %}
-                                                                        <input type="number" readonly value="{{ fields[field_name]['value'] | int }}" placeholder="Field value" name="additional_field_value">
+                                                                        <input type="number" readonly value="{{ fields[field_name]['val'] | int }}" placeholder="Field value" name="additional_field_value">
                                                                     {% endif %}
                                                                 </div>
                                                             </div>

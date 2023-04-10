@@ -458,6 +458,9 @@ class MultipleAddCreds(FlaskForm):
     comment = StringField('comment',
                           validators=[],
                           default='')
+    host = StringField('host',
+                       validators=[],
+                       default='')
     info_source = StringField('info_source',
                               validators=[],
                               default='')
@@ -487,6 +490,11 @@ class MultipleAddCreds(FlaskForm):
                                   NumberRange(min=0, max=100,
                                               message="Info source must be in 1..100 (0 if ignore)!"), ],
                               default=0)
+    host_num = IntegerField('host_num',
+                            validators=[
+                                NumberRange(min=0, max=100,
+                                            message="IP must be in 1..100 (0 if ignore)!"), ],
+                            default=0)
     delimiter = StringField('delimiter',
                             validators=[],
                             default=';')
@@ -988,9 +996,9 @@ class NewIssueTemplate(FlaskForm):
 class NewIssueRule(FlaskForm):
     name = StringField('name', default='')
     team_id = StringField('team_id', default='')
-    # [ {'field_name': '...', 'rule_type': 'substring/regexp', 'value': '...'}, ...]
+    # [ {'field_name': '...', 'rule_type': 'substring/regexp', 'val': '...'}, ...]
     search_rule_json = StringField('search_rule_json', default='[]')
-    # [ {'field_name': '...', 'var_name': 'urlpath', 'extract_type': 'substring/regexp', 'value': '...'}, ...]
+    # [ {'field_name': '...', 'var_name': 'urlpath', 'extract_type': 'substring/regexp', 'val': '...'}, ...]
     extract_rule_json = StringField('extract_rule_json', default='[]')
     # [ {'id': '...', 'vars': {'service-name': "test"}}, {'type': 'substring/regexp', 'field_name': 'urlpath', 'search_filter': '...', 'replace_string': '...'}]
     replace_rule_json = StringField('replace_rule_json', default='[]')
@@ -999,9 +1007,9 @@ class NewIssueRule(FlaskForm):
 class UpdateIssueRule(FlaskForm):
     name = StringField('name', default='')
     team_id = StringField('team_id', default='')
-    # [ {'field_name': '...', 'rule_type': 'substring/regexp', 'value': '...'}, ...]
+    # [ {'field_name': '...', 'rule_type': 'substring/regexp', 'val': '...'}, ...]
     search_rule_json = StringField('search_rule_json', default='[]')
-    # [ {'field_name': '...', 'var_name': 'urlpath', 'extract_type': 'substring/regexp', 'value': '...'}, ...]
+    # [ {'field_name': '...', 'var_name': 'urlpath', 'extract_type': 'substring/regexp', 'val': '...'}, ...]
     extract_rule_json = StringField('extract_rule_json', default='[]')
     # [ {'id': '...', 'vars': {'service-name': "test"}}, {'type': 'substring/regexp', 'field_name': 'urlpath', 'search_filter': '...', 'replace_string': '...'}]
     replace_rule_json = StringField('replace_rule_json', default='[]')
@@ -1386,6 +1394,7 @@ class EditTask(FlaskForm):
     teams = StringField('teams', default="[]")
     users = StringField('users', default="[]")
     hosts = StringField('hosts', default="[]")
+
 
 class aiodnsbruteForm(FlaskForm):
     csv_files = MultipleFileField('csv_files')

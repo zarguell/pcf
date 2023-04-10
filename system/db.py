@@ -35,7 +35,8 @@ class Database:
                 self.conn = qmarkpg.connect(DATABASE_URL, sslmode='require')
             else:
                 self.conn = qmarkpg.connect(dbname=config['database']['name'], user=config['database']['login'],
-                                            password=config['database']['password'], host=config['database']['host'], port=config['database']['port'])
+                                            password=config['database']['password'], host=config['database']['host'],
+                                            port=config['database']['port'])
                 self.conn.autocommit = True
         elif config['database']['type'] == 'sqlite3':
             self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
@@ -670,7 +671,8 @@ class Database:
         for x in range(len(host_ids_list)):
             sql += ' WHEN id=? THEN ? '
             update_list += [host_ids_list[x], os_list[x]]
-        sql += ' WHEN id IN ({}) THEN os END WHERE id IN ({}) '.format(','.join(['?' for x in host_ids_list]), ','.join(['?' for x in host_ids_list]))
+        sql += ' WHEN id IN ({}) THEN os END WHERE id IN ({}) '.format(','.join(['?' for x in host_ids_list]),
+                                                                       ','.join(['?' for x in host_ids_list]))
         update_list += host_ids_list
         update_list += host_ids_list
         self.execute(sql, update_list)
@@ -688,7 +690,8 @@ class Database:
         for x in range(len(issue_ids_list)):
             sql += ' WHEN id=? THEN ? '
             update_list += [issue_ids_list[x], json.dumps(services_list[x])]
-        sql += ' WHEN id IN ({}) THEN services END WHERE id in ({}) '.format(','.join(['?' for x in issue_ids_list]), ','.join(['?' for x in issue_ids_list]))
+        sql += ' WHEN id IN ({}) THEN services END WHERE id in ({}) '.format(','.join(['?' for x in issue_ids_list]),
+                                                                             ','.join(['?' for x in issue_ids_list]))
         update_list += issue_ids_list
         update_list += issue_ids_list
         self.execute(sql, update_list)
@@ -790,7 +793,8 @@ class Database:
         )
         return
 
-    def insert_project_ports_multiple(self, project_id, user_id, port_num_list, host_id_list, is_tcp_list, service_list, description_list):
+    def insert_project_ports_multiple(self, project_id, user_id, port_num_list, host_id_list, is_tcp_list, service_list,
+                                      description_list):
 
         sql = '''INSERT INTO Ports(id, host_id, port, is_tcp, service, description, user_id, project_id) VALUES (?)'''
 
@@ -831,7 +835,9 @@ class Database:
             for x in range(len(port_ids_list_chunks[chunk_num])):
                 sql += ' WHEN id=? THEN ? '
                 update_list += [port_ids_list_chunks[chunk_num][x], service_list_chunks[chunk_num][x]]
-            sql += ' WHEN id IN ({}) THEN service END WHERE id in ({}) '.format(','.join(['?' for x in port_ids_list_chunks[chunk_num]]), ','.join(['?' for x in port_ids_list_chunks[chunk_num]]))
+            sql += ' WHEN id IN ({}) THEN service END WHERE id in ({}) '.format(
+                ','.join(['?' for x in port_ids_list_chunks[chunk_num]]),
+                ','.join(['?' for x in port_ids_list_chunks[chunk_num]]))
             update_list += port_ids_list_chunks[chunk_num]
             update_list += port_ids_list_chunks[chunk_num]
             self.execute(sql, update_list)
@@ -893,7 +899,7 @@ class Database:
         fields = json.loads(current_issue['fields'])
         for field_name in fields:
             if fields[field_name]['type'] == 'file':
-                self.delete_file(fields[field_name]['value'])
+                self.delete_file(fields[field_name]['val'])
 
         # delete issue
         self.delete_issue(issue_id, project_id)
@@ -1109,7 +1115,7 @@ class Database:
 
             fields_dict = json.loads(current_issue['fields'])
             fields_dict[field_name] = {
-                'value': field_value,
+                'val': field_value,
                 'type': field_type
             }
 
@@ -1182,7 +1188,6 @@ class Database:
         result = self.return_arr_dict()
         return result
 
-
     def search_project_issues(self, project_id, name, cvss, url_path, description,
                               cve, cwe, status, fix, param, type, technical,
                               risks, user_id, references, intruder, fields):
@@ -1212,7 +1217,6 @@ class Database:
 
         final_result = []
 
-
         for current_issue in result:
             add = True
 
@@ -1223,7 +1227,7 @@ class Database:
                 if field_name not in issue_fields:
                     add = False
                 else:
-                    if not re.match(r_tmp, str(issue_fields[field_name]["value"])):
+                    if not re.match(r_tmp, str(issue_fields[field_name]["val"])):
                         add = False
 
             if add:
@@ -1491,7 +1495,8 @@ class Database:
             ip_obj = ipaddress.ip_address(ip)
             networks = self.select_project_networks(project_id)
             for current_network in networks:
-                network_obj = ipaddress.ip_network('{}/{}'.format(current_network['ip'], current_network['mask']), False)
+                network_obj = ipaddress.ip_network('{}/{}'.format(current_network['ip'], current_network['mask']),
+                                                   False)
                 if ip_obj in network_obj:
                     result.append(current_network)
         except Exception as e:
@@ -1573,8 +1578,7 @@ class Database:
         return
 
     def update_creds(self, creds_id, login, password_hash, hash_type,
-                     cleartext_passwd, description, source,
-                     services):
+                     cleartext_passwd, description, source, services):
         self.execute(
             '''UPDATE Credentials SET login=?,hash=?,hash_type=?,cleartext=?,
             description=?,source=?,services=? WHERE id=?''',
@@ -3331,7 +3335,8 @@ class Database:
         if curr_time > stats_dict['project']['end_date']:
             stats_dict['project']['percents'] = 100
         elif stats_dict['project']['start_date'] < curr_time < stats_dict['project']['end_date']:
-            stats_dict['project']['percents'] = int(((curr_time - stats_dict['project']['start_date']) / (stats_dict['project']['end_date'] - stats_dict['project']['start_date'])) * 100)
+            stats_dict['project']['percents'] = int(((curr_time - stats_dict['project']['start_date']) / (
+                        stats_dict['project']['end_date'] - stats_dict['project']['start_date'])) * 100)
 
         stats_dict['project']['percents'] = 100 - stats_dict['project']['percents']
         project_ports = self.select_project_ports(project_id)
@@ -3345,7 +3350,8 @@ class Database:
                     ports_dict[port_str] = 0
                 ports_dict[port_str] += 1
 
-        sorted_ports = list({k: v for k, v in sorted(ports_dict.items(), key=lambda item: item[1], reverse=True)}.items())
+        sorted_ports = list(
+            {k: v for k, v in sorted(ports_dict.items(), key=lambda item: item[1], reverse=True)}.items())
         top_ports_name = [x[0] for x in sorted_ports][:10]
         top_ports_count = [x[1] for x in sorted_ports][:10]
 
@@ -3459,7 +3465,8 @@ class Database:
         return
 
     def insert_new_issue_template(self, tpl_name, name, description, url_path, cvss, status, cve='', cwe=0,
-                                  issue_type='custom', fix='', param='', fields={}, variables={}, user_id='', team_id='',
+                                  issue_type='custom', fix='', param='', fields={}, variables={}, user_id='',
+                                  team_id='',
                                   technical='', risks='', references='', intruder=''):
         template_id = gen_uuid()
         self.execute(
@@ -3544,7 +3551,8 @@ class Database:
     def check_user_issue_rules_access(self, rule_id_list, user_id, user_email):
         self.execute(
             '''SELECT * FROM IssueRules WHERE id IN ({}) AND ((user_id = ?) 
-            OR (team_id in (SELECT id FROM Teams WHERE admin_id=? OR admin_email=? OR users LIKE '%' || ? || '%')));'''.format(','.join(['?' for x in rule_id_list])),
+            OR (team_id in (SELECT id FROM Teams WHERE admin_id=? OR admin_email=? OR users LIKE '%' || ? || '%')));'''.format(
+                ','.join(['?' for x in rule_id_list])),
             rule_id_list + [user_id, user_id, user_email, user_id]
         )
         result = self.return_arr_dict()
@@ -3574,7 +3582,8 @@ class Database:
         )
         self.conn.commit()
         self.insert_log(
-            'Removed issue template {}'.format(str(template_id)), teams=[current_template['team_id']] if current_template['team_id'] else [])
+            'Removed issue template {}'.format(str(template_id)),
+            teams=[current_template['team_id']] if current_template['team_id'] else [])
         return
 
     def delete_issue_template_safe(self, template_id):
@@ -3675,7 +3684,8 @@ class Database:
         self.execute("DELETE FROM Projects WHERE id=?", (project_id,))
         self.conn.commit()
 
-    def insert_path(self, project_id='', out_host='', out_network='', in_host='', in_network='', description='', path_type='connection', direction='forward'):
+    def insert_path(self, project_id='', out_host='', out_network='', in_host='', in_network='', description='',
+                    path_type='connection', direction='forward'):
         path_id = gen_uuid()
         self.execute(
             '''INSERT INTO NetworkPaths(
@@ -3824,7 +3834,8 @@ class Database:
         )
         self.conn.commit()
         self.insert_log(
-            'Removed issue rule {}'.format(str(rule_id)), teams=[current_rule['team_id']] if current_rule['team_id'] else [])
+            'Removed issue rule {}'.format(str(rule_id)),
+            teams=[current_rule['team_id']] if current_rule['team_id'] else [])
         return
 
     def select_all_user_issue_templates(self, user_id, user_email, team_id=''):
@@ -4542,13 +4553,17 @@ class Database:
                 search_field, search_field, search_field, search_field, search_field,
                 search_field, search_field, search_field, search_field, search_field,
                 search_field, search_field, search_field, search_field, search_field,
-                search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field,
+                search_field, search_field, search_field, search_field, search_field, search_field, search_field,
+                search_field, search_field, search_field, search_field, search_field, search_field, search_field,
                 search_field, search_field, search_field,
-                search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field,
+                search_field, search_field, search_field, search_field, search_field, search_field, search_field,
+                search_field, search_field,
                 search_field, search_field,
                 search_field, search_field, search_field, search_field, search_field, search_field,
                 search_field, search_field, search_field,
-                user_id, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field, search_field,
+                user_id, search_field, search_field, search_field, search_field, search_field, search_field,
+                search_field, search_field, search_field, search_field, search_field, search_field, search_field,
+                search_field, search_field,
                 user_id, search_field, search_field, search_field, search_field, search_field,
                 search_field, search_field, search_field, search_field, search_field, search_field, search_field,
                 search_field, search_field, search_field, search_field, search_field
@@ -4566,7 +4581,8 @@ class Database:
         self.conn.commit()
         self.insert_log('User {} added project {} to favorite.'.format(user_id, project_id))
 
-    def insert_new_task(self, name, description, criticality, teams, users, status, start_date, finish_date, project_id, services):
+    def insert_new_task(self, name, description, criticality, teams, users, status, start_date, finish_date, project_id,
+                        services):
         task_id = gen_uuid()
         self.execute(
             '''INSERT INTO Tasks(
@@ -4605,7 +4621,8 @@ class Database:
             'Removed task {}'.format(task_id))
         return
 
-    def update_task(self, name, description, criticality, teams, users, status, start_date, finish_date, services, task_id):
+    def update_task(self, name, description, criticality, teams, users, status, start_date, finish_date, services,
+                    task_id):
 
         self.execute(
             '''UPDATE Tasks SET

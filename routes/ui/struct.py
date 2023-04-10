@@ -819,7 +819,7 @@ def new_issue_templates_form(current_user):
                     elif field_type == "boolean":
                         type_func = lambda x: bool(int(x))
                     add_fields_dict[field_name] = {
-                        'value': type_func(field_value) if field_type == 'text' or field_value else type_func(0),
+                        'val': type_func(field_value) if field_type == 'text' or field_value else type_func(0),
                         'type': field_type
                     }
                 except:
@@ -844,7 +844,7 @@ def new_issue_templates_form(current_user):
                     elif variable_type == "boolean":
                         type_func = lambda x: bool(int(x))
                     add_variables_dict[variable_name] = {
-                        'value': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
+                        'val': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
                         'type': variable_type
                     }
                 except:
@@ -941,7 +941,7 @@ def new_issue_rule_form(current_user):
         search_obj = {
             'field_name': search_rule['field_name'],
             'type': search_rule['rule_type'] if search_rule['rule_type'] == 'regexp' else 'substring',
-            'value': search_rule['value']
+            'val': search_rule['val']
         }
         final_search_rules.append(search_obj)
 
@@ -951,7 +951,7 @@ def new_issue_rule_form(current_user):
             'field_name': extract_rule['field_name'],
             'name': extract_rule['var_name'],
             'type': extract_rule['extract_type'],
-            'value': extract_rule['value']
+            'val': extract_rule['val']
         }
         final_extract_vars.append(extract_rule)
 
@@ -1015,8 +1015,8 @@ def download_issue_templates(current_user):
                 'type': current_template['type'],
                 'fix': current_template['fix'],
                 'param': current_template['param'],
-                'fields': json.loads(current_template['fields']),  # { 'val1':{'type':'text','value':'1234'},... }
-                'variables': json.loads(current_template['variables']),  # { 'val1':{'type':'text','value':'1234'},... }
+                'fields': json.loads(current_template['fields']),  # { 'val1':{'type':'text','val':'1234'},... }
+                'variables': json.loads(current_template['variables']),  # { 'val1':{'type':'text','val':'1234'},... }
                 'technical': current_template['technical'],
                 'risks': current_template['risks'],
                 'references': current_template['references'],
@@ -1129,7 +1129,7 @@ def import_issue_templates_form(current_user):
                             # first check
                             if type(template_fields[field_name]) == dict and \
                                     'type' in template_fields[field_name] and \
-                                    'value' in template_fields[field_name]:
+                                    'val' in template_fields[field_name]:
                                 # second check
                                 if template_fields[field_name]['type'] in ['text', 'number', 'float', 'boolean']:
 
@@ -1144,7 +1144,7 @@ def import_issue_templates_form(current_user):
 
                                     template_fields_checked[str(field_name)] = {
                                         'type': template_fields[field_name]['type'],
-                                        'value': type_func(template_fields[field_name]['value'])
+                                        'val': type_func(template_fields[field_name]['val'])
                                     }
 
                         template_variables_checked = {}
@@ -1154,7 +1154,7 @@ def import_issue_templates_form(current_user):
                             # first check
                             if type(template_variables[variable_name]) == dict and \
                                     'type' in template_variables[variable_name] and \
-                                    'value' in template_variables[variable_name]:
+                                    'val' in template_variables[variable_name]:
                                 # second check
                                 if template_variables[variable_name]['type'] in ['text', 'number', 'float', 'boolean']:
 
@@ -1169,7 +1169,7 @@ def import_issue_templates_form(current_user):
 
                                     template_variables_checked[str(variable_name)] = {
                                         'type': template_variables[variable_name]['type'],
-                                        'value': type_func(template_variables[variable_name]['value'])
+                                        'val': type_func(template_variables[variable_name]['val'])
                                     }
                         db.insert_new_issue_template(
                             form.prefix.data + template_tpl_name,
@@ -1280,7 +1280,7 @@ def edit_issue_template_form(current_user, template_id, current_template):
                     elif field_type == "boolean":
                         type_func = lambda x: bool(int(x))
                     add_fields_dict[field_name] = {
-                        'value': type_func(field_value) if field_type == 'text' or field_value else type_func(0),
+                        'val': type_func(field_value) if field_type == 'text' or field_value else type_func(0),
                         'type': field_type
                     }
                 except:
@@ -1305,7 +1305,7 @@ def edit_issue_template_form(current_user, template_id, current_template):
                     elif variable_type == "boolean":
                         type_func = lambda x: bool(int(x))
                     add_variables_dict[variable_name] = {
-                        'value': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
+                        'val': type_func(variable_value) if variable_type == 'text' or variable_value else type_func(0),
                         'type': variable_type
                     }
                 except:
@@ -1498,7 +1498,7 @@ def import_issue_rules_form(current_user):
                             new_obj = {
                                 'field_name': str(search_rule['field_name']),
                                 'type': str(search_rule['type']) if str(search_rule['type']) == 'regexp' else 'substring',
-                                'value': str(search_rule['value'])
+                                'val': str(search_rule['val'])
                             }
                             search_rules_json.append(new_obj)
 
@@ -1508,7 +1508,7 @@ def import_issue_rules_form(current_user):
                                 'field_name': str(extract_rule['field_name']),
                                 'name': str(extract_rule['name']),
                                 'type': str(extract_rule['type']) if str(extract_rule['type']) == 'regexp' else 'substring',
-                                'value': str(extract_rule['value'])
+                                'val': str(extract_rule['val'])
                             }
                             extract_vars_json.append(new_obj)
 
@@ -1648,7 +1648,7 @@ def edit_issue_rule_form(current_user, rule_id, current_rule):
         search_obj = {
             'field_name': search_rule['field_name'],
             'type': search_rule['rule_type'] if search_rule['rule_type'] == 'regexp' else 'substring',
-            'value': search_rule['value']
+            'val': search_rule['val']
         }
         final_search_rules.append(search_obj)
 
@@ -1658,7 +1658,7 @@ def edit_issue_rule_form(current_user, rule_id, current_rule):
             'field_name': extract_rule['field_name'],
             'name': extract_rule['var_name'],
             'type': extract_rule['extract_type'],
-            'value': extract_rule['value']
+            'val': extract_rule['val']
         }
         final_extract_vars.append(extract_rule)
 

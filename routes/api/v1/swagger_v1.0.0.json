@@ -4453,7 +4453,7 @@
               "boolean"
             ]
           },
-          "value": {
+          "val": {
             "description": "Field value",
             "example": 1337,
             "oneOf": [
@@ -4622,7 +4622,7 @@
               "boolean"
             ]
           },
-          "value": {
+          "val": {
             "description": "Field value",
             "example": 1337,
             "oneOf": [
@@ -5432,7 +5432,7 @@
               "file"
             ]
           },
-          "value": {
+          "val": {
             "description": "Field value (or file UUID)",
             "example": 1337,
             "oneOf": [

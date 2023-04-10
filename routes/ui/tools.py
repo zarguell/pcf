@@ -801,8 +801,8 @@ def nessus_page_form(project_id, current_project, current_user):
                                             'fix': issue_fix,
                                             'param': issue_param,
                                             'services': {issue_port_id: [issue_hostname_id]},
-                                            # {"nessus_plugin_id": {"value": 71049, "type": "number"}}
-                                            'fields': {'nessus_plugin_id': {'type': 'number', 'value': plugin_id}},
+                                            # {"nessus_plugin_id": {"val": 71049, "type": "number"}}
+                                            'fields': {'nessus_plugin_id': {'type': 'number', 'val': plugin_id}},
                                             'technical': '',
                                             'risks': '',
                                             'references': '',
@@ -1253,7 +1253,7 @@ def acunetix_page_form(project_id, current_project, current_user):
                                             fields={
                                                 'acunetix_module':
                                                     {'type': 'text',
-                                                     'value': module_name
+                                                     'val': module_name
                                                      }
                                             },
                                             risks=impact
@@ -3093,6 +3093,7 @@ def qualys_form(project_id, current_project, current_user):
                 for host in hosts_list:
                     host_id = ''
                     hostname = ''
+                    #TODO: host??
                     ip = host.attrs['value']
                     tmp_host = db.select_project_host_by_ip(current_project['id'], ip)
                     if tmp_host:

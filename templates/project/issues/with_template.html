@@ -154,7 +154,7 @@
 
 
 
-                                                           {% if variables[variable_name]['type'] == 'text' %}{{ (variables[variable_name]['value']) }}{% else %}{{ variables[variable_name]['value'] | int }}{% endif %}">
+                                                           {% if variables[variable_name]['type'] == 'text' %}{{ (variables[variable_name]['val']) }}{% else %}{{ variables[variable_name]['val'] | int }}{% endif %}">
                                         </div>
                                     </div>
                                 </div>
@@ -437,17 +437,17 @@
                                                                             <input type="text"
                                                                                    id="additional_field-{{ (field_name) }}"
                                                                                    class="additional_field" readonly
-                                                                                   value="{{ (fields[field_name]['value']) }}"
+                                                                                   value="{{ (fields[field_name]['val']) }}"
                                                                                    placeholder="Field value"
                                                                                    name="additional_field_value">
                                                                         {% elif fields[field_name]['type'] == 'float' %}
                                                                             <input type="number" readonly step="any"
-                                                                                   value="{{ fields[field_name]['value'] | float }}"
+                                                                                   value="{{ fields[field_name]['val'] | float }}"
                                                                                    placeholder="Field value"
                                                                                    name="additional_field_value">
                                                                         {% else %}
                                                                             <input type="number" readonly
-                                                                                   value="{{ fields[field_name]['value'] | int }}"
+                                                                                   value="{{ fields[field_name]['val'] | int }}"
                                                                                    placeholder="Field value"
                                                                                    name="additional_field_value">
                                                                         {% endif %}
@@ -726,17 +726,17 @@
                                                                             <input type="text"
                                                                                    id="additional_field-{{ (field_name) }}"
                                                                                    class="additional_field" readonly
-                                                                                   value="{{ (fields[field_name]['value']) }}"
+                                                                                   value="{{ (fields[field_name]['val']) }}"
                                                                                    placeholder="Field value"
                                                                                    name="additional_field_value">
                                                                         {% elif fields[field_name]['type'] == 'float' %}
                                                                             <input type="number" readonly step="any"
-                                                                                   value="{{ fields[field_name]['value'] | float }}"
+                                                                                   value="{{ fields[field_name]['val'] | float }}"
                                                                                    placeholder="Field value"
                                                                                    name="additional_field_value">
                                                                         {% else %}
                                                                             <input type="number" readonly
-                                                                                   value="{{ fields[field_name]['value'] | int }}"
+                                                                                   value="{{ fields[field_name]['val'] | int }}"
                                                                                    placeholder="Field value"
                                                                                    name="additional_field_value">
                                                                         {% endif %}

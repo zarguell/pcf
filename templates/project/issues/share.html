@@ -624,11 +624,11 @@
                                                     <div class="field">
                                                         <div class="ui input">
                                                             {% if fields[field_name]['type'] == 'text' %}
-                                                                <input type="text" readonly value="{{ (fields[field_name]['value']) }}" placeholder="Field value" name="additional_field_value">
+                                                                <input type="text" readonly value="{{ (fields[field_name]['val']) }}" placeholder="Field value" name="additional_field_value">
                                                             {% elif fields[field_name]['type'] == 'float' %}
-                                                                <input type="number" readonly step="any" value="{{ fields[field_name]['value'] | float }}" placeholder="Field value" name="additional_field_value">
+                                                                <input type="number" readonly step="any" value="{{ fields[field_name]['val'] | float }}" placeholder="Field value" name="additional_field_value">
                                                             {% else %}
-                                                                <input type="number" readonly value="{{ fields[field_name]['value'] | int }}" placeholder="Field value" name="additional_field_value">
+                                                                <input type="number" readonly value="{{ fields[field_name]['val'] | int }}" placeholder="Field value" name="additional_field_value">
                                                             {% endif %}
                                                         </div>
                                                     </div>
@@ -670,7 +670,7 @@
                     {%  set issue_fields = json_unpack(current_issue['fields']) %}
                     $(document).ready(function () {
                         var c1 = new CVSS("cvssboard_metrics", {});
-                        cvss_vector = '{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['value'] }}{% endif %}';
+                        cvss_vector = '{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}';
                         if (cvss_vector !== '') {
                             c1.set(cvss_vector);
                         }
@@ -690,7 +690,7 @@
                         <div class="ui label" style="width: 125px;">
                             <i class="hashtag icon"></i>Vector:
                         </div>
-                        <input id="cvss_tab_vector" style="min-width: 350px;" readonly type="text" name="cvss_vector" placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['value'] }}{% endif %}">
+                        <input id="cvss_tab_vector" style="min-width: 350px;" readonly type="text" name="cvss_vector" placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}">
                     </div>
                     <div class="ui divider"></div>
                     <div id="cvssboard_metrics">
@@ -706,10 +706,10 @@
                                     <i class="hashtag icon"></i>Vector:
                                 </div>
                                 <input id="owasp_vector" style="min-width: 590px;" type="text" readonly name="owasp_vector" placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3"
-                                       value="{% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['value'] }}{% endif %}">
+                                       value="{% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
                             </div>
                             <div>
-                                <b>VECTOR: </b><a id="score" target="_blank">({% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['value'] }}{% endif %})</a>
+                                <b>VECTOR: </b><a id="score" target="_blank">({% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %})</a>
                                 <br>
                             </div>
                         </section>

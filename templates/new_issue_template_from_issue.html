@@ -526,11 +526,11 @@
                                                 <div class="field">
                                                     <div class="ui input">
                                                         {% if fields[field_name]['type'] == 'text' %}
-                                                            <input type="text" value="{{ (fields[field_name]['value']) }}" placeholder="Field value" name="additional_field_value">
+                                                            <input type="text" value="{{ (fields[field_name]['val']) }}" placeholder="Field value" name="additional_field_value">
                                                         {% elif fields[field_name]['type'] == 'float' %}
-                                                            <input type="number" step="any" value="{{ fields[field_name]['value'] | float }}" placeholder="Field value" name="additional_field_value">
+                                                            <input type="number" step="any" value="{{ fields[field_name]['val'] | float }}" placeholder="Field value" name="additional_field_value">
                                                         {% else %}
-                                                            <input type="number" value="{{ fields[field_name]['value'] | int }}" placeholder="Field value" name="additional_field_value">
+                                                            <input type="number" value="{{ fields[field_name]['val'] | int }}" placeholder="Field value" name="additional_field_value">
                                                         {% endif %}
                                                     </div>
                                                 </div>
