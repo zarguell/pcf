@@ -934,6 +934,8 @@ class DuplicatorForm(FlaskForm):
 
 class WPScanForm(FlaskForm):
     json_files = MultipleFileField('json_files')
+    auto_resolve = IntegerField('auto_resolve', default=0)
+    host = StringField('host', default='')
 
 
 class NewIssueTemplate(FlaskForm):

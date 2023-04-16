@@ -3093,7 +3093,7 @@ def qualys_form(project_id, current_project, current_user):
                 for host in hosts_list:
                     host_id = ''
                     hostname = ''
-                    #TODO: host??
+                    # TODO: host??
                     ip = host.attrs['value']
                     tmp_host = db.select_project_host_by_ip(current_project['id'], ip)
                     if tmp_host:
@@ -4195,6 +4195,13 @@ def wpscan_page_form(project_id, current_project, current_user):
             for error in form.errors[field]:
                 errors.append(error)
 
+    host_field = form.host.data
+    if host_field:
+        try:
+            ipaddress.ip_address(host_field)
+        except Exception as e:
+            errors.append("Host IP field is wrong!")
+
     if not errors:
         # json files
         for file in form.json_files.data:
@@ -4203,9 +4210,23 @@ def wpscan_page_form(project_id, current_project, current_user):
                 file_content = file.read().decode('charmap')
                 try:
                     file_dict = json.loads(file_content)
-                    current_ip = file_dict['target_ip']
-                    # validate ip
-                    ipaddress.ip_address(current_ip)
+
+                    # get protocol
+                    current_url = file_dict['target_url']
+                    current_url_obj = urllib.parse.urlparse(current_url)
+                    current_scheme = current_url_obj.scheme.lower()
+                    hostname = current_url_obj.hostname
+
+                    if 'target_ip' in file_dict:
+                        current_ip = file_dict['target_ip']
+                        # validate ip
+                        ipaddress.ip_address(current_ip)
+                    elif host_field:
+                        current_ip = host_field
+                    elif form.auto_resolve.data:
+                        current_ip = socket.gethostbyname(hostname)
+                    else:
+                        errors.append("IP not found!")
                     current_host = db.select_project_host_by_ip(current_project['id'], current_ip)
                     if current_host:
                         current_host_id = current_host[0]['id']
@@ -4214,10 +4235,6 @@ def wpscan_page_form(project_id, current_project, current_user):
                                                          current_ip,
                                                          current_user['id'],
                                                          "Added from WPScan")
-                    # get protocol
-                    current_url = file_dict['target_url']
-                    current_url_obj = urllib.parse.urlparse(current_url)
-                    current_scheme = current_url_obj.scheme.lower()
                     note_output = "<h1>Scan of {} </h1></br></br>".format(current_url)
                     if current_url_obj.port:
                         current_port_num = int(current_url_obj.port)
@@ -4247,7 +4264,6 @@ def wpscan_page_form(project_id, current_project, current_user):
                                                               current_project['id'])
 
                     # create hostname
-                    hostname = current_url_obj.hostname
                     if hostname == current_ip:
                         current_hostname_id = "0"
                     else:

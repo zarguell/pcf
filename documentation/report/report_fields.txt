@@ -30,7 +30,7 @@
 	2.12 fix
 	2.13 param
 	2.14 fields {field_name,...}
-	    2.14.1 value
+	    2.14.1 val
 	    2.14.2 type # text/number/float/boolean
 	2.15 technical
 	2.16 risks

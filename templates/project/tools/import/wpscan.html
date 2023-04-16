@@ -37,10 +37,13 @@
                                 <a>Web vulnerability scanner</a>
                             </div>
                             <div class="description">
-                                The WPScan CLI tool is a free, for non-commercial use, black box WordPress security scanner written for security professionals and blog maintainers to test the security of their sites.
+                                The WPScan CLI tool is a free, for non-commercial use, black box WordPress security
+                                scanner written for security professionals and blog maintainers to test the security of
+                                their sites.
                             </div>
                             <div class="extra">
-                                <a href="https://github.com/wpscanteam/wpscan" class="ui right floated purple button" target="_blank" rel="noopener noreferrer">
+                                <a href="https://github.com/wpscanteam/wpscan" class="ui right floated purple button"
+                                   target="_blank" rel="noopener noreferrer">
                                     Official site
                                     <i class="right chevron icon"></i>
                                 </a>
@@ -50,19 +53,33 @@
                 </div>
                 <div class="ui divider"></div>
                 <h2 class="ui header">Upload reports</h2>
-                <form class="ui form" enctype="multipart/form-data" method="post" action="/project/{{ current_project['id'] }}/tools/wpscan/">
+                <form class="ui form" enctype="multipart/form-data" method="post"
+                      action="/project/{{ current_project['id'] }}/tools/wpscan/">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="two fields">
-                        <div class="ui field" style="max-width: 500px">
+                        <div class="ui field">
                             <label>JSON-reports:</label>
                             <input type="file" name="json_files" placeholder="" multiple accept=".json">
                         </div>
                         <div class="ui field">
+                            <div class="ui field">
+                                <label>Host IP (only scan was with DNS-name URL):</label>
+                                <input type="text" name="host" placeholder="8.8.8.8">
+                            </div>
                         </div>
                     </div>
                     <div class="two fields">
                         <div class="ui field">
-                            <button style="margin-top:20px" type="submit" class="ui button blue"><i class="plus icon"></i>Submit</button>
+                            <button style="margin-top:20px" type="submit" class="ui button blue"><i
+                                    class="plus icon"></i>Submit
+                            </button>
+                        </div>
+                        <div class="ui field">
+                            <label>or</label>
+                            <div class="ui checkbox">
+                                <input type="checkbox" name="auto_resolve" value="1">
+                                <label>Automatic resolve ip from server (only scan was with DNS-name URL)</label>
+                            </div>
                         </div>
                     </div>
                 </form>
