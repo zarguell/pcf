@@ -1404,3 +1404,11 @@ class aiodnsbruteForm(FlaskForm):
     hosts_description = StringField('hosts_description', default='Added from aiodnsbrute scan')
     hostnames_description = StringField('hostnames_description', default='Added from aiodnsbrute scan')
     ignore_ipv6 = IntegerField('ignore_ipv6', default=0)
+
+
+class AdvancedPortScanner(FlaskForm):
+    files = MultipleFileField('files')
+    add_no_open = IntegerField('add_no_open', default=0)
+    ignore_ports = StringField('ignore_ports', default='')
+    hosts_description = StringField('hosts_description', default='Added from Advanced Port Scanner')
+    hostnames_description = StringField('hostnames_description', default='Added from Advanced Port Scanner')

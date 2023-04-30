@@ -1,3 +1,5 @@
+import logging
+
 from routes.ui import routes
 from app import check_session, db, redirect, render_template, request, \
     send_log_data, requires_authorization, csrf, config
@@ -94,7 +96,8 @@ def nmap_page_form(project_id, current_project, current_user):
             try:
                 xml_report_data = file.read().decode('charmap')
                 nmap_report = NmapParser.parse_fromstring(xml_report_data)
-            except:
+            except Exception as e:
+                logging.error("Wrong nmap XML file:", e)
                 return render_template('project/tools/import/nmap.html',
                                        current_project=current_project,
                                        errors=['Оne of uploaded files was incorrect!'],
@@ -6081,7 +6084,6 @@ def maxpatrol_form(project_id, current_project, current_user):
         for file in form.xml_files.data:
             if file.filename:
                 file_data = file.read()
-                file_len = len(file_data)
                 scan_result = BeautifulSoup(file_data, "lxml")
                 hosts_list = scan_result.find("content").data
                 vulns_db = scan_result.find("content").find("vulners", recursive=False)
@@ -6382,4 +6384,175 @@ def aiodnsbrute_page_form(project_id, current_project, current_user):
     return render_template('project/tools/import/aiodnsbrute.html',
                            current_project=current_project,
                            tab_name='aiodnsbrute',
+                           errors=errors)
+
+
+@routes.route('/project/<uuid:project_id>/tools/advanced_port_scanner/', methods=['GET'])
+@requires_authorization
+@check_session
+@check_project_access
+@send_log_data
+def advanced_port_scanner_page(project_id, current_project, current_user):
+    return render_template('project/tools/import/advanced_port_scanner.html',
+                           current_project=current_project,
+                           tab_name='Advanced Port Scanner')
+
+
+@routes.route('/project/<uuid:project_id>/tools/advanced_port_scanner/', methods=['POST'])
+@requires_authorization
+@check_session
+@check_project_access
+@send_log_data
+def advanced_port_scanner_form(project_id, current_project, current_user):
+    form = AdvancedPortScanner()
+    form.validate()
+    errors = []
+    if form.errors:
+        for field in form.errors:
+            for error in form.errors[field]:
+                errors.append(error)
+
+    if not errors:
+        # xml files
+        for file in form.files.data:
+            if file.filename:
+                file_data = file.read()
+                scan_result = BeautifulSoup(file_data, "lxml")
+                hosts_list = scan_result.findAll("row")
+                for host_obj in hosts_list:
+                    host_ip = host_obj.attrs["ip"]
+                    ipaddress.ip_address(host_ip)  # check that ip is correct
+                    hostnames_list = []
+                    hostnames_list.append(host_obj.attrs["name"].lower() if "name" in host_obj.attrs else "")
+                    hostnames_list.append(host_obj.attrs["alias"].lower() if "alias" in host_obj.attrs else "")
+
+                    host_netbios = host_obj.attrs["netbiosname"] if "netbiosname" in host_obj.attrs else ""
+
+                    if "netbiosgroup" in host_obj.attrs and host_obj.attrs["netbiosname"] and host_netbios:
+                        host_netbios += "." + host_obj.attrs["netbiosgroup"]
+
+                    hostnames_list.append(host_netbios.lower())
+
+                    hostnames_list = list(set(hostnames_list))
+
+                    host_os = host_obj.attrs["os_version"] if "os_version" in host_obj.attrs else ""
+                    host_status = host_obj.attrs["status"]  # alive/unknown
+                    host_manufacture = host_obj.attrs["manufacture"] if "manufacture" in host_obj.attrs else ""
+                    host_users = host_obj.attrs["user"] if "user" in host_obj.attrs else ""
+                    host_mac = host_obj.attrs["mac"] if "mac" in host_obj.attrs and \
+                                                        host_obj.attrs["mac"] != "00:00:00:00:00:00" else ""
+                    host_description_full = ""
+                    if host_manufacture:
+                        host_description_full = host_manufacture
+                    if host_users:
+                        host_description_full += "\n" + "Users: " + host_users
+                    if host_mac:
+                        host_description_full += "\n" + "MAC: " + host_mac
+                    host_description_full = host_description_full.strip(" \t\r\n")
+
+                    if not host_description_full:
+                        host_description_full = form.hosts_description.data
+
+                    host_http_8080_description = host_http_80_description = ""
+                    if host_obj.attrs["has_http"] == "1":
+                        http_description = host_obj.attrs["http_title"] if "http_title" in host_obj.attrs else ""
+                        if "http_title_full" in host_obj.attrs and host_obj.attrs["http_title_full"]:
+                            http_description = host_obj.attrs["http_title_full"]
+                        if host_obj.attrs["is_http8080"] == "1":
+                            host_http_8080_description = http_description
+                        else:
+                            host_http_80_description = http_description
+
+                    host_ftp_21_description = host_obj.attrs["ftp_version"] if "ftp_version" in host_obj.attrs else ""
+                    host_https_443_description = host_obj.attrs[
+                        "https_version"] if "https_version" in host_obj.attrs else ""
+                    if "https_version_full" in host_obj.attrs and host_obj.attrs["https_version_full"]:
+                        host_https_443_description = host_obj.attrs["https_version_full"]
+                    host_rdp_3389_description = host_obj.attrs["rdp_version"] if "rdp_version" in host_obj.attrs else ""
+
+                    host_printers = []
+
+                    for printer_obj in host_obj.findAll('printer'):
+                        host_printers.append("- {}:/".format(printer_obj.attrs["name"].strip("/")))
+                    host_printers = list(set(host_printers))
+
+                    host_shares = []
+                    for share_obj in host_obj.findAll('share'):
+                        host_shares.append("- {}:/".format(share_obj.attrs["name"].strip("/")))
+
+                    host_ports = {}  # num -> {"service":"...","description":"..."}
+                    for port_obj in host_obj.findAll('service'):
+                        port_num = int(port_obj.attrs["port"])
+                        port_service = "unknown"
+                        port_description = port_obj.attrs["version"]
+                        if port_num in [80, 8080, 8888]:
+                            port_service = "http"
+                        if port_num == 445:
+                            port_service = "smb"
+                        if port_num in [443, 4443, 8443]:
+                            port_service = "https"
+                        if port_num == 3389:
+                            port_service = "rdp"
+                        if port_num == 135:
+                            port_service = "rpc"
+                        if port_num == 139:
+                            port_service = "netbios-ssn"
+                        if port_num == 515:
+                            port_service = "printer"
+                        if port_num == 80 and host_http_80_description:
+                            port_description = host_http_80_description
+                        if port_num == 443 and host_https_443_description:
+                            port_description = host_https_443_description
+                        if port_num == 8080 and host_http_8080_description:
+                            port_description = host_http_8080_description
+                        if port_num == 21 and host_ftp_21_description:
+                            port_description = host_ftp_21_description
+                        if port_num == 3389 and host_rdp_3389_description:
+                            port_description = host_rdp_3389_description
+                        if port_num == 445 and host_shares:
+                            port_description += "\n\nShares:" + "\n".join(host_shares)
+                        if port_num == 445 and host_printers:
+                            port_description += "\n\nPrinters:" + "\n".join(host_printers)
+
+                        if 0 < port_num < 65536:
+                            host_ports[port_num] = {
+                                "service": port_service,
+                                "description": port_description
+                            }
+
+                    if form.add_no_open.data or len(host_ports):
+
+                        # add host
+                        host_id = db.select_project_host_by_ip(current_project['id'], host_ip)
+                        if not host_id:
+                            host_id = db.insert_host(current_project['id'], host_ip, current_user['id'],
+                                                     host_description_full, os=host_os)
+                        else:
+                            host_id = host_id[0]['id']
+                            db.update_host_description(host_id, host_description_full)
+                            db.update_host_os(host_id, host_os)
+
+                        # add hostnames
+                        for hostname in hostnames_list:
+                            if hostname:
+                                hostname_id = db.select_ip_hostname(host_id, hostname)
+                                if not hostname_id:
+                                    hostname_id = db.insert_hostname(host_id, hostname.lower(),
+                                                                     form.hostnames_description.data,
+                                                                     current_user['id'])
+
+                        # add ports
+                        for port_num in host_ports:
+                            port_id = db.select_host_port(host_id, port_num, True)
+                            if port_id:
+                                port_id = port_id[0]['id']
+                                db.update_port_proto_description(port_id, host_ports[port_num]['service'],
+                                                                 host_ports[port_num]['description'])
+                            else:
+                                port_id = db.insert_host_port(host_id, port_num, True, host_ports[port_num]['service'],
+                                                              host_ports[port_num]['description'],
+                                                              current_user['id'], current_project['id'])
+    return render_template('project/tools/import/advanced_port_scanner.html',
+                           current_project=current_project,
+                           tab_name='Advanced Port Scanner',
                            errors=errors)
