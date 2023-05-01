@@ -21,7 +21,7 @@
             });
         </script>
         <div class="ui column" style="width: calc(100% - 75px)">
-            <h1 class="ui dividing header">Nmap</h1>
+            <h1 class="ui dividing header">Advanced Port/IP Scanners</h1>
             <div class="ui container" style="width: 100%">
                 <div class="ui relaxed divided items">
                     <div class="item">
@@ -39,10 +39,46 @@
                                 <a>Vulnerability scanner</a>
                             </div>
                             <div class="description">
-                                Advanced Port Scanner is a free network scanner allowing you to quickly find open ports on network computers and retrieve versions of programs running on the detected ports. The program has a user-friendly interface and rich functionality.
+                                Advanced Port Scanner is a free network scanner allowing you to quickly find open ports
+                                on network computers and retrieve versions of programs running on the detected ports.
+                                The program has a user-friendly interface and rich functionality.
                             </div>
                             <div class="extra">
-                                <a href="https://www.advanced-port-scanner.com/" class="ui right floated purple button" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.advanced-port-scanner.com/" class="ui right floated purple button"
+                                   target="_blank" rel="noopener noreferrer">
+                                    Official site
+                                    <i class="right chevron icon"></i>
+                                </a>
+                                <div class="ui label">Free software</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui divider"></div>
+                <div class="ui relaxed divided items">
+                    <div class="item">
+                        <div class="ui small image">
+                            {% if external_img %}
+                                <img src="https://i.ibb.co/bWFJ6Qk/advanced-ip-scanner.png">
+                            {% else %}
+                                <img src="/static/images/advanced_ip_scanner.png">
+                            {% endif %}
+                        </div>
+                        <div class="content">
+                            <a class="header">Advanced IP Scanner</a>
+                            <div class="meta">
+                                <a>Port scanner</a>
+                                <a>Vulnerability scanner</a>
+                            </div>
+                            <div class="description">
+                                Reliable and free network scanner to analyze LAN. The program shows all network devices,
+                                gives you access to shared folders, provides remote control of computers (via RDP and
+                                Radmin), and can even remotely switch computers off. It is easy to use and runs as a
+                                portable edition. It should be the first choice for every network admin.
+                            </div>
+                            <div class="extra">
+                                <a href="https://www.advanced-ip-scanner.com/" class="ui right floated purple button"
+                                   target="_blank" rel="noopener noreferrer">
                                     Official site
                                     <i class="right chevron icon"></i>
                                 </a>
@@ -53,7 +89,8 @@
                 </div>
                 <div class="ui divider"></div>
                 <h2 class="ui header">Upload reports</h2>
-                <form class="ui form" enctype="multipart/form-data" method="post" action="/project/{{ current_project['id'] }}/tools/advanced_port_scanner/">
+                <form class="ui form" enctype="multipart/form-data" method="post"
+                      action="/project/{{ current_project['id'] }}/tools/advanced_port_scanner/">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="two fields">
                         <div class="ui field">
@@ -62,7 +99,8 @@
                         </div>
                         <div class="ui field">
                             <label>Hosts description:</label>
-                            <input type="text" name="hosts_description" placeholder="Added from Advanced Port Scanner" value="Added from Advanced Port Scanner">
+                            <input type="text" name="hosts_description" placeholder="Added from Advanced Port Scanner"
+                                   value="Added from Advanced Port Scanner">
                         </div>
                     </div>
                     <div class="two fields">
@@ -70,10 +108,12 @@
                             <label>Ignore ports:</label>
                             <input type="text" name="ignore_ports" placeholder="554, 7070, 53, 22">
                         </div>
-                         <div class="ui field">
+                        <div class="ui field">
                             <div class="ui field">
                                 <label>Hostnames description:</label>
-                                <input type="text" name="hostnames_description" placeholder="Added from Advanced Port Scanner" value="Added from Advanced Port Scanner">
+                                <input type="text" name="hostnames_description"
+                                       placeholder="Added from Advanced Port Scanner"
+                                       value="Added from Advanced Port Scanner">
                             </div>
                         </div>
                     </div>
@@ -83,7 +123,7 @@
                         </div>
                         <div class="ui field">
                             <div class="ui checkbox" style="margin-top: 10px;">
-                                <input type="checkbox" name="add_no_open" value="1" checked>
+                                <input type="checkbox" name="add_no_open" value="1">
                                 <label>Add hosts without open ports.</label>
                             </div>
                         </div>

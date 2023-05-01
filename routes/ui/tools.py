@@ -239,7 +239,7 @@ def nmap_page_form(project_id, current_project, current_user):
                                         if 'credentials' in script_obj.script_types:
                                             credentials = script_obj.credentials()
                                             for cred in credentials:
-                                                login = cred['login'] if 'login' in cred else ''
+                                                login = cred['login'] if 'login' in cred else '_BLANC'
                                                 cleartext = cred['cleartext'] if 'cleartext' in cred else ''
                                                 hash_str = cred['hash'] if 'hash' in cred else ''
                                                 description = cred['description'] if 'description' in cred else ''
@@ -6437,7 +6437,7 @@ def advanced_port_scanner_form(project_id, current_project, current_user):
 
                     host_os = host_obj.attrs["os_version"] if "os_version" in host_obj.attrs else ""
                     host_status = host_obj.attrs["status"]  # alive/unknown
-                    host_manufacture = host_obj.attrs["manufacture"] if "manufacture" in host_obj.attrs else ""
+                    host_manufacture = host_obj.attrs["manufacturer"] if "manufacturer" in host_obj.attrs else ""
                     host_users = host_obj.attrs["user"] if "user" in host_obj.attrs else ""
                     host_mac = host_obj.attrs["mac"] if "mac" in host_obj.attrs and \
                                                         host_obj.attrs["mac"] != "00:00:00:00:00:00" else ""
@@ -6514,11 +6514,59 @@ def advanced_port_scanner_form(project_id, current_project, current_user):
                         if port_num == 445 and host_printers:
                             port_description += "\n\nPrinters:" + "\n".join(host_printers)
 
+                        port_description = port_description.strip(' \t\r\n')
+
                         if 0 < port_num < 65536:
                             host_ports[port_num] = {
                                 "service": port_service,
                                 "description": port_description
                             }
+
+                    if host_obj.attrs["has_http"] == "1" and \
+                            host_obj.attrs["is_http8080"] == "0" and \
+                            80 not in host_ports:
+                        host_ports[80] = {
+                            "service": "http",
+                            "description": host_http_80_description
+                        }
+
+                    if host_obj.attrs["has_http"] == "1" and \
+                            host_obj.attrs["is_http8080"] == "1" and \
+                            8080 not in host_ports:
+                        host_ports[80] = {
+                            "service": "http",
+                            "description": host_http_8080_description
+                        }
+
+                    if host_obj.attrs["has_https"] == "1" and 443 not in host_ports:
+                        host_ports[443] = {
+                            "service": "https",
+                            "description": host_https_443_description
+                        }
+
+                    if host_obj.attrs["has_ftp"] == "1" and 21 not in host_ports:
+                        host_ports[21] = {
+                            "service": "ftp",
+                            "description": host_ftp_21_description
+                        }
+
+                    if host_obj.attrs["has_rdp"] == "1" and 3389 not in host_ports:
+                        host_ports[3389] = {
+                            "service": "rdp",
+                            "description": host_rdp_3389_description
+                        }
+
+                    if (host_shares or host_printers) and 445 not in host_ports:
+                        description = ""
+                        if host_shares:
+                            description = "Shares:" + "\n".join(host_shares)
+                        if host_printers:
+                            description += "\n\nPrinters:" + "\n".join(host_printers)
+                        description = description.strip(' \r\t\n')
+                        host_ports[445] = {
+                            "service": "smb",
+                            "description": description
+                        }
 
                     if form.add_no_open.data or len(host_ports):
 
