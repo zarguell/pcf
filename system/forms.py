@@ -898,6 +898,8 @@ class DuplicatorForm(FlaskForm):
     copy_deadline = IntegerField('copy_deadline', default=0)
     copy_users = IntegerField('copy_users', default=0)
     copy_info = IntegerField('copy_info', default=0)
+    copy_folder = IntegerField('copy_folder', default=0)
+    copy_report_title = IntegerField('copy_report_title', default=0)
     hosts = NonValidatingSelectMultipleField(StringField('hosts',
                                                          validators=[UUID(message='Wrong host-ID format!')]
                                                          ), default=[]

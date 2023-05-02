@@ -3485,6 +3485,10 @@ def duplicator_page_form(project_id, current_project, current_user):
             destination_project['description'] = current_project['description']
         if form.copy_scope.data:
             destination_project['scope'] = current_project['scope']
+        if form.copy_folder.data:
+            destination_project['folder'] = current_project['folder']
+        if form.copy_report_title.data:
+            destination_project['report_title'] = current_project['report_title']
         if form.copy_deadline.data:
             destination_project['end_date'] = current_project['end_date']
             destination_project['auto_archive'] = 0
@@ -3511,8 +3515,8 @@ def duplicator_page_form(project_id, current_project, current_user):
                                    destination_project['auto_archive'],
                                    json.loads(destination_project['testers']),
                                    json.loads(destination_project['teams']),
-                                   json.loads(destination_project['folder']),
-                                   json.loads(destination_project['report_title']))
+                                   destination_project['folder'],
+                                   destination_project['report_title'])
 
         # check paths
         paths_ids_list = list(set(form.paths.data))
