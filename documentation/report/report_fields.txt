@@ -133,3 +133,4 @@ latex_escape(s: str) -> str # escape string to insert it inside latex template
 docx_image(image_id: poc_uuid, width=None: millimeters, height=None: millimeters) # insert image to docx with resizing
 format_date(unix_time: int, str_format: str) -> str # convert UNIX-time into date string
 ips_in_subnets(ips_arr: list, networks_arr: list) -> bool # If at least 1 ip is at least in 1 network
+docx_link(link_test: str, link_href:str) # Converts link to Richtext (clickable links). You need to use it etc at {{r ... rt}}

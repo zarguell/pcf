@@ -1073,9 +1073,12 @@ def nikto_page_form(project_id, current_project, current_user):
                     method = issue['method']
                     url = issue.uri.contents[0]
                     full_url = '{} {}'.format(method, url)
-                    osvdb = int(issue['osvdbid'])
-                    info = issue.description.contents[0]
-                    full_info = 'OSVDB: {}\n\n{}'.format(osvdb, info)
+                    osvdb = int(issue['osvdbid']) if 'osvdbid' in issue else ''
+                    info = issue.description.contents[0] if issue.description and len(issue.description.contents) else ''
+                    full_info = ''
+                    # small fixes for https://gitlab.com/invuls/pentest-projects/pcf/-/issues/167
+                    if osvdb or info:
+                        full_info = 'OSVDB: {}\n\n{}'.format(osvdb, info)
 
                     services = {port_id: ['0']}
                     if hostname_id:

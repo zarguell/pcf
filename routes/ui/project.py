@@ -2,7 +2,7 @@ import ipaddress
 
 from routes.ui import routes
 from functools import wraps
-from docxtpl import DocxTemplate, InlineImage
+from docxtpl import DocxTemplate, InlineImage, RichText
 from docx.shared import Mm
 from io import BytesIO
 from system.forms import *
@@ -3151,6 +3151,11 @@ def generate_report(project_id, current_project, current_user):
                 image_object = InlineImage(template_obj, tmp_image_path)
             return image_object
 
+        def docx_link(link_text, link_href):
+            rt = RichText()
+            rt.add(link_text, url_id=template_obj.build_url_id(link_href))
+            return rt
+
         if zipfile.is_zipfile(report_path):
             if isValidDocx(report_path):
                 # docx
@@ -3176,6 +3181,11 @@ def generate_report(project_id, current_project, current_user):
                     else:
                         image_object = InlineImage(template_obj, tmp_image_path)
                     return image_object
+
+                def docx_link(link_text, link_href):
+                    rt = RichText()
+                    rt.add(link_text, url_id=template_obj.build_url_id(link_href))
+                    return rt
 
                 for poc_id in project_dict['pocs']:
                     project_dict['pocs'][poc_id]['content_image'] = None
@@ -3209,6 +3219,7 @@ def generate_report(project_id, current_project, current_user):
                                                       str_format: datetime.datetime.fromtimestamp(
                                     int(unix_time)).strftime(str_format),
                                 "docx_image": docx_image,
+                                "docx_link": docx_link,
                                 "ips_in_subnets": lambda ip_arr, network_arr: True in [
                                     ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for ip in ip_arr
                                     for network in network_arr]
@@ -3323,6 +3334,11 @@ def generate_report(project_id, current_project, current_user):
                                                     image_object = InlineImage(template_obj, tmp_image_path)
                                                 return image_object
 
+                                            def docx_link(link_text, link_href):
+                                                rt = RichText()
+                                                rt.add(link_text, url_id=template_obj.build_url_id(link_href))
+                                                return rt
+
                                             for poc_id in project_dict['pocs']:
                                                 project_dict['pocs'][poc_id]['content_image'] = None
                                                 if project_dict['pocs'][poc_id]['filetype'] == 'image':
@@ -3355,6 +3371,7 @@ def generate_report(project_id, current_project, current_user):
                                                                               str_format: datetime.datetime.fromtimestamp(
                                                             int(unix_time)).strftime(str_format),
                                                         "docx_image": docx_image,
+                                                        "docx_link": docx_link,
                                                         "ips_in_subnets": lambda ip_arr, network_arr: True in [
                                                             ipaddress.ip_address(ip) in ipaddress.ip_network(network,
                                                                                                              False) for
