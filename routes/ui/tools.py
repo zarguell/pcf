@@ -1073,12 +1073,13 @@ def nikto_page_form(project_id, current_project, current_user):
                     method = issue['method']
                     url = issue.uri.contents[0]
                     full_url = '{} {}'.format(method, url)
-                    osvdb = int(issue['osvdbid']) if 'osvdbid' in issue else ''
-                    info = issue.description.contents[0] if issue.description and len(issue.description.contents) else ''
-                    full_info = ''
+                    references = issue.references.contents[0] if issue.references and issue.references.contents else ''
+                    full_info = issue.description.contents[0]
+
                     # small fixes for https://gitlab.com/invuls/pentest-projects/pcf/-/issues/167
-                    if osvdb or info:
-                        full_info = 'OSVDB: {}\n\n{}'.format(osvdb, info)
+                    osvdb = int(issue['osvdbid']) if 'osvdbid' in issue else ''
+                    if osvdb:
+                        full_info = 'OSVDB: {}\n\n'.format(osvdb) + full_info
 
                     services = {port_id: ['0']}
                     if hostname_id:
@@ -1090,6 +1091,7 @@ def nikto_page_form(project_id, current_project, current_user):
                                         current_project['id'],
                                         cve=0,
                                         cwe=0,
+                                        references=references
                                         )
 
     return render_template('project/tools/import/nikto.html',
@@ -5607,8 +5609,8 @@ def metasploit_page_form(project_id, current_project, current_user):
                         vuln_url = vuln_obj.find('path').text
                         vuln_method = vuln_obj.find('method').text
                         vuln_param = vuln_obj.find('pname').text
-                        vuln_params = base64.b64decode(vuln_obj.find('params').text).decode('charmap')[
-                                      4:]  # i dont know how to parse better
+                        # I don't know how to parse better
+                        vuln_params = base64.b64decode(vuln_obj.find('params').text).decode('charmap')[4:]
                         vuln_description = vuln_obj.find('description').text
                         vuln_payload = vuln_obj.find('payload').text
                         vuln_website_id = vuln_obj.find('web-site-id').text
