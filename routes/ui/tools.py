@@ -5350,6 +5350,10 @@ def theharvester_page_form(project_id, current_project, current_user):
                     ips_str = hostname_row.find('ip').text
                     hostname = hostname_row.find('hostname').text
 
+                    # some theHarvester's hosts don't have IP (only hostname)
+                    if (ips_str == ''):
+                        continue
+
                     ip_array = ips_str.split(', ')
                     for ip_address in ip_array:
                         # check valid ip
