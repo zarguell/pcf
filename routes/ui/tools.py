@@ -5347,29 +5347,30 @@ def theharvester_page_form(project_id, current_project, current_user):
                 scan_result = soup.findAll('host')
 
                 for hostname_row in scan_result:
-                    ips_str = hostname_row.find('ip').text
-                    hostname = hostname_row.find('hostname').text
+                    if hostname_row.find('ip') and hostname_row.find('hostname'):
+                        ips_str = hostname_row.find('ip').text
+                        hostname = hostname_row.find('hostname').text
 
-                    # some theHarvester's hosts don't have IP (only hostname)
-                    if (ips_str == ''):
-                        continue
+                        # some theHarvester's hosts don't have IP (only hostname)
+                        if ips_str == '':
+                            continue
 
-                    ip_array = ips_str.split(', ')
-                    for ip_address in ip_array:
-                        # check valid ip
-                        ipaddress.ip_address(ip_address)
+                        ip_array = ips_str.replace(' ', '').split(',')
+                        for ip_address in ip_array:
+                            # check valid ip
+                            ipaddress.ip_address(ip_address)
 
-                        current_host = db.select_project_host_by_ip(current_project['id'], ip_address)
-                        if current_host:
-                            host_id = current_host[0]['id']
-                        else:
-                            host_id = db.insert_host(current_project['id'], ip_address, current_user['id'],
-                                                     form.hosts_description.data)
+                            current_host = db.select_project_host_by_ip(current_project['id'], ip_address)
+                            if current_host:
+                                host_id = current_host[0]['id']
+                            else:
+                                host_id = db.insert_host(current_project['id'], ip_address, current_user['id'],
+                                                         form.hosts_description.data)
 
-                        current_hostname = db.select_ip_hostname(host_id, hostname)
-                        if not current_hostname:
-                            hostname_id = db.insert_hostname(host_id, hostname, form.hostnames_description.data,
-                                                             current_user['id'])
+                            current_hostname = db.select_ip_hostname(host_id, hostname)
+                            if not current_hostname:
+                                hostname_id = db.insert_hostname(host_id, hostname, form.hostnames_description.data,
+                                                                 current_user['id'])
 
     return render_template('project/tools/import/theharvester.html',
                            current_project=current_project,

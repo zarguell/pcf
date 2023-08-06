@@ -42,6 +42,7 @@
                 var quill_array = [''];
 
                 function submitnote(number, note_id, action, name = '') {
+
                     if (action === 'Delete') {
                         if (delete_prompt(this, 'Are you sure to delete note?') == false) {
                             return false;
@@ -67,6 +68,8 @@
                             }
                         });
                     } else {
+
+                        note_text = editor_array[number][0].childNodes[0].innerHTML;
                         $.ajax({
                             url: '/project/{{current_project['id']}}/notes/edit',
                             type: 'post',
@@ -76,7 +79,7 @@
                                 'csrf_token': '{{ csrf_token() }}',
                                 'note_id': note_id,
                                 'action': action,
-                                'text': editor_array[number][0].childNodes[0].innerHTML
+                                'text': note_text
                             },
                             success: function (data) {
                                 $('body')
@@ -131,7 +134,8 @@
                                       action="/project/{{ current_project['id'] }}/notes/edit" method="post">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <input type="hidden" name="note_id" value="{{ (current_note['id']) }}"/>
-                                    <textarea type="hidden" id="textarea-{{ loop.index }}" style="display: none;">{{ current_note['text'] }}</textarea>
+                                    <textarea type="hidden" id="textarea-{{ loop.index }}"
+                                              style="display: none;">{{ current_note['text'] }}</textarea>
                                     <div style="float: left; margin-bottom: 15px; width: 100%; height: calc(100% - 10px)">
                                         <div id="toolbar-container_{{ loop.index }}">
                                             <span class="ql-formats">
@@ -175,40 +179,52 @@
                                             </span>
                                             <span class="ql-formats">
                                               <button class="ql-clean"></button>
-                                              <button type="button" id="ql-print-{{ loop.index }}"><i class="ui icon print"></i></button>
+                                              <button type="button" id="ql-print-{{ loop.index }}"><i
+                                                      class="ui icon print"></i></button>
                                             </span>
                                             <span class="ql-formats">
                                                 <button class="ql-table" title="Insert table"></button>
-                                                <button type="button" style="float: left;" id="insert-row-below-{{ loop.index }}"  title="Insert row below">
+                                                <button type="button" style="float: left;"
+                                                        id="insert-row-below-{{ loop.index }}" title="Insert row below">
                                                     <i class="ui icon arrow down" style="cursor:pointer;"></i>
                                                 </button>
 
-                                                <button type="button" style="float: left;" id="insert-row-above-{{ loop.index }}"  title="Insert row above">
+                                                <button type="button" style="float: left;"
+                                                        id="insert-row-above-{{ loop.index }}" title="Insert row above">
                                                     <i class="ui icon arrow up" style="cursor:pointer;"></i>
                                                 </button>
-                                                <button type="button" style="float: left;" id="insert-column-left-{{ loop.index }}"  title="Insert column left">
+                                                <button type="button" style="float: left;"
+                                                        id="insert-column-left-{{ loop.index }}"
+                                                        title="Insert column left">
                                                     <i class="ui icon arrow left" style="cursor:pointer;"></i>
                                                 </button>
 
-                                                <button type="button" style="float: left;" id="insert-column-right-{{ loop.index }}"  title="Insert column right">
+                                                <button type="button" style="float: left;"
+                                                        id="insert-column-right-{{ loop.index }}"
+                                                        title="Insert column right">
                                                     <i class="ui icon arrow right" style="cursor:pointer;"></i>
                                                 </button>
 
-                                                <button type="button" style="float: left;" id="delete-row-{{ loop.index }}"  title="Delete row">
-                                                    <i class="ui icon fast backward rotated" style="cursor:pointer;"></i>
+                                                <button type="button" style="float: left;"
+                                                        id="delete-row-{{ loop.index }}" title="Delete row">
+                                                    <i class="ui icon fast backward rotated"
+                                                       style="cursor:pointer;"></i>
                                                 </button>
 
 
-                                                <button type="button" style="float: left;" id="delete-column-{{ loop.index }}"  title="Delete column">
+                                                <button type="button" style="float: left;"
+                                                        id="delete-column-{{ loop.index }}" title="Delete column">
                                                     <i class="ui icon fast backward" style="cursor:pointer;"></i>
                                                 </button>
-                                                <button type="button" style="float: left;" id="delete-table-{{ loop.index }}"  title="Delete table">
+                                                <button type="button" style="float: left;"
+                                                        id="delete-table-{{ loop.index }}" title="Delete table">
                                                     <i class="ui icon trash alternate" style="cursor:pointer;"></i>
                                                 </button>
 
                                             </span>
                                         </div>
-                                        <div id="editor_{{ loop.index }}" name="text" style="height: calc(100% - 70px); max-height: calc(100% - 70px); overflow: auto;"></div>
+                                        <div id="editor_{{ loop.index }}" name="text"
+                                             style="height: calc(100% - 70px); max-height: calc(100% - 70px); overflow: auto;"></div>
                                     </div>
                                     <div class="ui checkbox">
                                         <input type="checkbox" id="checkbox-{{ loop.index }}" name="checkbox">
@@ -224,8 +240,10 @@
                                         <i class="ui sync icon"></i>Update
                                     </button>
                                     <div class="ui action input" style="float: right; margin-right:10px;">
-                                        <input type="text" required maxlength="20" placeholder="Note name" value="{{ (current_note['name']) }}" id="node_name_{{ loop.index }}">
-                                        <button type="button" class="ui icon blue button" onclick="submitnote(0,'{{ current_note['id'] }}','Rename', document.getElementById('node_name_{{ loop.index }}').value);">
+                                        <input type="text" required maxlength="20" placeholder="Note name"
+                                               value="{{ (current_note['name']) }}" id="node_name_{{ loop.index }}">
+                                        <button type="button" class="ui icon blue button"
+                                                onclick="submitnote(0,'{{ current_note['id'] }}','Rename', document.getElementById('node_name_{{ loop.index }}').value);">
                                             <i class="edit icon"></i>
                                         </button>
                                     </div>
@@ -282,6 +300,12 @@
 
                                 text_val = $('#textarea-{{ loop.index }}')[0].value;
                                 delta = quill_{{ loop.index }}.clipboard.convert({html: text_val});
+
+                                for (let i = 0; i < delta.ops.length; i++) {
+                                    if (delta.ops[i].insert === "PlainBashC++C#CSSDiffHTML/XMLJavaJavascriptMarkdownPHPPythonRubySQL\n") {
+                                        delta.ops[i].insert = ''
+                                    }
+                                }
 
                                 quill_{{ loop.index }}.setContents(delta, 'silent');
 
