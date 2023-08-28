@@ -1168,6 +1168,20 @@ class MultipleAddHosts(FlaskForm):
     hostname = StringField('hostname',
                            validators=[],
                            default='')
+    portnum = StringField('portnum',
+                           validators=[],
+                           default='0')
+    protocol = StringField('protocol',
+                           validators=[
+                               AnyOf('', 'tcp', 'udp')
+                           ],
+                           default='tcp')
+    service = StringField('service',
+                                validators=[],
+                                default='')
+    port_comment = StringField('port_comment',
+                               validators=[],
+                               default=0)
     description = StringField('description',
                               validators=[],
                               default='')
@@ -1184,6 +1198,22 @@ class MultipleAddHosts(FlaskForm):
                                     NumberRange(min=0, max=100,
                                                 message="Hostname index must be in 1..100 (0 if ignore)!"), ],
                                 default=0)
+    portnum_num = IntegerField('portnum_num',
+                           validators=[NumberRange(min=0, max=100,
+                                                message="Port index must be in 1..100 (0 if ignore)!")],
+                           default=0)
+    protocol_num = IntegerField('protocol_num',
+                           validators=[NumberRange(min=0, max=100,
+                                                message="Protocol index must be in 1..100 (0 if ignore)!")],
+                           default=0)
+    service_num = IntegerField('service_num',
+                                validators=[NumberRange(min=0, max=100,
+                                                        message="Service index must be in 1..100 (0 if ignore)!")],
+                                default=0)
+    port_comment_num = IntegerField('port_comment_num',
+                               validators=[NumberRange(min=0, max=100,
+                                                       message="Port comment index must be in 1..100 (0 if ignore)!")],
+                               default=0)
     description_num = IntegerField('description_num',
                                    validators=[
                                        NumberRange(min=0, max=100,
