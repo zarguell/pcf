@@ -3101,7 +3101,9 @@ def generate_report(project_id, current_project, current_user):
                 errors.append(error)
 
     need_to_delete = True
+    report_template = None
     if not errors:
+        report_template = None
         need_to_delete = True
         if form.example_template.data:
             report_path = form.example_template.data
@@ -3121,11 +3123,25 @@ def generate_report(project_id, current_project, current_user):
         else:
             # exist template
             if is_valid_uuid(form.template_id.data):
-                if db.select_report_templates(template_id=form.template_id.data):
-                    report_path = path.join('./static/files/templates/',
-                                            form.template_id.data)
+                report_template = db.select_report_templates(template_id=form.template_id.data)
+                if report_template:
+                    report_template = report_template[0]
+                    if report_template['storage'] == 'filesystem':
+                        report_path = path.join('./static/files/templates/',
+                                                form.template_id.data)
+                    elif report_template['storage'] == 'database':
+                        # creating tmp file
+                        report_path = path.join(config['main']['tmp_path'], report_template['id'])
+                        f = open(report_path, 'wb')
+                        f.write(base64.b64decode(report_template['base64']))
+                        f.close()
             else:
                 errors.append('Wrong template id!')
+
+    def clear_report(report_template_obj, report_path_str):
+        if report_template_obj and 'storage' in report_template_obj and report_path_str:
+            if report_template_obj['storage'] == 'database':
+                remove(report_path_str)
 
     def isdir(z, name):
         return any(x.startswith("%s/" % name.rstrip("/")) for x in z.namelist())
@@ -3239,6 +3255,7 @@ def generate_report(project_id, current_project, current_user):
                 except Exception as e:
                     for image_tmp_path in template_images:
                         remove(image_tmp_path)
+                    clear_report(report_template, report_path)
                     return render_template(
                         'project/reports/index.html',
                         current_project=current_project,
@@ -3266,6 +3283,7 @@ def generate_report(project_id, current_project, current_user):
                                    current_user['id'], storage=config["files"]["files_storage"],
                                    data=file_data)
 
+                clear_report(report_template, report_path)
                 return Response(result_data,
                                 mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                 headers={
@@ -3424,6 +3442,7 @@ def generate_report(project_id, current_project, current_user):
                                         f.close()
                                 except Exception as e:
                                     shutil.rmtree(zip_unpacked_path)
+                                    clear_report(report_template, report_path)
                                     return render_template(
                                         'project/reports/index.html',
                                         current_project=current_project,
@@ -3469,7 +3488,7 @@ def generate_report(project_id, current_project, current_user):
                                    '{}', 'report', current_user['id'],
                                    storage=config["files"]["files_storage"],
                                    data=file_data)
-
+                clear_report(report_template, report_path)
                 return Response(result_data,
                                 mimetype="application/zip",
                                 headers={
@@ -3529,7 +3548,7 @@ def generate_report(project_id, current_project, current_user):
                                        '{}', 'report', current_user['id'],
                                        storage=config["files"]["files_storage"],
                                        data=file_data)
-
+                    clear_report(report_template, report_path)
                     return Response(rendered_txt,
                                     mimetype="text/plain",
                                     headers={
@@ -3541,6 +3560,7 @@ def generate_report(project_id, current_project, current_user):
                 # headers={
                 #    "Content-disposition": "attachment; filename=passwords.txt"})
             except Exception as e:
+                clear_report(report_template, report_path)
                 return render_template(
                     'project/reports/index.html',
                     current_project=current_project,
@@ -3548,6 +3568,7 @@ def generate_report(project_id, current_project, current_user):
                     errors=errors,
                     exception=str(e),
                     tab_name='Reports')
+    clear_report(report_template, report_path)
     return render_template(
         'project/reports/index.html',
         current_project=current_project,
