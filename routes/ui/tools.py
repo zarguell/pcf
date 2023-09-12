@@ -6618,3 +6618,160 @@ def advanced_port_scanner_form(project_id, current_project, current_user):
                            current_project=current_project,
                            tab_name='Advanced Port Scanner',
                            errors=errors)
+
+
+@routes.route('/project/<uuid:project_id>/tools/redcheck/', methods=['GET'])
+@requires_authorization
+@check_session
+@check_project_access
+@send_log_data
+def redcheck_page(project_id, current_project, current_user):
+    return render_template('project/tools/import/redcheck.html',
+                           current_project=current_project,
+                           tab_name='RedCheck')
+
+
+@routes.route('/project/<uuid:project_id>/tools/redcheck/', methods=['POST'])
+@requires_authorization
+@check_session
+@check_project_access
+@send_log_data
+def redcheck_page_form(project_id, current_project, current_user):
+    form = RedCheckForm()
+    form.validate()
+    errors = []
+    if form.errors:
+        for field in form.errors:
+            for error in form.errors[field]:
+                errors.append(error)
+
+    if not errors:
+        # csv load
+        for file in form.csv_files.data:
+            if file.filename:
+                scan_result = csv.DictReader(codecs.iterdecode(file, 'utf-8'), delimiter=',')
+
+                for issue_row in scan_result:
+
+                    host_ip = issue_row['Хост'] if 'Хост' in issue_row else issue_row['\ufeffХост']
+                    cve_str = issue_row['Cve/AltxId']
+                    issue_port = int(issue_row['Порт']) if issue_row['Порт'] else 0
+                    is_tcp = issue_row['Протокол'] == 'tcp'
+                    issue_severity_ru = issue_row['Критичность']
+                    issue_description = issue_row['Описание']
+                    issue_cpe = issue_row['Cpe']
+                    service_name = issue_row['Имя сервиса'] if issue_row['Имя сервиса'] else 'unknown'
+                    issue_tech = issue_row['Детализация']
+                    issue_cvss2 = issue_row['Cvss2']
+                    issue_cvss2_vector = issue_row['Cvss2 Вектор']
+                    issue_cvss3 = issue_row['Cvss3']
+                    issue_cvss3_vector = issue_row['Cvss3 Вектор']
+                    issue_cve_url = issue_row['Cve Url'] if issue_row['Cve Url'] and issue_row[
+                        'Cve Url'] != 'Нет данных' else ''
+
+                    issue_real_severity = 0
+                    if issue_cvss3:
+                        issue_real_severity = float(issue_cvss3)
+                    elif issue_cvss2:
+                        issue_real_severity = float(issue_cvss2)
+                    elif issue_severity_ru:
+                        if issue_severity_ru == 'Критический':
+                            issue_real_severity = 9.5
+                        elif issue_severity_ru == 'Высокий':
+                            issue_real_severity = 8.0
+                        elif issue_severity_ru == 'Средний':
+                            issue_real_severity = 2.0
+                        elif issue_severity_ru == 'Низкий':
+                            issue_real_severity = 0.0
+                        else:
+                            issue_real_severity = 0.0
+
+                    if issue_real_severity > 10 or issue_real_severity < 0:
+                        issue_real_severity = 0
+
+                    # check ip addresses
+                    try:
+                        ip_obj = ipaddress.ip_address(host_ip)
+                    except:
+                        errors.append("Wrong ip-address!")
+                        return render_template('project/tools/import/redcheck.html',
+                                               current_project=current_project,
+                                               tab_name='RedCheck',
+                                               errors=errors)
+                    # check port
+                    if issue_port < 0 or issue_port > 65535:
+                        errors.append("Wrong port number!")
+                        return render_template('project/tools/import/redcheck.html',
+                                               current_project=current_project,
+                                               tab_name='RedCheck',
+                                               errors=errors)
+
+                    # Create host
+                    host_id = db.select_project_host_by_ip(current_project['id'], host_ip)
+                    if host_id:
+                        host_id = host_id[0]['id']
+                    else:
+                        host_id = db.insert_host(current_project['id'],
+                                                 host_ip, current_user['id'],
+                                                 form.hosts_description.data)
+
+                    # Create port
+                    port_id = db.select_host_port(host_id, issue_port, is_tcp)
+                    if port_id:
+                        port_id = port_id[0]['id']
+                    else:
+                        port_id = db.insert_host_port(host_id, issue_port, is_tcp, service_name,
+                                                      form.ports_description.data, current_user['id'],
+                                                      current_project['id'])
+
+                    # Create issue
+                    issue_id = db.insert_new_issue_no_dublicate(
+                        "RedCheck: {}".format(cve_str),
+                        issue_description,
+                        '',
+                        issue_real_severity,
+                        current_user['id'],
+                        {port_id: ["0"]},
+                        "Need to recheck",
+                        current_project['id'],
+                        cve_str,
+                        0,
+                        'custom',
+                        '',
+                        '',
+                        issue_tech,
+                        '',
+                        issue_cve_url
+                    )
+
+                    # Add additional fields
+                    fields_dict = {}
+                    if issue_cvss3_vector:
+                        fields_dict["cvss_vector"] = {
+                            "type": "text",
+                            "val": "CVSS:3.1/" + issue_cvss3_vector.replace("CVSS:3.0/", "").replace("CVSS:3.1/", "")
+                        }
+                    if issue_cvss2_vector:
+                        fields_dict["cvss2_vector"] = {
+                            "type": "text",
+                            "val": issue_cvss2_vector
+                        }
+                    if issue_cvss2:
+                        fields_dict["cvss2"] = {
+                            "type": "float",
+                            "val": float(issue_cvss2)
+                        }
+
+                    if issue_cpe:
+                        fields_dict["cpe"] = {
+                            "type": "text",
+                            "val": issue_cpe
+                        }
+
+                    if fields_dict:
+                        db.update_issue_fields(issue_id, fields_dict)
+
+    return render_template('project/tools/import/redcheck.html',
+                           current_project=current_project,
+                           tab_name='RedCheck',
+                           errors=errors)

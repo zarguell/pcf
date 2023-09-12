@@ -1169,16 +1169,16 @@ class MultipleAddHosts(FlaskForm):
                            validators=[],
                            default='')
     portnum = StringField('portnum',
-                           validators=[],
-                           default='0')
+                          validators=[],
+                          default='0')
     protocol = StringField('protocol',
                            validators=[
                                AnyOf('', 'tcp', 'udp')
                            ],
                            default='tcp')
     service = StringField('service',
-                                validators=[],
-                                default='')
+                          validators=[],
+                          default='')
     port_comment = StringField('port_comment',
                                validators=[],
                                default=0)
@@ -1199,21 +1199,21 @@ class MultipleAddHosts(FlaskForm):
                                                 message="Hostname index must be in 1..100 (0 if ignore)!"), ],
                                 default=0)
     portnum_num = IntegerField('portnum_num',
-                           validators=[NumberRange(min=0, max=100,
-                                                message="Port index must be in 1..100 (0 if ignore)!")],
-                           default=0)
-    protocol_num = IntegerField('protocol_num',
-                           validators=[NumberRange(min=0, max=100,
-                                                message="Protocol index must be in 1..100 (0 if ignore)!")],
-                           default=0)
-    service_num = IntegerField('service_num',
-                                validators=[NumberRange(min=0, max=100,
-                                                        message="Service index must be in 1..100 (0 if ignore)!")],
-                                default=0)
-    port_comment_num = IntegerField('port_comment_num',
                                validators=[NumberRange(min=0, max=100,
-                                                       message="Port comment index must be in 1..100 (0 if ignore)!")],
+                                                       message="Port index must be in 1..100 (0 if ignore)!")],
                                default=0)
+    protocol_num = IntegerField('protocol_num',
+                                validators=[NumberRange(min=0, max=100,
+                                                        message="Protocol index must be in 1..100 (0 if ignore)!")],
+                                default=0)
+    service_num = IntegerField('service_num',
+                               validators=[NumberRange(min=0, max=100,
+                                                       message="Service index must be in 1..100 (0 if ignore)!")],
+                               default=0)
+    port_comment_num = IntegerField('port_comment_num',
+                                    validators=[NumberRange(min=0, max=100,
+                                                            message="Port comment index must be in 1..100 (0 if ignore)!")],
+                                    default=0)
     description_num = IntegerField('description_num',
                                    validators=[
                                        NumberRange(min=0, max=100,
@@ -1444,3 +1444,10 @@ class AdvancedPortScanner(FlaskForm):
     ignore_ports = StringField('ignore_ports', default='')
     hosts_description = StringField('hosts_description', default='Added from Advanced Port Scanner')
     hostnames_description = StringField('hostnames_description', default='Added from Advanced Port Scanner')
+
+
+class RedCheckForm(FlaskForm):
+    csv_files = MultipleFileField('csv_files')
+    hosts_description = StringField('hosts_description', default='Added from RedCheck scan')
+    hostnames_description = StringField('hostnames_description', default='Added from RedCheck scan')
+    ports_description = StringField('ports_description', default='Added from RedCheck scan')
