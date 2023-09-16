@@ -3215,7 +3215,7 @@ def generate_report(project_id, current_project, current_user):
                             shutil.copyfile(original_image_path, tmp_image_path)
                         elif config['files']['poc_storage'] == 'database':
                             with open(tmp_image_path, 'wb') as f:
-                                f.write(base64.b64decode(project_dict['pocs'][poc_id]['base64']))
+                                f.write(base64.b64decode(project_dict['pocs'][poc_id]['content_base64']))
                                 f.close()
                         project_dict['pocs'][poc_id]['content_image'] = InlineImage(template_obj, tmp_image_path)
                 try:
@@ -3374,7 +3374,7 @@ def generate_report(project_id, current_project, current_user):
                                                         shutil.copyfile(original_image_path, tmp_image_path)
                                                     elif config['files']['poc_storage'] == 'database':
                                                         with open(tmp_image_path, 'wb') as f:
-                                                            f.write(base64.b64decode(project_dict['pocs'][poc_id]['base64']))
+                                                            f.write(base64.b64decode(project_dict['pocs'][poc_id]['content_base64']))
                                                             f.close()
 
                                                     project_dict['pocs'][poc_id]['content_image'] = InlineImage(
@@ -3456,15 +3456,21 @@ def generate_report(project_id, current_project, current_user):
                 poc_save_dir = path.join(zip_unpacked_path, 'poc_files')
                 makedirs(poc_save_dir)
                 for current_poc in db.select_project_pocs(current_project['id']):
-                    poc_server_path = path.join(path.join('./static/files/poc/',
-                                                          current_poc['id']))
                     if current_poc['type'] == 'text':
                         poc_save_path = path.join(poc_save_dir,
                                                   current_poc['id'] + '.txt')
                     elif current_poc['type'] == 'image':
                         poc_save_path = path.join(poc_save_dir,
                                                   current_poc['id'] + '.png')
-                    shutil.copyfile(poc_server_path, poc_save_path)
+                    if current_poc['storage'] == 'filesystem':
+                        poc_server_path = path.join(path.join('./static/files/poc/',
+                                                              current_poc['id']))
+                        shutil.copyfile(poc_server_path, poc_save_path)
+                    elif current_poc['storage'] == 'database':
+                        content_b = base64.b64decode(current_poc['base64'])
+                        f = open(poc_save_path,'wb')
+                        f.write(content_b)
+                        f.close()
                     result_zip_obj.write(poc_save_path)
 
                 result_zip_obj.close()

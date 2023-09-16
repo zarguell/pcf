@@ -1382,10 +1382,12 @@ class Database:
             (poc_id,))
         self.conn.commit()
         if self.config['main']['auto_delete_poc'] == '1':
-            poc_path = path.join('./static/files/poc/', poc_id)
-            remove(poc_path)
+            if removed_poc['storage'] == 'filesystem':
+                poc_path = path.join('./static/files/poc/', poc_id)
+                remove(poc_path)
             self.insert_log('Deleted PoC {} with file'.format(poc_id))
-        self.insert_log('Deleted PoC {} without file.'.format(poc_id))
+        else:
+            self.insert_log('Deleted PoC {} without file.'.format(poc_id))
         if removed_poc['priority']:
             priority_pocs = self.select_issue_flagged_pocs(removed_poc['issue_id'])
             if not priority_pocs:
@@ -2840,7 +2842,8 @@ class Database:
             return
         template = template[0]
 
-        remove('./static/files/templates/{}'.format(template['id']))
+        if template['storage'] == 'filesystem':
+            remove('./static/files/templates/{}'.format(template['id']))
 
         self.execute(
             '''DELETE FROM ReportTemplates WHERE id = ?  ''',
@@ -3015,9 +3018,12 @@ class Database:
                     service_obj['hostnames'] = [curr_poc['hostname_id']]
                 poc_obj['services'][curr_poc['port_id']] = service_obj
 
-            f = open(path.join('./static/files/poc/', curr_poc['id']), 'rb')
-            content_b = f.read().decode('charmap')
-            f.close()
+            if curr_poc['storage'] == 'filesystem':
+                f = open(path.join('./static/files/poc/', curr_poc['id']), 'rb')
+                content_b = f.read().decode('charmap')
+                f.close()
+            elif curr_poc['storage'] == 'database':
+                content_b = base64.b64decode(curr_poc['base64']).decode('charmap')
             poc_obj['content'] = content_b
             poc_obj['content_base64'] = b64encode(content_b.encode("charmap"))
             poc_obj['content_hex'] = content_b.encode("charmap").hex()
