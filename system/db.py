@@ -1045,6 +1045,13 @@ class Database:
         result = self.return_arr_dict()
         return result
 
+    def select_hostname_with_host_id(self, hostname_id, host_id):
+        self.execute(
+            '''SELECT * FROM Hostnames WHERE id=? and host_id=?''',
+            (hostname_id, host_id))
+        result = self.return_arr_dict()
+        return result
+
     def select_project_hostname(self, project_id, hostname_id):
         self.execute(
             '''SELECT * FROM Hostnames WHERE id=? and  host_id IN (select id from Hosts WHERE project_id=?)''',
@@ -2869,6 +2876,15 @@ class Database:
         all_users = [self.select_user_by_id(x)[0] for x in all_user_ids]
 
         return all_users
+
+    def select_project_teams(self, project_id):
+        current_project = self.select_projects(project_id)[0]
+
+        teams_ids = json.loads(current_project['teams'])
+
+        teams = [self.select_team_by_id(team_id)[0] for team_id in teams_ids]
+
+        return teams
 
     def select_project_pocs(self, project_id):
         self.execute(

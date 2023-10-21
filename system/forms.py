@@ -1451,3 +1451,7 @@ class RedCheckForm(FlaskForm):
     hosts_description = StringField('hosts_description', default='Added from RedCheck scan')
     hostnames_description = StringField('hostnames_description', default='Added from RedCheck scan')
     ports_description = StringField('ports_description', default='Added from RedCheck scan')
+
+
+class TODOImportJSONForm(FlaskForm):
+    json_files = MultipleFileField('json_files')

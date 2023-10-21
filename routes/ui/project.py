@@ -3374,7 +3374,8 @@ def generate_report(project_id, current_project, current_user):
                                                         shutil.copyfile(original_image_path, tmp_image_path)
                                                     elif config['files']['poc_storage'] == 'database':
                                                         with open(tmp_image_path, 'wb') as f:
-                                                            f.write(base64.b64decode(project_dict['pocs'][poc_id]['content_base64']))
+                                                            f.write(base64.b64decode(
+                                                                project_dict['pocs'][poc_id]['content_base64']))
                                                             f.close()
 
                                                     project_dict['pocs'][poc_id]['content_image'] = InlineImage(
@@ -3468,7 +3469,7 @@ def generate_report(project_id, current_project, current_user):
                         shutil.copyfile(poc_server_path, poc_save_path)
                     elif current_poc['storage'] == 'database':
                         content_b = base64.b64decode(current_poc['base64'])
-                        f = open(poc_save_path,'wb')
+                        f = open(poc_save_path, 'wb')
                         f.write(content_b)
                         f.close()
                     result_zip_obj.write(poc_save_path)
@@ -4685,3 +4686,217 @@ def edit_task_form(project_id, current_project, current_user):
 
         return jsonify({'status': 'ok'})
     return jsonify({'errors': errors})
+
+
+@routes.route('/project/<uuid:project_id>/todo/export_json',
+              methods=['GET'])
+@requires_authorization
+@check_session
+@check_project_access
+@send_log_data
+def todo_export_tasks_json(project_id, current_project, current_user):
+    tasks = db.select_project_tasks(current_project['id'])
+
+    tasks_arr = []
+
+    for task_obj in tasks:
+        tmp_obj = {
+            'name': task_obj['name'],
+            'description': task_obj['description'],
+            'start_date': task_obj['start_date'],
+            'finish_date': task_obj['finish_date'],
+            'status': task_obj['status'],
+            'criticality': task_obj['criticality'],
+            'teams': [],
+            'users': [],
+            'services': {"ids": {}, "names": []}
+        }
+
+        # add users
+        for obj_user_id in json.loads(task_obj['users']):
+            selected_user = db.select_user_by_id(obj_user_id)[0]
+            tmp_obj['users'].append(
+                {
+                    'id': obj_user_id,
+                    'email': selected_user['email']
+                }
+            )
+
+        # add teams
+
+        for obj_team_id in json.loads(task_obj['teams']):
+            selected_team = db.select_team_by_id(obj_team_id)[0]
+            tmp_obj['teams'].append(
+                {
+                    'id': obj_team_id,
+                    'name': selected_team['name']
+                }
+            )
+
+        # add services
+        tmp_obj['services']['ids'] = json.loads(task_obj['services'])
+        for port_id in json.loads(task_obj['services']):
+
+            port = db.select_port(port_id)[0]
+            host = db.select_host_by_port_id(port_id)[0]
+
+            hostnames_id_list = json.loads(task_obj['services'])[port_id]
+
+            for hostname_id in hostnames_id_list:
+                if hostname_id == '0':
+                    tmp_obj['services']['names'].append(
+                        {
+                            'ip': host['ip'],
+                            'hostname': '',
+                            'port': port['port'],
+                            'is_tcp': bool(port['is_tcp'])
+                        }
+                    )
+                else:
+                    hostname_obj = db.select_hostname(hostname_id)[0]
+                    tmp_obj['services']['names'].append(
+                        {
+                            'ip': host['ip'],
+                            'hostname': hostname_obj['hostname'],
+                            'port': port['port'],
+                            'is_tcp': bool(port['is_tcp'])
+                        }
+                    )
+        tasks_arr.append(tmp_obj)
+    return Response(
+        json.dumps(tasks_arr),
+        mimetype='text/plain',
+        headers={'Content-disposition': 'attachment; filename=pcf_tasks.json'})
+
+
+@routes.route('/project/<uuid:project_id>/todo/import_json',
+              methods=['POST'])
+@requires_authorization
+@check_session
+@check_project_access
+@check_project_archived
+@send_log_data
+def todo_import_tasks_form(project_id, current_project, current_user):
+    form = TODOImportJSONForm()
+    form.validate()
+    errors = []
+    if form.errors:
+        for field in form.errors:
+            errors += form.errors[field]
+    if errors:
+        return redirect('/project/{}/?error=One+of+files+was+wrong!'.format(current_project['id']))
+
+    for file in form.json_files.data:
+        if file.filename:
+            file_content = file.read().decode('charmap')
+            try:
+                file_dict = json.loads(file_content)
+                for task_obj in file_dict:
+                    task_name = str(task_obj['name']) if str(task_obj['name']) else "task name"
+                    task_description = str(task_obj['description'])
+                    task_start_date = int(task_obj['start_date'])
+                    task_finish_date = int(task_obj['finish_date'])
+                    task_status = str(task_obj['status']) if str(task_obj['status']) in ["todo", "progress", "review",
+                                                                                         "done"] else "todo"
+                    task_criticality = str(task_obj['criticality']) if str(task_obj['criticality']) in ["critical",
+                                                                                                        "high",
+                                                                                                        "medium", "low",
+                                                                                                        "info"] else "info"
+
+                    # get_users
+                    project_users = db.select_project_users(current_project['id'])
+
+                    task_users = []
+
+                    for user_obj in list(task_obj['users']):
+                        add_user_id = str(user_obj['id']) if user_obj['id'] and check_uuid(str(user_obj['id'])) else ''
+                        add_user_email = str(user_obj['email'])
+                        if add_user_id:
+                            real_user = db.select_user_by_id(add_user_id)
+                            if not real_user:
+                                real_user = db.select_user_by_email(add_user_email)
+                            if real_user:
+                                real_user = real_user[0]
+                                for exited_user in project_users:
+                                    if exited_user['id'] == real_user['id']:
+                                        task_users.append(real_user['id'])
+                    task_users = list(set(task_users))
+
+                    # get teams
+                    project_teams = db.select_project_teams(current_project['id'])
+
+                    task_teams = []
+                    for team_obj in list(task_obj['teams']):
+                        add_team_id = str(team_obj['id']) if team_obj['id'] and check_uuid(str(team_obj['id'])) else ''
+                        add_team_name = str(team_obj['name'])
+                        if add_team_id:
+                            real_team = db.select_team_by_id(add_team_id)
+                            if real_team:
+                                real_team = real_team[0]
+                                for exited_team in project_teams:
+                                    if exited_team['id'] == real_team['id']:
+                                        task_teams.append(exited_team['id'])
+                            elif add_team_name:
+                                counter = 0
+                                real_team_id = ''
+                                for exited_team in project_teams:
+                                    if exited_team['name'] == add_team_name:
+                                        counter += 1
+                                        real_team_id = exited_team['id']
+                                if counter == 1:
+                                    task_teams.append(real_team_id)
+                    task_teams = list(set(task_teams))
+
+                    # add services
+                    task_services = {}
+
+                    def add_service(port_id: str, hostname_id: str):
+                        if port_id not in task_services:
+                            task_services[port_id] = []
+                            if hostname_id not in task_services[port_id]:
+                                task_services[port_id].append(hostname_id)
+
+                    for add_port_id in task_obj['services']['ids']:
+                        real_port = db.select_project_port(current_project['id'], str(add_port_id))
+                        if real_port:
+                            real_port = real_port[0]
+                            hostnames_list = task_obj['services']['ids'][add_port_id]
+                            for hostname_id in hostnames_list:
+                                if hostname_id == "0":
+                                    add_service(real_port['id'], "0")
+                                else:
+                                    real_hostname = db.select_hostname_with_host_id(real_port['host_id'], str(hostname_id))
+                                    if real_hostname:
+                                        real_hostname = real_hostname[0]
+                                        add_service(real_port['id'], real_hostname)
+                    for add_port_obj in task_obj['services']['names']:
+                        try:
+                            ipaddress.ip_address(add_port_obj['ip'])
+                            ip = str(add_port_obj['ip'])
+                            real_host = db.select_project_host_by_ip(current_project['id'], ip)
+                            if real_host:
+                                real_host = real_host[0]
+                                add_port_num = int(add_port_obj['port'])
+                                add_port_is_tcp = bool(add_port_obj['is_tcp'])
+                                real_port = db.select_host_port(real_host['id'], add_port_num, add_port_is_tcp)
+                                if real_port:
+                                    real_port = real_port[0]
+                                    hostname = str(add_port_obj['hostname'])
+                                    if hostname == "0":
+                                        add_service(real_port['id'], "0")
+                                    else:
+                                        real_hostname = db.select_ip_hostname(real_host['id'], str(hostname))
+                                        if real_hostname:
+                                            real_hostname = real_hostname[0]
+                                            add_service(real_port['id'], real_hostname['id'])
+                        except Exception as e1:
+                            print(e1)
+
+                    todo_id = db.insert_new_task(task_name, task_description, task_criticality, task_teams,
+                                                 task_users, task_status, task_start_date, task_finish_date,
+                                                 current_project['id'], task_services)
+
+            except Exception as e:
+                print(e)
+                return redirect('/project/{}/?error=One+of+files+was+wrong!'.format(current_project['id']))
+    return redirect('/project/{}/'.format(current_project['id']))
