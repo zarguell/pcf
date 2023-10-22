@@ -272,3 +272,39 @@ search_project_issues = {
                           required=False,
                           missing=None)
 }
+
+edit_task_args = {
+    'access_token': fields.UUID(required=True),
+    "name": fields.String(required=False, missing=None),
+    "start_date": fields.Number(required=False, missing=None, validate=validate.Range(min=0, max=99999999999999)),
+    "finish_date": fields.Number(required=False, missing=None, validate=validate.Range(min=0, max=99999999999999)),
+    "criticality": fields.String(required=False, missing=None,
+                                 validate=validate.OneOf(["critical", "high", "medium", "low", "info"])),
+    "status": fields.String(required=False, missing=None,
+                            validate=validate.OneOf(["todo", "progress", "review", "done"])),
+    "description": fields.String(required=False, missing=None),
+    "services": fields.Dict(keys=fields.String(required=True),
+                            values=fields.List(fields.String(required=False)),
+                            required=False,
+                            missing=None),
+    "users": fields.List(fields.UUID(required=False, missing=None)),
+    "teams": fields.List(fields.UUID(required=False, missing=None))
+}
+
+new_task_args = {
+    "access_token": fields.UUID(required=True),
+    "name": fields.String(required=True),
+    "start_date": fields.Number(required=False, missing=0, validate=validate.Range(min=0, max=99999999999999)),
+    "finish_date": fields.Number(required=False, missing=0, validate=validate.Range(min=0, max=99999999999999)),
+    "criticality": fields.String(required=False, missing="info",
+                                 validate=validate.OneOf(["critical", "high", "medium", "low", "info"])),
+    "status": fields.String(required=False, missing="todo",
+                            validate=validate.OneOf(["todo", "progress", "review", "done"])),
+    "description": fields.String(required=False, missing=""),
+    "services": fields.Dict(keys=fields.String(required=True),
+                            values=fields.List(fields.String(required=False)),
+                            required=False,
+                            missing=[]),
+    "users": fields.List(fields.UUID(required=False, missing=[])),
+    "teams": fields.List(fields.UUID(required=False, missing=[]))
+}

@@ -2678,6 +2678,287 @@
           }
         }
       }
+    },
+    "/project/{project_id}/tasks/list": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Project tasks list",
+        "description": "Get list of project tasks\n",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Get list of tasks",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/tasks_list_body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tasks list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_36"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{project_id}/task/{task_id}/info": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Project task info",
+        "description": "Get project task info\n",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "Task ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Get task information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/task_id_info_body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_37"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{project_id}/task/{task_id}/delete": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Project task removal",
+        "description": "Delete project task\n",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "Task ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Delete task",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/task_id_delete_body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_38"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Wrong parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{project_id}/task/{task_id}/edit": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Project task edit",
+        "description": "Edit project task\n",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "Task ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Update task information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/task_id_edit_body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_39"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{project_id}/task/new": {
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Create new project task",
+        "description": "Create new project task\n",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Create new task",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/task_new_body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_40"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5036,6 +5317,351 @@
         },
         "description": "Operation status"
       },
+      "tasks_list_body": {
+        "required": [
+          "access_token"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "API access token",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          }
+        }
+      },
+      "inline_response_200_36": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "description": "array of tasks",
+            "items": {
+              "$ref": "#/components/schemas/inline_response_200_36_tasks"
+            }
+          }
+        },
+        "description": "Tasks list results"
+      },
+      "task_id_info_body": {
+        "required": [
+          "access_token"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "API access token",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          }
+        }
+      },
+      "inline_response_200_37": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Task description",
+            "example": "Check XSS at...",
+            "default": ""
+          },
+          "task_id": {
+            "type": "string",
+            "description": "UUID of task",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of task",
+            "example": "NMAP Scan"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of task",
+            "example": "done",
+            "default": "todo",
+            "enum": [
+              "todo",
+              "progress",
+              "review",
+              "done"
+            ]
+          },
+          "criticality": {
+            "type": "string",
+            "description": "Criticality of task",
+            "example": "medium",
+            "default": "info",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "start_date": {
+            "type": "number",
+            "description": "Task start date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "finish_date": {
+            "type": "number",
+            "description": "Task finish date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "users": {
+            "type": "array",
+            "description": "Array of user objects",
+            "items": {
+              "$ref": "#/components/schemas/inline_response_200_36_users"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "description": "Array of team objects",
+            "items": {
+              "$ref": "#/components/schemas/inline_response_200_36_teams"
+            }
+          },
+          "services": {
+            "$ref": "#/components/schemas/projectproject_idtasktask_idedit_services"
+          }
+        },
+        "description": "Task object"
+      },
+      "task_id_delete_body": {
+        "required": [
+          "access_token"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "API access token",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          }
+        }
+      },
+      "inline_response_200_38": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status of operation",
+            "example": "ok",
+            "default": "ok"
+          }
+        },
+        "description": "Task removal status"
+      },
+      "projectproject_idtasktask_idedit_services": {
+        "type": "object",
+        "properties": {
+          "ad236cdb-f645-456c-918c-dd8d8085ae95": {
+            "type": "array",
+            "description": "Port UUID",
+            "items": {
+              "type": "string",
+              "description": "Hostname UUID (\"0\" - only ip)",
+              "example": "[\"0\",\"ad236cdb-f645-456c-918c-dd8d8085ae95\"]"
+            }
+          }
+        },
+        "description": "Which hosts/services are in TODO task (\"0/tcp\" - all host)"
+      },
+      "task_id_edit_body": {
+        "required": [
+          "access_token"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "API access token",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          },
+          "description": {
+            "type": "string",
+            "description": "Task description",
+            "example": "Check XSS at...",
+            "default": ""
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of task",
+            "example": "NMAP Scan"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of task",
+            "example": "done",
+            "default": "todo",
+            "enum": [
+              "todo",
+              "progress",
+              "review",
+              "done"
+            ]
+          },
+          "criticality": {
+            "type": "string",
+            "description": "Criticality of task",
+            "example": "medium",
+            "default": "info",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "start_date": {
+            "type": "number",
+            "description": "Task start date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "finish_date": {
+            "type": "number",
+            "description": "Task finish date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "users": {
+            "type": "array",
+            "description": "Array of user objects",
+            "items": {
+              "type": "string",
+              "description": "User UUID",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "description": "Array of team objects",
+            "items": {
+              "type": "string",
+              "description": "Team UUID",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          },
+          "services": {
+            "$ref": "#/components/schemas/projectproject_idtasktask_idedit_services"
+          }
+        }
+      },
+      "inline_response_200_39": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status of operation",
+            "example": "ok",
+            "default": "ok"
+          }
+        },
+        "description": "Task update status"
+      },
+      "task_new_body": {
+        "required": [
+          "access_token",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "API access token",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          },
+          "description": {
+            "type": "string",
+            "description": "Task description",
+            "example": "Check XSS at...",
+            "default": ""
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of task",
+            "example": "NMAP Scan"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of task",
+            "example": "done",
+            "default": "todo",
+            "enum": [
+              "todo",
+              "progress",
+              "review",
+              "done"
+            ]
+          },
+          "criticality": {
+            "type": "string",
+            "description": "Criticality of task",
+            "example": "medium",
+            "default": "info",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "start_date": {
+            "type": "number",
+            "description": "Task start date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "finish_date": {
+            "type": "number",
+            "description": "Task finish date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "users": {
+            "type": "array",
+            "description": "Array of user objects",
+            "items": {
+              "type": "string",
+              "description": "User UUID",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            },
+            "default": []
+          },
+          "teams": {
+            "type": "array",
+            "description": "Array of team objects",
+            "items": {
+              "type": "string",
+              "description": "Team UUID",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            },
+            "default": []
+          },
+          "services": {
+            "$ref": "#/components/schemas/projectproject_idtasktask_idedit_services"
+          }
+        }
+      },
+      "inline_response_200_40": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "Created task UUID",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          }
+        },
+        "description": "Created task id"
+      },
       "inline_response_200_3_teams": {
         "type": "object",
         "properties": {
@@ -5631,6 +6257,129 @@
           }
         },
         "description": "Projects hostname object"
+      },
+      "inline_response_200_36_users": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User UUID",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          },
+          "fname": {
+            "type": "string",
+            "description": "User first name",
+            "example": "Ilya"
+          },
+          "lname": {
+            "type": "string",
+            "description": "User last name",
+            "example": "Shaposhnikov"
+          },
+          "email": {
+            "type": "string",
+            "description": "User email",
+            "example": "iljashaposhnikov@gmail.com"
+          },
+          "company": {
+            "type": "string",
+            "description": "Company name",
+            "example": "Google inc."
+          }
+        },
+        "description": "User object"
+      },
+      "inline_response_200_36_teams": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Team UUID",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          },
+          "name": {
+            "type": "string",
+            "description": "Team name",
+            "example": "RedTeam"
+          }
+        },
+        "description": "Team object"
+      },
+      "inline_response_200_36_tasks": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Task description",
+            "example": "Check XSS at...",
+            "default": ""
+          },
+          "task_id": {
+            "type": "string",
+            "description": "UUID of task",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of task",
+            "example": "NMAP Scan"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of task",
+            "example": "done",
+            "default": "todo",
+            "enum": [
+              "todo",
+              "progress",
+              "review",
+              "done"
+            ]
+          },
+          "criticality": {
+            "type": "string",
+            "description": "Criticality of task",
+            "example": "medium",
+            "default": "info",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "start_date": {
+            "type": "number",
+            "description": "Task start date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "finish_date": {
+            "type": "number",
+            "description": "Task finish date (unix-time)",
+            "example": 1664625623,
+            "default": 0
+          },
+          "users": {
+            "type": "array",
+            "description": "Array of user objects",
+            "items": {
+              "$ref": "#/components/schemas/inline_response_200_36_users"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "description": "Array of team objects",
+            "items": {
+              "$ref": "#/components/schemas/inline_response_200_36_teams"
+            }
+          },
+          "services": {
+            "$ref": "#/components/schemas/projectproject_idtasktask_idedit_services"
+          }
+        },
+        "description": "Task object"
       }
     },
     "securitySchemes": {

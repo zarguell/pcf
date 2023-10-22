@@ -199,6 +199,20 @@ def check_project_host_access(fn):
     return decorated_view
 
 
+def check_project_task_access(fn):
+    @wraps(fn)
+    def decorated_view(*args, **kwargs):
+        current_project = kwargs['current_project']
+        task_id = kwargs['task_id']
+        current_task = db.select_task(str(task_id), current_project['id'])
+        if not current_task:
+            return fail(["Task not found!"])
+        kwargs['current_task'] = current_task[0]
+        return fn(*args, **kwargs)
+
+    return decorated_view
+
+
 def check_project_port_access(fn):
     @wraps(fn)
     def decorated_view(*args, **kwargs):
@@ -1852,7 +1866,7 @@ def project_issues_list(args, current_user=None, current_token=None,
 @check_access_token
 @check_project_access
 def project_issues_search(args, current_user=None, current_token=None,
-                        user_id='', project_id=None, current_project=None):
+                          user_id='', project_id=None, current_project=None):
     """
     POST /api/v1/project/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/issues/search HTTP/1.1
     Host: 127.0.0.1:5000
@@ -1915,6 +1929,7 @@ def project_issues_search(args, current_user=None, current_token=None,
         }
         issues_list['issues'].append(issue_obj)
     return issues_list
+
 
 @routes.route('/api/v1/project/<uuid:project_id>/issues/<uuid:issue_id>/info', methods=['POST'])
 @requires_authorization
@@ -2210,7 +2225,6 @@ def project_issue_edit(args, current_user=None, current_token=None,
 
     # update fields
 
-
     add_fields_dict = {}
     old_fields = json.loads(current_issue['fields'])
     if args['fields'] != None:
@@ -2349,7 +2363,8 @@ def project_issue_poc_add(args, current_user=None, current_token=None,
 @check_project_issue_access
 @check_project_issue_poc
 def project_issue_poc_info(args, current_user=None, current_token=None,
-                           user_id='', project_id=None, current_project=None, issue_id='', current_issue=None, poc_id='', current_poc=None
+                           user_id='', project_id=None, current_project=None, issue_id='', current_issue=None,
+                           poc_id='', current_poc=None
                            ):
     """
     POST /api/v1/project/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/issues/ef8d2e2d-1da8-422d-b112-8a1805c947a9/poc/a40820cf-088e-40ab-a844-bb4ba10ff397/info HTTP/1.1
@@ -2386,7 +2401,8 @@ def project_issue_poc_info(args, current_user=None, current_token=None,
 @check_project_issue_access
 @check_project_issue_poc
 def project_issue_poc_delete(args, current_user=None, current_token=None,
-                             user_id='', project_id=None, current_project=None, issue_id='', current_issue=None, poc_id='', current_poc=None
+                             user_id='', project_id=None, current_project=None, issue_id='', current_issue=None,
+                             poc_id='', current_poc=None
                              ):
     """
     POST /api/v1/project/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/issues/ef8d2e2d-1da8-422d-b112-8a1805c947a9/poc/a40820cf-088e-40ab-a844-bb4ba10ff397/delete HTTP/1.1
@@ -2746,7 +2762,8 @@ def project_rules_use(args, current_user=None, current_token=None,
                         # check for additional fields
                         new_name = field_name.strip('_')
                         for issue_field_name in current_issue['fields']:
-                            if issue_field_name == new_name and current_issue['fields'][issue_field_name]['type'] != 'file':
+                            if issue_field_name == new_name and current_issue['fields'][issue_field_name][
+                                'type'] != 'file':
                                 compare_str = str(current_issue['fields'][issue_field_name]['val'])
 
                     variable_value = ''
@@ -2783,8 +2800,9 @@ def project_rules_use(args, current_user=None, current_token=None,
                         field_original_value = ''
                         found = False
                         special_var = False
-                        if field_name in ['name', 'description', 'fix', 'url', 'cvss', 'cve', 'cwe', 'status', 'technical'
-                                                                                                               'risks', 'references', 'intruder']:
+                        if field_name in ['name', 'description', 'fix', 'url', 'cvss', 'cve', 'cwe', 'status',
+                                          'technical'
+                                          'risks', 'references', 'intruder']:
                             field_original_value = current_issue[field_name]
                             issue_changed = True
                             found = True
@@ -2797,7 +2815,8 @@ def project_rules_use(args, current_user=None, current_token=None,
                             # check for additional fields
                             new_name = field_name.strip('_')
                             for issue_field_name in current_issue['fields']:
-                                if issue_field_name == new_name and current_issue['fields'][issue_field_name]['type'] != 'file':
+                                if issue_field_name == new_name and current_issue['fields'][issue_field_name][
+                                    'type'] != 'file':
                                     issue_changed = True
                                     found = True
                                     field_original_value = str(current_issue['fields'][issue_field_name]['val'])
@@ -2844,7 +2863,8 @@ def project_rules_use(args, current_user=None, current_token=None,
                                 except Exception as e:
                                     pass
                     else:
-                        current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'], current_user['email'])[0]
+                        current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'],
+                                                                               current_user['email'])[0]
                         current_template['variables'] = json.loads(current_template['variables'])
                         replace_rule['template_obj'] = current_template
 
@@ -2875,13 +2895,17 @@ def project_rules_use(args, current_user=None, current_token=None,
                             if field_name in replace_rule['vars']:
                                 try:
                                     if current_template['variables'][field_name]["type"] == "boolean":
-                                        current_template['variables'][field_name]["val"] = bool(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = bool(
+                                            replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "number":
-                                        current_template['variables'][field_name]["val"] = int(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = int(
+                                            replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "float":
-                                        current_template['variables'][field_name]["val"] = float(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = float(
+                                            replace_rule['vars'][field_name])
                                     elif current_template['variables'][field_name]["type"] == "text":
-                                        current_template['variables'][field_name]["val"] = str(replace_rule['vars'][field_name])
+                                        current_template['variables'][field_name]["val"] = str(
+                                            replace_rule['vars'][field_name])
                                     issue_changed = True
                                 except Exception as e:
                                     pass
@@ -2940,10 +2964,387 @@ def project_rules_use(args, current_user=None, current_token=None,
                         }
                 # submit issue
                 db.update_issue_with_fields(current_issue['id'], current_issue['name'], current_issue['description'],
-                                            current_issue['url_path'], current_issue['cvss'], json.loads(current_issue['services']),
-                                            current_issue['status'], current_issue['cve'], current_issue['cwe'], current_issue['fix'],
+                                            current_issue['url_path'], current_issue['cvss'],
+                                            json.loads(current_issue['services']),
+                                            current_issue['status'], current_issue['cve'], current_issue['cwe'],
+                                            current_issue['fix'],
                                             current_issue['type'], current_issue['param'], current_issue['fields'],
-                                            current_issue['technical'], current_issue['risks'], current_issue['references'],
+                                            current_issue['technical'], current_issue['risks'],
+                                            current_issue['references'],
                                             current_issue['intruder'])
                 if current_issue['id'] not in updated_issues: updated_issues.append(current_issue['id'])
     return {'status': 'ok', 'updated_issues': len(updated_issues)}
+
+
+@routes.route('/api/v1/project/<uuid:project_id>/tasks/list', methods=['POST'])
+@requires_authorization
+@csrf.exempt
+@parser.use_args(only_token_args, location='json')
+@check_access_token
+@check_project_access
+def project_todo_list(args, current_user=None, current_token=None,
+                      user_id='', project_id=None, current_project=None):
+    """
+    POST /api/v1/project/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/tasks/list HTTP/1.1
+    Host: 127.0.0.1:5000
+    Content-Type: application/json
+    Content-Length: 353
+
+    {
+        "access_token": "aed4ce53-c90f-436b-9909-79a2abf7cdaf"
+    }
+    """
+
+    tasks = db.select_project_tasks(current_project['id'])
+    tasks_list = {
+        'tasks': []
+    }
+    for task in tasks:
+        task_obj = {
+            "task_id": task["id"],
+            "name": task["name"],
+            "description": task["description"],
+            "start_date": int(task["start_date"]),
+            "finish_date": int(task["finish_date"]),
+            "status": task["status"],
+            "users": [],
+            "teams": [],
+            "services": json.loads(task["services"]),
+            "criticality": task["criticality"]
+        }
+
+        for obj_user_id in json.loads(task['users']):
+            selected_user = db.select_user_by_id(obj_user_id)[0]
+            task_obj['users'].append(
+                {
+                    'id': obj_user_id,
+                    'email': selected_user['email'],
+                    'fname': selected_user['fname'],
+                    'lname': selected_user['lname'],
+                    'company': selected_user['company']
+                }
+            )
+
+        # add teams
+
+        for obj_team_id in json.loads(task['teams']):
+            selected_team = db.select_team_by_id(obj_team_id)[0]
+            task_obj['teams'].append(
+                {
+                    'id': obj_team_id,
+                    'name': selected_team['name']
+                }
+            )
+        tasks_list['tasks'].append(task_obj)
+    return tasks_list
+
+
+@routes.route('/api/v1/project/<uuid:project_id>/task/<uuid:task_id>/info', methods=['POST'])
+@requires_authorization
+@csrf.exempt
+@parser.use_args(only_token_args, location='json')
+@check_access_token
+@check_project_access
+@check_project_task_access
+def project_todo_task_info(args, current_user=None, current_token=None,
+                           user_id='', project_id=None, current_project=None,
+                           task_id=None, current_task=None):
+    """
+    POST /api/v1/project/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/task/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/info HTTP/1.1
+    Host: 127.0.0.1:5000
+    Content-Type: application/json
+    Content-Length: 353
+
+    {
+        "access_token": "aed4ce53-c90f-436b-9909-79a2abf7cdaf"
+    }
+    """
+
+    task_obj = {
+        "task_id": current_task["id"],
+        "name": current_task["name"],
+        "description": current_task["description"],
+        "start_date": int(current_task["start_date"]),
+        "finish_date": int(current_task["finish_date"]),
+        "status": current_task["status"],
+        "users": [],
+        "teams": [],
+        "services": json.loads(current_task["services"]),
+        "criticality": current_task["criticality"]
+    }
+
+    for obj_user_id in json.loads(current_task['users']):
+        selected_user = db.select_user_by_id(obj_user_id)[0]
+        task_obj['users'].append(
+            {
+                'id': obj_user_id,
+                'email': selected_user['email'],
+                'fname': selected_user['fname'],
+                'lname': selected_user['lname'],
+                'company': selected_user['company']
+            }
+        )
+
+    # add teams
+
+    for obj_team_id in json.loads(current_task['teams']):
+        selected_team = db.select_team_by_id(obj_team_id)[0]
+        task_obj['teams'].append(
+            {
+                'id': obj_team_id,
+                'name': selected_team['name']
+            }
+        )
+    return task_obj
+
+
+@routes.route('/api/v1/project/<uuid:project_id>/task/<uuid:task_id>/delete', methods=['POST'])
+@requires_authorization
+@csrf.exempt
+@parser.use_args(only_token_args, location='json')
+@check_access_token
+@check_project_access
+@check_project_archived
+@check_project_task_access
+def project_todo_task_delete(args, current_user=None, current_token=None,
+                             user_id='', project_id=None, current_project=None,
+                             task_id=None, current_task=None):
+    """
+    POST /api/v1/project/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/task/53ade0ed-ea2d-4812-9676-8bdcf5b7412c/delete HTTP/1.1
+    Host: 127.0.0.1:5000
+    Content-Type: application/json
+    Content-Length: 353
+
+    {
+        "access_token": "aed4ce53-c90f-436b-9909-79a2abf7cdaf"
+    }
+    """
+
+    db.delete_task(current_task['id'])
+
+    return {"status": "ok"}
+
+
+@routes.route('/api/v1/project/<uuid:project_id>/task/<uuid:task_id>/edit', methods=['POST'])
+@requires_authorization
+@csrf.exempt
+@parser.use_args(edit_task_args, location='json')
+@check_access_token
+@check_project_access
+@check_project_archived
+@check_project_task_access
+def project_todo_task_edit(args, current_user=None, current_token=None,
+                           user_id='', project_id=None, current_project=None,
+                           task_id=None, current_task=None):
+    """
+    POST /api/v1/project/1ffbce55-7836-40d2-9390-bffa2e9ddebe/task/c5ffc93a-611b-4db4-9d54-199fb3addc7d/edit HTTP/1.1
+    Host: 126
+    Content-Type: application/json
+    Content-Length: 969
+
+    {"access_token": "75180067-69c0-457c-b5e4-a9ccf6379d2e",
+      "criticality": "info",
+      "description": "ergergreg",
+      "finish_date": 1700434800,
+      "name": "c5ffc93a-611b-4db4-9d54-199fb3addc7d",
+      "services": {
+        "193b7014-d6ed-49e8-a506-2527016ec3cc": [
+          "db9161f7-0a0e-49ca-994e-fd7e6786e1c9"
+        ],
+        "23f4940b-c227-4877-af93-1d646fc99b18": [
+          "0d409bf5-3730-4b51-b85d-987c766d9596"
+        ],
+        "3eff5212-0f4c-418d-b9ab-aa07d4a133dc": [
+          "0"
+        ],
+        "51715ce3-aad1-4cd7-95ab-ee114864438e": [
+          "db9161f7-0a0e-49ca-994e-fd7e6786e1c9"
+        ],
+        "6e9637be-c86e-4031-892e-c5caaf56ac90": [
+          "0"
+        ],
+        "72e033f5-dd0b-4914-a28c-24593fbae6c6": [
+          "0"
+        ],
+        "d886c8c1-da64-4775-9977-ead54ac2403c": [
+          "0"
+        ]
+      },
+      "start_date": 1697839200,
+      "status": "review",
+      "teams": [ "17801c0a-1086-4846-8129-6e6e266a7462"
+      ],
+      "users": [ "82deea3b-2df8-4dd4-a9f4-7be0e1290c95"
+      ]
+    }
+    """
+
+    task_name = current_task['name']
+    task_description = current_task['description']
+    task_start_date = current_task['start_date']
+    task_finish_date = current_task['finish_date']
+    task_criticality = current_task['criticality']
+    task_status = current_task['status']
+    task_services = json.loads(current_task['services'])
+    task_users = json.loads(current_task['users'])
+    task_teams = json.loads(current_task['teams'])
+
+    if args["name"] is not None and args["name"]:
+        task_name = str(args["name"])
+    if args["description"] is not None:
+        task_description = str(args["description"])
+    if args["start_date"] is not None:
+        task_start_date = int(args["start_date"])
+    if args["finish_date"] is not None:
+        task_finish_date = int(args["finish_date"])
+    if args["status"] is not None:
+        task_status = str(args["status"])
+    if args["criticality"] is not None:
+        task_criticality = str(args["criticality"])
+
+    # users
+    if "users" in args:
+        new_users_list = []
+        for user_id in args["users"]:
+            if db.check_user_project_access(current_project['id'], str(user_id)):
+                new_users_list.append(str(user_id))
+        task_users = new_users_list
+
+    # teams
+    if "teams" in args:
+        new_teams_list = []
+        project_team_ids = json.loads(current_project['teams'])
+        for team_id in args["teams"]:
+            if str(team_id) in project_team_ids:
+                new_teams_list.append(str(team_id))
+        task_teams = new_teams_list
+
+    # services
+    if args["services"]:
+        # check port_id variable
+        for port_id in args["services"]:
+            if not is_valid_uuid(port_id):
+                return fail(['Invalid port UUID!'])
+            current_port = db.select_project_port(current_project['id'], port_id)
+            if not current_port:
+                return fail(['Some ports are not in project!'])
+            current_port = current_port[0]
+            for hostname_id in args["services"][port_id]:
+                if hostname_id != "0":
+                    if not is_valid_uuid(hostname_id):
+                        return fail(['Invalid hostname UUID!'])
+                    hostnames = db.select_hostname(hostname_id)
+                    if not hostnames or hostnames[0]['host_id'] != current_port['host_id']:
+                        return fail(['Invalid hostname UUID!'])
+        task_services = args["services"]
+
+    db.update_task(
+        task_name, task_description, task_criticality, task_teams, task_users, task_status,
+        task_start_date, task_finish_date, task_services, current_task['id']
+    )
+
+    return {"status": "ok"}
+
+
+@routes.route('/api/v1/project/<uuid:project_id>/task/new', methods=['POST'])
+@requires_authorization
+@csrf.exempt
+@parser.use_args(new_task_args, location='json')
+@check_access_token
+@check_project_access
+@check_project_archived
+def project_todo_task_new(args, current_user=None, current_token=None,
+                           user_id='', project_id=None, current_project=None):
+    """
+    POST /api/v1/project/1ffbce55-7836-40d2-9390-bffa2e9ddebe/task/new HTTP/1.1
+    Host: 126
+    Content-Type: application/json
+    Content-Length: 933
+
+    {"access_token": "75180067-69c0-457c-b5e4-a9ccf6379d2e",
+      "criticality": "info",
+      "description": "yyyyyy",
+      "finish_date": 1700434800,
+      "name": "wfwef",
+      "services": {
+        "193b7014-d6ed-49e8-a506-2527016ec3cc": [
+          "db9161f7-0a0e-49ca-994e-fd7e6786e1c9"
+        ],
+        "23f4940b-c227-4877-af93-1d646fc99b18": [
+          "0d409bf5-3730-4b51-b85d-987c766d9596"
+        ],
+        "3eff5212-0f4c-418d-b9ab-aa07d4a133dc": [
+          "0"
+        ],
+        "51715ce3-aad1-4cd7-95ab-ee114864438e": [
+          "db9161f7-0a0e-49ca-994e-fd7e6786e1c9"
+        ],
+        "6e9637be-c86e-4031-892e-c5caaf56ac90": [
+          "0"
+        ],
+        "72e033f5-dd0b-4914-a28c-24593fbae6c6": [
+          "0"
+        ],
+        "d886c8c1-da64-4775-9977-ead54ac2403c": [
+          "0"
+        ]
+      },
+      "start_date": 1697839200,
+      "status": "todo",
+      "teams": [ "17801c0a-1086-4846-8129-6e6e266a7462"
+      ],
+      "users": [ "82deea3b-2df8-4dd4-a9f4-7be0e1290c95"
+      ]
+    }
+    """
+
+    task_name = args['name']
+    if not task_name:
+        return fail(['Name must not be empty!'])
+    task_description = args['description']
+    task_start_date = args['start_date']
+    task_finish_date = args['finish_date']
+    task_criticality = args['criticality']
+    task_status = args['status']
+    task_services = args['services']
+    task_users = args['users']
+    task_teams = args['teams']
+
+    # users
+    new_users_list = []
+    for user_id in task_users:
+        if db.check_user_project_access(current_project['id'], str(user_id)):
+            new_users_list.append(str(user_id))
+    task_users = new_users_list
+
+    # teams
+    new_teams_list = []
+    project_team_ids = json.loads(current_project['teams'])
+    for team_id in task_teams:
+        if str(team_id) in project_team_ids:
+            new_teams_list.append(str(team_id))
+    task_teams = new_teams_list
+
+    # services
+
+    # check port_id variable
+    for port_id in task_services:
+        if not is_valid_uuid(port_id):
+            return fail(['Invalid port UUID!'])
+        current_port = db.select_project_port(current_project['id'], port_id)
+        if not current_port:
+            return fail(['Some ports are not in project!'])
+        current_port = current_port[0]
+        for hostname_id in task_services[port_id]:
+            if hostname_id != "0":
+                if not is_valid_uuid(hostname_id):
+                    return fail(['Invalid hostname UUID!'])
+                hostnames = db.select_hostname(hostname_id)
+                if not hostnames or hostnames[0]['host_id'] != current_port['host_id']:
+                    return fail(['Invalid hostname UUID!'])
+
+    task_id = db.insert_new_task(task_name, task_description, task_criticality, task_teams,
+                       task_users, task_status, task_start_date, task_finish_date, current_project['id'],
+                       task_services)
+
+    return {"task_id": task_id}

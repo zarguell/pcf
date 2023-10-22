@@ -789,56 +789,57 @@ def nessus_page_form(project_id, current_project, current_user):
                                             else:
                                                 pass  # not changed
                             if not found:
-                                if True:  # for debug len(issue_create_list) < 25:
-                                    # create new issue
-                                    issue_create_list.append(
-                                        {
-                                            'name': issue_name,
-                                            'description': issue_description,
-                                            'url_path': issue_url_path,
-                                            'cvss': issue_cvss,
-                                            'status': issue_status,
-                                            'cve': issue_cve,
-                                            'cwe': issue_cwe,
-                                            'type': issue_type,
-                                            'fix': issue_fix,
-                                            'param': issue_param,
-                                            'services': {issue_port_id: [issue_hostname_id]},
-                                            # {"nessus_plugin_id": {"val": 71049, "type": "number"}}
-                                            'fields': {'nessus_plugin_id': {'type': 'number', 'val': plugin_id}},
-                                            'technical': '',
-                                            'risks': '',
-                                            'references': '',
-                                            'intruder': ''
-                                        })
+                                # create new issue
+                                issue_create_list.append(
+                                    {
+                                        'name': issue_name,
+                                        'description': issue_description,
+                                        'url_path': issue_url_path,
+                                        'cvss': issue_cvss,
+                                        'status': issue_status,
+                                        'cve': issue_cve,
+                                        'cwe': issue_cwe,
+                                        'type': issue_type,
+                                        'fix': issue_fix,
+                                        'param': issue_param,
+                                        'services': {issue_port_id: [issue_hostname_id]},
+                                        # {"nessus_plugin_id": {"val": 71049, "type": "number"}}
+                                        'fields': {'nessus_plugin_id': {'type': 'number', 'val': plugin_id}},
+                                        'technical': '',
+                                        'risks': '',
+                                        'references': '',
+                                        'intruder': ''
+                                    })
 
                 # 6. Update exists issues services
-                db.update_issue_services_multiple(
-                    [issue_id for issue_id in issues_update_services],
-                    [issues_update_services[issue_id] for issue_id in issues_update_services]
-                )
+                if not form.only_import_network.data:
+                    db.update_issue_services_multiple(
+                        [issue_id for issue_id in issues_update_services],
+                        [issues_update_services[issue_id] for issue_id in issues_update_services]
+                    )
 
                 # 7. Create new issues
-                db.insert_issues_multiple(
-                    [issue['name'] for issue in issue_create_list],
-                    [issue['description'] for issue in issue_create_list],
-                    [issue['url_path'] for issue in issue_create_list],
-                    [issue['cvss'] for issue in issue_create_list],
-                    current_user['id'],
-                    [issue['services'] for issue in issue_create_list],
-                    [issue['status'] for issue in issue_create_list],
-                    current_project['id'],
-                    [issue['cve'] for issue in issue_create_list],
-                    [issue['cwe'] for issue in issue_create_list],
-                    [issue['type'] for issue in issue_create_list],
-                    [issue['fix'] for issue in issue_create_list],
-                    [issue['param'] for issue in issue_create_list],
-                    [issue['fields'] for issue in issue_create_list],
-                    [issue['technical'] for issue in issue_create_list],
-                    [issue['risks'] for issue in issue_create_list],
-                    [issue['references'] for issue in issue_create_list],
-                    [issue['intruder'] for issue in issue_create_list]
-                )
+                if not form.only_import_network.data:
+                    db.insert_issues_multiple(
+                        [issue['name'] for issue in issue_create_list],
+                        [issue['description'] for issue in issue_create_list],
+                        [issue['url_path'] for issue in issue_create_list],
+                        [issue['cvss'] for issue in issue_create_list],
+                        current_user['id'],
+                        [issue['services'] for issue in issue_create_list],
+                        [issue['status'] for issue in issue_create_list],
+                        current_project['id'],
+                        [issue['cve'] for issue in issue_create_list],
+                        [issue['cwe'] for issue in issue_create_list],
+                        [issue['type'] for issue in issue_create_list],
+                        [issue['fix'] for issue in issue_create_list],
+                        [issue['param'] for issue in issue_create_list],
+                        [issue['fields'] for issue in issue_create_list],
+                        [issue['technical'] for issue in issue_create_list],
+                        [issue['risks'] for issue in issue_create_list],
+                        [issue['references'] for issue in issue_create_list],
+                        [issue['intruder'] for issue in issue_create_list]
+                    )
     return render_template('project/tools/import/nessus.html',
                            current_project=current_project,
                            errors=errors,

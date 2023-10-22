@@ -651,6 +651,7 @@ class NessusForm(FlaskForm):
     hosts_description = StringField('hosts_description', default='Added from Nessus scan')
     hostnames_description = StringField('hostnames_description', default='Added from Nessus scan')
     ports_description = StringField('ports_description', default='Added from Nessus scan')
+    only_import_network = IntegerField('only_import_network', default=0)
 
 
 class QualysForm(FlaskForm):
