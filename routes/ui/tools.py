@@ -5720,8 +5720,9 @@ def nuclei_page_form(project_id, current_project, current_user):
                     'tags'] else ""
                 issue_description = issue_obj['info']['description'] if 'description' in issue_obj['info'] else ''
                 issue_references = "Links:\n{}".format(
-                    '\n'.join([' - {}'.format(x) for x in issue_obj['info']['reference']])) if issue_obj['info'][
-                    'reference'] else ""
+                    '\n'.join([' - {}'.format(x) for x in issue_obj['info']['reference']])) if 'reference' in \
+                                                                                               issue_obj['info'] and \
+                                                                                               issue_obj['info']['reference'] else ""
                 issue_severity = "info"
                 issue_matcher_name = 'Matched: {}'.format(
                     issue_obj['matcher-name']) if 'matcher-name' in issue_obj else ""
