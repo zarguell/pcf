@@ -2150,7 +2150,7 @@ def project_add_credentials_multiple_form(project_id, current_project, current_u
             found_list = db.select_creds_dublicates(current_project['id'], login, hash,
                                                     cleartext, comment, source,
                                                     form.hash_type.data)
-            if found_list:
+            if found_list and port_id:
                 found_duplicate = True
                 for found_cred in found_list:
                     j = json.loads(found_cred['services'])
