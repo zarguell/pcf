@@ -373,12 +373,14 @@
                             <td><a class="ui button blue" href="advanced_port_scanner/" style="width:100px;"><i
                                     class="share icon"></i>Open</a></td>
                         </tr>
-                        <tr>
-                            <td><h4>RedCheck</h4></td>
-                            <td><h4>Network vulnerability scanner with whitebox testing mode.</h4></td>
-                            <td><a class="ui button blue" href="redcheck/" style="width:100px;"><i
-                                    class="share icon"></i>Open</a></td>
-                        </tr>
+                        {% for plugin_info in tools_list %}
+                            <tr>
+                                <td><h4>{{ plugin_info['name'] }}</h4></td>
+                                <td><h4>{{ plugin_info['description'] | safe }}</h4></td>
+                                <td><a class="ui button blue" href="{{ plugin_info['route']  }}" style="width:100px;"><i
+                                        class="share icon"></i>Open</a></td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

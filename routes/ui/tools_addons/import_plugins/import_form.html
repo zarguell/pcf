@@ -20,27 +20,30 @@
             });
         </script>
         <div class="ui column" style="width: calc(100% - 75px)">
-            <h1 class="ui dividing header">RedCheck</h1>
+            <!-- Tool description -->
+            <h1 class="ui dividing header">{{ tool_name_joined }}</h1>
             <div class="ui container" style="width: 100%">
+                {% for tool_description_object in tools_description %}
+                <!-- Long description -->
                 <div class="ui relaxed divided items">
                     <div class="item">
                         <div class="ui small image">
                             {% if external_img %}
-                                <img src="https://i.ibb.co/DVWwGcS/redcheck.png">
+                                <img src="{{ tool_description_object["Icon URL"] }}">
                             {% else %}
-                                <img src="/routes/ui/tools_addons/import_plugins/redcheck/icon.png">
+                                <img src="data:image/png;base64, {{ tool_description_object["image_b64"] }}">
                             {% endif %}
                         </div>
                         <div class="content">
-                            <a class="header">RedCheck</a>
+                            <a class="header">{{ tool_description_object["Official name"] }}</a>
                             <div class="meta">
-                                <a>Vulnerability scanner</a>
+                                <a>Import tool</a>
                             </div>
                             <div class="description">
-                                RedCheck is a network vulnerability scanner with whitebox testing mode.
+                                {{ tool_description_object["Description"] if "Description" in tool_description_object else "" | safe}}
                             </div>
                             <div class="extra">
-                                <a href="https://www.redcheck.ru/" class="ui right floated purple button" target="_blank" rel="noopener noreferrer">
+                                <a href="{{ tool_description_object["URL"] if "URL" in tool_description_object }}" class="ui right floated purple button" target="_blank" rel="noopener noreferrer">
                                     Official site
                                     <i class="right chevron icon"></i>
                                 </a>
@@ -49,36 +52,25 @@
                     </div>
                 </div>
                 <div class="ui divider"></div>
+                {% endfor %}
                 <h2 class="ui header">Upload reports</h2>
-                <form class="ui form" enctype="multipart/form-data" method="post" action="/project/{{ current_project['id'] }}/tools/redcheck/">
+                <!-- Start form data -->
+                <form class="ui form" enctype="multipart/form-data" method="post" action="/project/{{ current_project['id'] }}/tools/{{ route_name }}/">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <div class="two fields">
-                        <div class="ui field">
-                            <label>.csv reports:</label>
-                            <input type="file" name="csv_files" placeholder="" multiple accept=".csv">
-                        </div>
-                        <div class="ui field">
-                            <label>Hosts description:</label>
-                            <input type="text" name="hosts_description" placeholder="Added from RedCheck scan" value="Added from RedCheck scan">
-                        </div>
-                    </div>
-                    <div class="two fields">
-                        <div class="ui field">
-                        </div>
-                        <div class="ui field">
-                            <label>Hostnames description:</label>
-                            <input type="text" name="hostnames_description" placeholder="Added from RedCheck scan" value="Added from RedCheck scan">
-                        </div>
-                    </div>
-                    <div class="two fields">
-                        <div class="ui field">
-                            <button type="submit" class="ui button blue" style="margin-top: 20px;"><i class="plus icon"></i>Submit</button>
-                        </div>
-                        <div class="ui field">
-                            <label>Ports description (if no other info):</label>
-                            <input type="text" name="ports_description" placeholder="Added from RedCheck scan" value="Added from RedCheck scan">
-                        </div>
-                    </div>
+
+                    <!-- Import data start -->
+
+                    {% for row_obj in  display_table %}
+                         <div class="{{ rows_name }} fields">
+                         {% for html_str in row_obj %}
+                             <div class="ui field">
+                                {{ html_str | safe}}
+                             </div>
+                         {% endfor %}
+                         </div>
+                    {% endfor %}
+                    <!-- Import data stop -->
+                    <button type="submit" class="ui button blue" style="margin-top:20px;"><i class="plus icon"></i>Submit</button>
                 </form>
                 {% if errors is defined and errors %}
                     <div class="ui error message visible">

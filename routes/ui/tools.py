@@ -1,8 +1,15 @@
+import glob
+import importlib
 import logging
+import os
+import sys
+
+import wtforms
 
 from routes.ui import routes
 from app import check_session, db, redirect, render_template, request, \
     send_log_data, requires_authorization, csrf, config
+import app
 from .project import check_project_access, check_project_archived
 from urllib.parse import urlparse
 from system.forms import *
@@ -13,7 +20,7 @@ import json
 import codecs
 import re
 import io
-from flask import Response, send_file
+from flask import Response, send_file, render_template_string
 from bs4 import BeautifulSoup
 import urllib.parse
 from IPy import IP
@@ -41,8 +48,35 @@ from routes.ui.tools_addons import nmap_scripts
 @check_project_archived
 @send_log_data
 def project_tools(project_id, current_project, current_user):
+    # get list of plugins
+    modules_path = path.join("routes", "ui", "tools_addons", "import_plugins")
+    search_path = path.join(modules_path, "*")
+    modules = [path.basename(d) for d in glob.glob(search_path) if os.path.isdir(d)]
+
+    tools_list = []
+
+    for module_name in modules:
+        path_to_module = path.join(modules_path, module_name)
+        path_to_python = path.join(path_to_module, "plugin.py")
+        spec = importlib.util.spec_from_file_location("import_plugin", path_to_python)
+        import_plugin = importlib.util.module_from_spec(spec)
+        sys.modules["import_plugin"] = import_plugin
+        spec.loader.exec_module(import_plugin)
+
+        # tmp_vars
+        route_name = import_plugin.route_name
+        tools_description = import_plugin.tools_description
+
+        for tool_info_obj in tools_description:
+            tools_list.append({
+                "name": tool_info_obj["Official name"],
+                "description": tool_info_obj["Description"],
+                "route": route_name
+            })
+
     return render_template('project/tools/list.html',
                            current_project=current_project,
+                           tools_list=tools_list,
                            tab_name='Tools')
 
 
@@ -4186,6 +4220,7 @@ def duplicator_page_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def wpscan_page(project_id, current_project, current_user):
     return render_template('project/tools/import/wpscan.html',
@@ -4494,6 +4529,7 @@ def wpscan_page_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def kubehunter_page(project_id, current_project, current_user):
     return render_template('project/tools/import/kubehunter.html',
@@ -4689,6 +4725,7 @@ def kubehunter_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def burp_enterprise_page(project_id, current_project, current_user):
     return render_template('project/tools/import/burp_enterprise.html',
@@ -4988,6 +5025,7 @@ def burp_enterprise_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def dnsrecon_page(project_id, current_project, current_user):
     return render_template('project/tools/import/dnsrecon.html',
@@ -5318,6 +5356,7 @@ def dnsrecon_page_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def theharvester_page(project_id, current_project, current_user):
     return render_template('project/tools/import/theharvester.html',
@@ -5329,8 +5368,8 @@ def theharvester_page(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
-@send_log_data
 @check_project_archived
+@send_log_data
 def theharvester_page_form(project_id, current_project, current_user):
     form = theHarvesterForm()
     form.validate()
@@ -5383,6 +5422,7 @@ def theharvester_page_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def metasploit_page(project_id, current_project, current_user):
     return render_template('project/tools/import/metasploit.html',
@@ -5394,8 +5434,8 @@ def metasploit_page(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
-@send_log_data
 @check_project_archived
+@send_log_data
 def metasploit_page_form(project_id, current_project, current_user):
     form = MetasploitForm()
     form.validate()
@@ -5668,6 +5708,7 @@ def metasploit_page_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def nuclei_page(project_id, current_project, current_user):
     return render_template('project/tools/import/nuclei.html',
@@ -5722,7 +5763,8 @@ def nuclei_page_form(project_id, current_project, current_user):
                 issue_references = "Links:\n{}".format(
                     '\n'.join([' - {}'.format(x) for x in issue_obj['info']['reference']])) if 'reference' in \
                                                                                                issue_obj['info'] and \
-                                                                                               issue_obj['info']['reference'] else ""
+                                                                                               issue_obj['info'][
+                                                                                                   'reference'] else ""
                 issue_severity = "info"
                 issue_matcher_name = 'Matched: {}'.format(
                     issue_obj['matcher-name']) if 'matcher-name' in issue_obj else ""
@@ -6283,6 +6325,7 @@ def scanvus_page_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def aiodnsbrute_page(project_id, current_project, current_user):
     return render_template('project/tools/import/aiodnsbrute.html',
@@ -6294,6 +6337,7 @@ def aiodnsbrute_page(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def aiodnsbrute_page_form(project_id, current_project, current_user):
     form = aiodnsbruteForm()
@@ -6407,6 +6451,7 @@ def aiodnsbrute_page_form(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def advanced_port_scanner_page(project_id, current_project, current_user):
     return render_template('project/tools/import/advanced_port_scanner.html',
@@ -6418,6 +6463,7 @@ def advanced_port_scanner_page(project_id, current_project, current_user):
 @requires_authorization
 @check_session
 @check_project_access
+@check_project_archived
 @send_log_data
 def advanced_port_scanner_form(project_id, current_project, current_user):
     form = AdvancedPortScanner()
@@ -6622,158 +6668,175 @@ def advanced_port_scanner_form(project_id, current_project, current_user):
                            errors=errors)
 
 
-@routes.route('/project/<uuid:project_id>/tools/redcheck/', methods=['GET'])
-@requires_authorization
-@check_session
-@check_project_access
-@send_log_data
-def redcheck_page(project_id, current_project, current_user):
-    return render_template('project/tools/import/redcheck.html',
-                           current_project=current_project,
-                           tab_name='RedCheck')
+### Process each module
+
+modules_path = path.join("routes", "ui", "tools_addons", "import_plugins")
+search_path = path.join(modules_path, "*")
+modules = [path.basename(d) for d in glob.glob(search_path) if os.path.isdir(d)]
+
+for module_name in modules:
+    path_to_module = path.join(modules_path, module_name)
+    path_to_python = path.join(path_to_module, "plugin.py")
+    spec = importlib.util.spec_from_file_location("import_plugin", path_to_python)
+    import_plugin = importlib.util.module_from_spec(spec)
+    sys.modules["import_plugin"] = import_plugin
+    spec.loader.exec_module(import_plugin)
+
+    # tmp_vars
+    route_name = import_plugin.route_name
+    route_endpoint = "/project/<uuid:project_id>/tools/{}/".format(route_name)
+    tools_description = import_plugin.tools_description
+    ToolArguments = import_plugin.ToolArguments
+    process_request = import_plugin.process_request
 
 
-@routes.route('/project/<uuid:project_id>/tools/redcheck/', methods=['POST'])
-@requires_authorization
-@check_session
-@check_project_access
-@send_log_data
-def redcheck_page_form(project_id, current_project, current_user):
-    form = RedCheckForm()
-    form.validate()
-    errors = []
-    if form.errors:
-        for field in form.errors:
-            for error in form.errors[field]:
-                errors.append(error)
+    def render_page(current_project, current_user, import_plugin, path_to_module, errors=None):
+        # plugin data
+        tools_description = import_plugin.tools_description
+        ToolArguments = import_plugin.ToolArguments
+        process_request = import_plugin.process_request
+        tool_name_joined = '/'.join([x["Official name"] for x in tools_description])
 
-    if not errors:
-        # csv load
-        for file in form.csv_files.data:
-            if file.filename:
-                scan_result = csv.DictReader(codecs.iterdecode(file, 'utf-8'), delimiter=',')
+        # get images
+        for tool_description_object in tools_description:
+            if "Icon file" in tool_description_object and tool_description_object["Icon file"]:
+                image_data = open(path.join(path_to_module, tool_description_object["Icon file"]), 'rb').read()
+                image_b64 = base64.b64encode(image_data).decode()
+                tool_description_object["image_b64"] = image_b64
+            else:
+                tool_description_object["image_b64"] = ""
 
-                for issue_row in scan_result:
+        # process input parameters
+        input_param_names = [x for x in ToolArguments.__dict__ if not x.startswith("_")]
+        max_column = max(
+            [getattr(getattr(ToolArguments, x), 'kwargs')["_meta"]["display_column"] for x in input_param_names])
+        max_row = max([getattr(getattr(ToolArguments, x), 'kwargs')["_meta"]["display_row"] for x in input_param_names])
 
-                    host_ip = issue_row['Хост'] if 'Хост' in issue_row else issue_row['\ufeffХост']
-                    cve_str = issue_row['Cve/AltxId']
-                    issue_port = int(issue_row['Порт']) if issue_row['Порт'] else 0
-                    is_tcp = issue_row['Протокол'] == 'tcp'
-                    issue_severity_ru = issue_row['Критичность']
-                    issue_description = issue_row['Описание']
-                    issue_cpe = issue_row['Cpe']
-                    service_name = issue_row['Имя сервиса'] if issue_row['Имя сервиса'] else 'unknown'
-                    issue_tech = issue_row['Детализация']
-                    issue_cvss2 = issue_row['Cvss2']
-                    issue_cvss2_vector = issue_row['Cvss2 Вектор']
-                    issue_cvss3 = issue_row['Cvss3']
-                    issue_cvss3_vector = issue_row['Cvss3 Вектор']
-                    issue_cve_url = issue_row['Cve Url'] if issue_row['Cve Url'] and issue_row[
-                        'Cve Url'] != 'Нет данных' else ''
+        display_table = [["" for x in range(max_column)] for y in range(max_row)]
 
-                    issue_real_severity = 0
-                    if issue_cvss3:
-                        issue_real_severity = float(issue_cvss3)
-                    elif issue_cvss2:
-                        issue_real_severity = float(issue_cvss2)
-                    elif issue_severity_ru:
-                        if issue_severity_ru == 'Критический':
-                            issue_real_severity = 9.5
-                        elif issue_severity_ru == 'Высокий':
-                            issue_real_severity = 8.0
-                        elif issue_severity_ru == 'Средний':
-                            issue_real_severity = 2.0
-                        elif issue_severity_ru == 'Низкий':
-                            issue_real_severity = 0.0
-                        else:
-                            issue_real_severity = 0.0
+        css_classes = [None, "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
 
-                    if issue_real_severity > 10 or issue_real_severity < 0:
-                        issue_real_severity = 0
+        for input_name in input_param_names:
+            input_obj = getattr(ToolArguments, input_name)
+            field_class = getattr(input_obj, 'field_class')
+            field_kwargs = getattr(input_obj, 'kwargs')
+            input_meta = getattr(input_obj, 'kwargs')["_meta"]
+            input_html = ""
+            if field_class == wtforms.fields.simple.MultipleFileField:
+                input_html = """
+                            <label>{}:</label>
+                            <input type="file" name="{}" placeholder="" multiple accept="{}" required>
+                        """.format(field_kwargs["description"], input_name, input_meta["file_extensions"])
+            elif field_class == wtforms.fields.simple.StringField:
+                input_html = """
+                            <label>{}:</label>
+                            <input type="text" name="{}" placeholder="{}" value="{}">""".format(
+                    field_kwargs["description"],
+                    input_name, input_name,
+                    field_kwargs['default'])
+            elif field_class == wtforms.fields.IntegerField:
+                input_html = """
+                            <label>{}:</label>
+                            <input type="number" name="{}" placeholder="{}" value="{}">
+                        """.format(field_kwargs["description"], input_name, input_name, field_kwargs['default'])
+            elif field_class == wtforms.fields.BooleanField:
+                input_html = """
+                        <div class="ui checkbox" style="margin-top: 10px;">
+                            <input type="checkbox" {} name="{}" value="1">
+                            <label>{}</label>
+                        </div>""".format("checked" if field_kwargs['default'] else "", input_name,
+                                         field_kwargs["description"])
+            display_table[input_meta["display_row"] - 1][input_meta["display_column"] - 1] = input_html
+        # template processing
+        route_py_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        template_file = os.path.join(route_py_path, "ui", "tools_addons", "import_plugins", "import_form.html")
+        template_data = open(template_file).read()  # sorry :)))
+        if errors is None:
+            return render_template_string(template_data,
+                                          current_project=current_project,
+                                          current_user=current_user,
+                                          tools_description=tools_description,
+                                          tool_name_joined=tool_name_joined,
+                                          route_name=route_name,
+                                          rows_name=css_classes[max_column],
+                                          display_table=display_table
+                                          )
+        else:
+            return render_template_string(template_data,
+                                          current_project=current_project,
+                                          current_user=current_user,
+                                          tools_description=tools_description,
+                                          tool_name_joined=tool_name_joined,
+                                          route_name=route_name,
+                                          rows_name=css_classes[max_column],
+                                          display_table=display_table,
+                                          errors=errors
+                                          )
 
-                    # check ip addresses
-                    try:
-                        ip_obj = ipaddress.ip_address(host_ip)
-                    except:
-                        errors.append("Wrong ip-address!")
-                        return render_template('project/tools/import/redcheck.html',
-                                               current_project=current_project,
-                                               tab_name='RedCheck',
-                                               errors=errors)
-                    # check port
-                    if issue_port < 0 or issue_port > 65535:
-                        errors.append("Wrong port number!")
-                        return render_template('project/tools/import/redcheck.html',
-                                               current_project=current_project,
-                                               tab_name='RedCheck',
-                                               errors=errors)
 
-                    # Create host
-                    host_id = db.select_project_host_by_ip(current_project['id'], host_ip)
-                    if host_id:
-                        host_id = host_id[0]['id']
-                    else:
-                        host_id = db.insert_host(current_project['id'],
-                                                 host_ip, current_user['id'],
-                                                 form.hosts_description.data)
+    def create_view_func(func, import_plugin, path_to_module):
+        print(5678)
 
-                    # Create port
-                    port_id = db.select_host_port(host_id, issue_port, is_tcp)
-                    if port_id:
-                        port_id = port_id[0]['id']
-                    else:
-                        port_id = db.insert_host_port(host_id, issue_port, is_tcp, service_name,
-                                                      form.ports_description.data, current_user['id'],
-                                                      current_project['id'])
+        @requires_authorization
+        @check_session
+        @check_project_access
+        @check_project_archived
+        @send_log_data
+        def view_func(project_id, current_project, current_user):
+            function_result = func(project_id, current_project, current_user, import_plugin, path_to_module)
+            return function_result
 
-                    # Create issue
-                    issue_id = db.insert_new_issue_no_dublicate(
-                        "RedCheck: {}".format(cve_str),
-                        issue_description,
-                        '',
-                        issue_real_severity,
-                        current_user['id'],
-                        {port_id: ["0"]},
-                        "Need to recheck",
-                        current_project['id'],
-                        cve_str,
-                        0,
-                        'custom',
-                        '',
-                        '',
-                        issue_tech,
-                        '',
-                        issue_cve_url
-                    )
+        return view_func
 
-                    # Add additional fields
-                    fields_dict = {}
-                    if issue_cvss3_vector:
-                        fields_dict["cvss_vector"] = {
-                            "type": "text",
-                            "val": "CVSS:3.1/" + issue_cvss3_vector.replace("CVSS:3.0/", "").replace("CVSS:3.1/", "")
-                        }
-                    if issue_cvss2_vector:
-                        fields_dict["cvss2_vector"] = {
-                            "type": "text",
-                            "val": issue_cvss2_vector
-                        }
-                    if issue_cvss2:
-                        fields_dict["cvss2"] = {
-                            "type": "float",
-                            "val": float(issue_cvss2)
-                        }
 
-                    if issue_cpe:
-                        fields_dict["cpe"] = {
-                            "type": "text",
-                            "val": issue_cpe
-                        }
+    def import_plugin_page(project_id, current_project, current_user, import_plugin, path_to_module):
+        return render_page(current_project, current_user, import_plugin, path_to_module)
 
-                    if fields_dict:
-                        db.update_issue_fields(issue_id, fields_dict)
 
-    return render_template('project/tools/import/redcheck.html',
-                           current_project=current_project,
-                           tab_name='RedCheck',
-                           errors=errors)
+    def import_plugin_form(project_id, current_project, current_user, import_plugin, path_to_module):
+        # plugin data
+        ToolArguments = import_plugin.ToolArguments
+        process_request = import_plugin.process_request
+
+        form = ToolArguments()
+        form.validate()
+        errors = []
+        if form.errors:
+            for field in form.errors:
+                for error in form.errors[field]:
+                    errors.append(error)
+
+        if not errors:
+            # process input parameters
+            input_param_names = [x for x in ToolArguments.__dict__ if not x.startswith("_")]
+            input_dict = {}
+            for input_name in input_param_names:
+                input_obj = getattr(form, input_name)
+                class_name = input_obj.__class__
+                if class_name in [wtforms.fields.simple.BooleanField,
+                                  wtforms.fields.numeric.IntegerField,
+                                  wtforms.fields.simple.StringField]:
+                    input_dict[input_name] = input_obj.data
+                elif class_name == wtforms.fields.simple.MultipleFileField:
+                    input_dict[input_name] = []
+                    for file_obj in input_obj.data:
+                        file_data = file_obj.read()  # codecs.iterdecode(file, 'utf-8')
+                        input_dict[input_name].append(file_data)
+            try:
+                error_str = process_request(current_user, current_project, db, input_dict)
+            except OverflowError as e:
+                error_str = "Unhandled python exception in plugin!"
+                logging.error("Error with {} plugin: {}".format(import_plugin.route_name, e))
+            if error_str:
+                errors.append(error_str)
+        return render_page(current_project, current_user, import_plugin, path_to_module, errors)
+
+
+    routes.add_url_rule(rule=route_endpoint,
+                        endpoint=route_name + "_get",
+                        view_func=create_view_func(import_plugin_page, import_plugin, path_to_module),
+                        methods=["GET"])
+    routes.add_url_rule(rule=route_endpoint,
+                        endpoint=route_name + "_post",
+                        view_func=create_view_func(import_plugin_form, import_plugin, path_to_module),
+                        methods=["POST"])
