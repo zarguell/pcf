@@ -40,6 +40,7 @@ tools_description = [  # array with tools information (to join same tools proces
 
 class ToolArguments(FlaskForm):
     # Example multiple file upload field
+    # must not be "access_token"
     json_files = MultipleFileField(label='json_files',  # same as variable name
                                    description="JSON-report",  # short description
                                    default=None,
@@ -51,8 +52,17 @@ class ToolArguments(FlaskForm):
     example_text = StringField(label='example_text',  # same as variable name
                                description="Text input",  # short description
                                default="example default value",  # this will also be in HTML-tag
-                               validators=[],  # Validate argument - https://wtforms.readthedocs.io/en/2.3.x/validators/
+                               validators=[
+                                   DataRequired(message='This field is required!')
+                               ],
                                _meta={"display_row": 1, "display_column": 2, "file_extensions": ""})
+
+    example_required_text = StringField(label='example_text2',
+                               description="Required text",
+                               validators=[
+                                   DataRequired(message='example_required_text field is required!')
+                               ],
+                               _meta={"display_row": 2, "display_column": 1, "file_extensions": ""})
 
     # Example number input field
     example_number = IntegerField(label='example_number',  # same as variable name
@@ -62,7 +72,7 @@ class ToolArguments(FlaskForm):
                                   validators=[
                                       NumberRange(min=1, max=65535, message="Port 1..65535")
                                   ],
-                                  _meta={"display_row": 1, "display_column": 2, "file_extensions": ""})
+                                  _meta={"display_row": 2, "display_column": 2, "file_extensions": ""})
 
     # Example checkbox input field
     example_checkbox = BooleanField(label='example_checkbox',  # same as variable name
@@ -70,7 +80,7 @@ class ToolArguments(FlaskForm):
                                     default=True,  # checked/not-checked
                                     # Validate argument - https://wtforms.readthedocs.io/en/2.3.x/validators/
                                     validators=[],
-                                    _meta={"display_row": 2, "display_column": 1, "file_extensions": ""})
+                                    _meta={"display_row": 3, "display_column": 1, "file_extensions": ""})
 
 
 ########### Request processing

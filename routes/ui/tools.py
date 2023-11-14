@@ -6690,6 +6690,7 @@ for module_name in modules:
     process_request = import_plugin.process_request
 
 
+
     def render_page(current_project, current_user, import_plugin, path_to_module, errors=None):
         # plugin data
         tools_description = import_plugin.tools_description
@@ -6721,30 +6722,38 @@ for module_name in modules:
             field_class = getattr(input_obj, 'field_class')
             field_kwargs = getattr(input_obj, 'kwargs')
             input_meta = getattr(input_obj, 'kwargs')["_meta"]
+            required_str = "required" if wtforms.validators.DataRequired in [x.__class__ for x in field_kwargs['validators']] else ""
             input_html = ""
             if field_class == wtforms.fields.simple.MultipleFileField:
                 input_html = """
                             <label>{}:</label>
-                            <input type="file" name="{}" placeholder="" multiple accept="{}" required>
+                            <input type="file" name="{}" placeholder="" multiple accept="{}">
                         """.format(field_kwargs["description"], input_name, input_meta["file_extensions"])
             elif field_class == wtforms.fields.simple.StringField:
                 input_html = """
                             <label>{}:</label>
-                            <input type="text" name="{}" placeholder="{}" value="{}">""".format(
+                            <input type="text" name="{}" placeholder="{}" value="{}" {}>""".format(
                     field_kwargs["description"],
-                    input_name, input_name,
-                    field_kwargs['default'])
+                    input_name,
+                    field_kwargs['default'] if 'default' in field_kwargs else '',
+                    field_kwargs['default'] if 'default' in field_kwargs else '',
+                    required_str)
             elif field_class == wtforms.fields.IntegerField:
                 input_html = """
                             <label>{}:</label>
-                            <input type="number" name="{}" placeholder="{}" value="{}">
-                        """.format(field_kwargs["description"], input_name, input_name, field_kwargs['default'])
+                            <input type="number" name="{}" placeholder="{}" value="{}" {}>
+                        """.format(field_kwargs["description"],
+                                   input_name,
+                                    field_kwargs['default'] if 'default' in field_kwargs else '',
+                                   field_kwargs['default'] if 'default' in field_kwargs else '',
+                                   required_str)
             elif field_class == wtforms.fields.BooleanField:
                 input_html = """
                         <div class="ui checkbox" style="margin-top: 10px;">
-                            <input type="checkbox" {} name="{}" value="1">
+                            <input type="checkbox" {} name="{}" value="1" {}>
                             <label>{}</label>
-                        </div>""".format("checked" if field_kwargs['default'] else "", input_name,
+                        </div>""".format("checked" if 'default' in field_kwargs and field_kwargs['default'] else "",
+                                         input_name, required_str,
                                          field_kwargs["description"])
             display_table[input_meta["display_row"] - 1][input_meta["display_column"] - 1] = input_html
         # template processing
@@ -6775,8 +6784,6 @@ for module_name in modules:
 
 
     def create_view_func(func, import_plugin, path_to_module):
-        print(5678)
-
         @requires_authorization
         @check_session
         @check_project_access

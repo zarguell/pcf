@@ -1,3 +1,12 @@
+import glob
+import importlib
+import logging
+import os
+import sys
+
+import wtforms
+from wtforms import StringField
+
 from routes.api import api_bp as routes
 from webargs.flaskparser import abort, FlaskParser
 from .forms import *
@@ -89,7 +98,15 @@ parser = Parser()
 def check_access_token(fn):
     @wraps(fn)
     def decorated_view(*args, **kwargs):
-        access_token = str(args[0]['access_token'])
+        access_token = ""
+        if not args or 'access_token' not in args[0]:
+            # some bad fix for plugin support
+            if is_valid_uuid(request.json['access_token']):
+                access_token = request.json['access_token']
+            else:
+                abort(fail(['Invalid token - must be UUID!']))
+        else:
+            access_token = str(args[0]['access_token'])
         current_token = db.select_token(access_token)
 
         if not current_token:
@@ -172,10 +189,8 @@ def check_project_archived(fn):
     def decorated_view(*args, **kwargs):
         current_project = kwargs['current_project']
 
-        if current_project['status'] == 0 or (current_project[
-                                                  'end_date'] < time.time() and
-                                              current_project[
-                                                  'auto_archive'] == 1):
+        if current_project['status'] == 0 or (current_project['end_date'] < time.time() and
+                                              current_project['auto_archive'] == 1):
             if current_project['status'] == 1:
                 db.update_project_status(current_project['id'], 0)
             return fail(["Project was archived!"])
@@ -3254,7 +3269,7 @@ def project_todo_task_edit(args, current_user=None, current_token=None,
 @check_project_access
 @check_project_archived
 def project_todo_task_new(args, current_user=None, current_token=None,
-                           user_id='', project_id=None, current_project=None):
+                          user_id='', project_id=None, current_project=None):
     """
     POST /api/v1/project/1ffbce55-7836-40d2-9390-bffa2e9ddebe/task/new HTTP/1.1
     Host: 126
@@ -3344,7 +3359,102 @@ def project_todo_task_new(args, current_user=None, current_token=None,
                     return fail(['Invalid hostname UUID!'])
 
     task_id = db.insert_new_task(task_name, task_description, task_criticality, task_teams,
-                       task_users, task_status, task_start_date, task_finish_date, current_project['id'],
-                       task_services)
+                                 task_users, task_status, task_start_date, task_finish_date, current_project['id'],
+                                 task_services)
 
     return {"task_id": task_id}
+
+
+### Process each module
+
+modules_path = path.join("routes", "ui", "tools_addons", "import_plugins")
+search_path = path.join(modules_path, "*")
+modules = [path.basename(d) for d in glob.glob(search_path) if os.path.isdir(d)]
+
+for module_name in modules:
+    path_to_module = path.join(modules_path, module_name)
+    path_to_python = path.join(path_to_module, "plugin.py")
+    spec = importlib.util.spec_from_file_location("import_plugin", path_to_python)
+    import_plugin = importlib.util.module_from_spec(spec)
+    sys.modules["import_plugin"] = import_plugin
+    spec.loader.exec_module(import_plugin)
+
+    # tmp_vars
+    route_name = import_plugin.route_name
+    route_endpoint = "/api/v1/project/<uuid:project_id>/tool/{}/".format(route_name)
+    tools_description = import_plugin.tools_description
+    ToolArguments = import_plugin.ToolArguments
+    process_request = import_plugin.process_request
+    input_param_names = [x for x in ToolArguments.__dict__ if not x.startswith("_")]
+
+    def create_view_func(func, import_plugin, path_to_module):
+        @requires_authorization
+        @csrf.exempt
+        @check_access_token
+        @check_project_access
+        @check_project_archived
+        def view_func(project_id, current_token, current_project, current_user):
+            function_result = func(project_id, current_token, current_project, current_user, import_plugin, path_to_module)
+            return function_result
+
+        return view_func
+
+    def import_plugin_form(project_id, current_token, current_project, current_user, import_plugin, path_to_module):
+        # plugin data
+        ToolArguments = import_plugin.ToolArguments
+        process_request = import_plugin.process_request
+
+        # change file arguments to string base64
+        input_param_names = [x for x in ToolArguments.__dict__ if not x.startswith("_")]
+        input_dict = {}
+        for input_name in input_param_names:
+            input_obj = getattr(ToolArguments, input_name)
+            class_name = input_obj.field_class
+            if class_name == wtforms.fields.simple.MultipleFileField or \
+                'is_file' in input_obj.kwargs['_meta'] and input_obj.kwargs['_meta']['is_file']:
+                input_obj.field_class = wtforms.fields.simple.StringField
+                input_obj.kwargs['_meta']['is_file'] = True
+            else:
+                input_obj.kwargs['_meta']['is_file'] = False
+        # check request
+        form = ToolArguments(meta={'csrf': False})
+        form.validate()
+        errors = []
+        if form.errors:
+            for field in form.errors:
+                for error in form.errors[field]:
+                    errors.append(error)
+
+        if not errors:
+            # process input parameters
+            input_param_names = [x for x in ToolArguments.__dict__ if not x.startswith("_")]
+            input_dict = {}
+            for input_name in input_param_names:
+                input_obj = getattr(form, input_name)
+                class_name = input_obj.__class__
+                if class_name in [wtforms.fields.simple.BooleanField,
+                                  wtforms.fields.numeric.IntegerField,
+                                  wtforms.fields.simple.StringField]:
+                    if input_obj.meta["is_file"]:
+                        input_dict[input_name] = []
+                        try:
+                            input_dict[input_name].append(base64.b64decode(input_obj.data))
+                        except Exception as e:
+                            errors.append("Wrong base64 for file {}!".format(input_name))
+                    else:
+                        input_dict[input_name] = input_obj.data
+        if not errors:
+            try:
+                error_str = process_request(current_user, current_project, db, input_dict)
+            except OverflowError as e:
+                error_str = "Unhandled python exception in plugin!"
+                logging.error("Error with {} plugin: {}".format(import_plugin.route_name, e))
+            if error_str:
+                errors.append(error_str)
+        return {"errors": errors}
+
+
+    routes.add_url_rule(rule=route_endpoint,
+                        endpoint=route_name + "_api",
+                        view_func=create_view_func(import_plugin_form, import_plugin, path_to_module),
+                        methods=["POST"])

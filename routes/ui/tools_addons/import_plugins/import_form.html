@@ -57,9 +57,7 @@
                 <!-- Start form data -->
                 <form class="ui form" enctype="multipart/form-data" method="post" action="/project/{{ current_project['id'] }}/tools/{{ route_name }}/">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-
                     <!-- Import data start -->
-
                     {% for row_obj in  display_table %}
                          <div class="{{ rows_name }} fields">
                          {% for html_str in row_obj %}
