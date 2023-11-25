@@ -935,12 +935,6 @@ class DuplicatorForm(FlaskForm):
                                              )
 
 
-class WPScanForm(FlaskForm):
-    json_files = MultipleFileField('json_files')
-    auto_resolve = IntegerField('auto_resolve', default=0)
-    host = StringField('host', default='')
-
-
 class NewIssueTemplate(FlaskForm):
     name = StringField('name', default='')
     description = StringField('description', default='')
@@ -1283,11 +1277,6 @@ class DNSreconForm(FlaskForm):
     ignore_ipv6 = IntegerField('ignore_ipv6', default=0)
 
 
-class theHarvesterForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    hosts_description = StringField('hosts_description', default='Added from theHarvester scan')
-    hostnames_description = StringField('hostnames_description', default='Added from theHarvester scan')
-
 
 class MetasploitForm(FlaskForm):
     xml_files = MultipleFileField('xml_files')
@@ -1382,12 +1371,6 @@ class RuleUseForm(FlaskForm):
     rules_ids = StringField('rule_ids', default='')
 
 
-class ScanvusForm(FlaskForm):
-    json_files = MultipleFileField('json_files')
-    host_id = StringField('new_host', default='-')
-    ip = StringField('ip', default='')
-    host_description = StringField('host_description', default='')
-
 
 class AddNewTask(FlaskForm):
     name = StringField('name', validators=[DataRequired(message='Name required!')])
@@ -1445,13 +1428,6 @@ class AdvancedPortScanner(FlaskForm):
     ignore_ports = StringField('ignore_ports', default='')
     hosts_description = StringField('hosts_description', default='Added from Advanced Port Scanner')
     hostnames_description = StringField('hostnames_description', default='Added from Advanced Port Scanner')
-
-
-class RedCheckForm(FlaskForm):
-    csv_files = MultipleFileField('csv_files')
-    hosts_description = StringField('hosts_description', default='Added from RedCheck scan')
-    hostnames_description = StringField('hostnames_description', default='Added from RedCheck scan')
-    ports_description = StringField('ports_description', default='Added from RedCheck scan')
 
 
 class TODOImportJSONForm(FlaskForm):

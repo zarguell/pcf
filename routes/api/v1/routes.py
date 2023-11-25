@@ -3387,6 +3387,7 @@ for module_name in modules:
     process_request = import_plugin.process_request
     input_param_names = [x for x in ToolArguments.__dict__ if not x.startswith("_")]
 
+
     def create_view_func(func, import_plugin, path_to_module):
         @requires_authorization
         @csrf.exempt
@@ -3394,10 +3395,12 @@ for module_name in modules:
         @check_project_access
         @check_project_archived
         def view_func(project_id, current_token, current_project, current_user):
-            function_result = func(project_id, current_token, current_project, current_user, import_plugin, path_to_module)
+            function_result = func(project_id, current_token, current_project, current_user, import_plugin,
+                                   path_to_module)
             return function_result
 
         return view_func
+
 
     def import_plugin_form(project_id, current_token, current_project, current_user, import_plugin, path_to_module):
         # plugin data
@@ -3411,7 +3414,7 @@ for module_name in modules:
             input_obj = getattr(ToolArguments, input_name)
             class_name = input_obj.field_class
             if class_name == wtforms.fields.simple.MultipleFileField or \
-                'is_file' in input_obj.kwargs['_meta'] and input_obj.kwargs['_meta']['is_file']:
+                    'is_file' in input_obj.kwargs['_meta'] and input_obj.kwargs['_meta']['is_file']:
                 input_obj.field_class = wtforms.fields.simple.StringField
                 input_obj.kwargs['_meta']['is_file'] = True
             else:

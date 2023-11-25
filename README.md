@@ -130,6 +130,13 @@ when carrying out various works for testing!</b>
 
 **You need only Python3**.
 
+⚠️Better to have Python3 <= 3.9, 
+or be ready that PIP will compile python dependency packages.
+
+
+During this compilation it may require to install other
+system dependencies.
+
 ## 🖥️ Windows / Linux / MacOS
 
 Download project:
@@ -160,13 +167,17 @@ pip.exe install -r requirements_windows.txt
 
 Run initiation script:
 
+(this script recreates database, but )
+
 ```bash
+# !!! read the text and input "DELETE_ALL" string
 python3 new_initiation.py
 ```
 
 or windows
 
 ```bash
+# !!! read the text and input "DELETE_ALL" string
 python.exe new_initiation.py
 ```
 

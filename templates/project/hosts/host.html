@@ -1112,9 +1112,7 @@
                                                         delta = quill_{{ loop.index }}.clipboard.convert({html: text_val});
 
                                                         for (let i = 0; i < delta.ops.length; i++) {
-                                                            if (delta.ops[i].insert === "PlainBashC++C#CSSDiffHTML/XMLJavaJavascriptMarkdownPHPPythonRubySQL\n") {
-                                                                delta.ops[i].insert = ''
-                                                            }
+                                                            delta.ops[i].insert = delta.ops[i].insert.replace("PlainBashC++C#CSSDiffHTML/XMLJavaJavascriptMarkdownPHPPythonRubySQL\n","");
                                                         }
 
                                                         quill_{{ loop.index }}.setContents(delta, 'silent');

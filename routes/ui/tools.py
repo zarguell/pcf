@@ -4216,315 +4216,6 @@ def duplicator_page_form(project_id, current_project, current_user):
                            errors=errors)
 
 
-@routes.route('/project/<uuid:project_id>/tools/wpscan/', methods=['GET'])
-@requires_authorization
-@check_session
-@check_project_access
-@check_project_archived
-@send_log_data
-def wpscan_page(project_id, current_project, current_user):
-    return render_template('project/tools/import/wpscan.html',
-                           current_project=current_project,
-                           tab_name='WPScan')
-
-
-@routes.route('/project/<uuid:project_id>/tools/wpscan/', methods=['POST'])
-@requires_authorization
-@check_session
-@check_project_access
-@check_project_archived
-@send_log_data
-def wpscan_page_form(project_id, current_project, current_user):
-    form = WPScanForm()
-    form.validate()
-    errors = []
-    if form.errors:
-        for field in form.errors:
-            for error in form.errors[field]:
-                errors.append(error)
-
-    host_field = form.host.data
-    if host_field:
-        try:
-            ipaddress.ip_address(host_field)
-        except Exception as e:
-            errors.append("Host IP field is wrong!")
-
-    if not errors:
-        # json files
-        for file in form.json_files.data:
-            if file.filename:
-
-                file_content = file.read().decode('charmap')
-                try:
-                    file_dict = json.loads(file_content)
-
-                    # get protocol
-                    current_url = file_dict['target_url']
-                    current_url_obj = urllib.parse.urlparse(current_url)
-                    current_scheme = current_url_obj.scheme.lower()
-                    hostname = current_url_obj.hostname
-
-                    if 'target_ip' in file_dict:
-                        current_ip = file_dict['target_ip']
-                        # validate ip
-                        ipaddress.ip_address(current_ip)
-                    elif host_field:
-                        current_ip = host_field
-                    elif form.auto_resolve.data:
-                        current_ip = socket.gethostbyname(hostname)
-                    else:
-                        errors.append("IP not found!")
-                    current_host = db.select_project_host_by_ip(current_project['id'], current_ip)
-                    if current_host:
-                        current_host_id = current_host[0]['id']
-                    else:
-                        current_host_id = db.insert_host(current_project['id'],
-                                                         current_ip,
-                                                         current_user['id'],
-                                                         "Added from WPScan")
-                    note_output = "<h1>Scan of {} </h1></br></br>".format(current_url)
-                    if current_url_obj.port:
-                        current_port_num = int(current_url_obj.port)
-                    else:
-                        if current_scheme == 'http':
-                            current_port_num = 80
-                        elif current_scheme == 'https':
-                            current_port_num = 443
-                    current_wordpress_path = current_url_obj.path
-
-                    if current_port_num < 1 or current_port_num > 65535:
-                        raise Exception
-
-                    # create port
-                    current_port_obj = db.select_host_port(current_host_id,
-                                                           current_port_num,
-                                                           True)
-                    if current_port_obj:
-                        current_port_id = current_port_obj[0]['id']
-                    else:
-                        current_port_id = db.insert_host_port(current_host_id,
-                                                              current_port_num,
-                                                              True,
-                                                              current_scheme,
-                                                              'WordPress',
-                                                              current_user['id'],
-                                                              current_project['id'])
-
-                    # create hostname
-                    if hostname == current_ip:
-                        current_hostname_id = "0"
-                    else:
-                        current_hostname = db.select_ip_hostname(current_host_id,
-                                                                 hostname)
-                        if current_hostname:
-                            current_hostname_id = current_hostname[0]['id']
-                        else:
-                            current_hostname_id = db.insert_hostname(
-                                current_host_id,
-                                hostname,
-                                "Added from WPScan",
-                                current_user['id']
-                            )
-                    # Interesting findings
-                    interest_obj = file_dict['interesting_findings']
-                    if interest_obj:
-                        note_output += "<h1>Interesting findings </h1></br>"
-                        for find_obj in interest_obj:
-                            note_output += "<h2><b>URL:</b> " + find_obj["url"] + "</h2></br>"
-                            note_output += "<b>Type:</b> " + find_obj["type"] + "</br>"
-                            note_output += "<b>Description:</b> " + find_obj["to_s"] + "</br>"
-                            note_output += "<b>Found by:</b> " + find_obj["found_by"] + "</br>"
-                            note_output += "<b>Interesting entries:</b> <ol>"
-                            for entry in find_obj["interesting_entries"]:
-                                note_output += "<li>" + htmlspecialchars(entry) + "</li>"
-                            note_output += "</ol></br>"
-                            if "url" in find_obj["references"]:
-                                note_output += "<b>Reference urls:</b> <ol>"
-                                for url in find_obj["references"]["url"]:
-                                    note_output += "<li>" + htmlspecialchars(url) + "</li>"
-                                note_output += "</ol></br>"
-                            if "metasploit" in find_obj["references"]:
-                                note_output += "<b>Reference metasploit:</b> <ol>"
-                                for url in find_obj["references"]["metasploit"]:
-                                    note_output += "<li>" + htmlspecialchars(url) + "</li>"
-                                note_output += "</ol></br>"
-
-                    # Versions issues detection
-                    version_obj = file_dict['version']
-                    if version_obj:
-                        note_output += "<h1>Version detection </h1></br>"
-                        note_output += "<b>Version:</b> " + version_obj["number"] + "</br>"
-                        note_output += "<b>Found by:</b> " + version_obj["found_by"] + "</br>"
-                        note_output += "<b>Interesting entries:</b> <ol>"
-                        for entry in version_obj["interesting_entries"]:
-                            note_output += "<li>" + htmlspecialchars(entry) + "</li>"
-                        note_output += "</ol></br>"
-                        for current_issue in version_obj["vulnerabilities"]:
-                            issue_name = current_issue["title"]
-                            issue_fix = "Upgrade WordPress to version >= " + current_issue["fixed_in"]
-                            issue_cve = ",".join(current_issue["references"]["cve"]) if "cve" in current_issue[
-                                "references"] else ""
-                            issue_description = "{}\n\nURLs:\n{}\n\nwpvulndb: {}".format(issue_name,
-                                                                                         "\n".join([" - " + x for x in
-                                                                                                    current_issue[
-                                                                                                        "references"][
-                                                                                                        "url"]]),
-                                                                                         ", ".join(current_issue[
-                                                                                                       "references"][
-                                                                                                       "wpvulndb"]))
-                            if "exploitdb" in current_issue:
-                                issue_description += "\n\nExploitDB: {}".format(current_issue["exploitdb"])
-                            if "youtube" in current_issue:
-                                issue_description += "\n\nYoutube: {}".format(current_issue["youtube"])
-
-                            issue_id = db.insert_new_issue_no_dublicate(
-                                issue_name,
-                                issue_description,
-                                current_wordpress_path,
-                                0,
-                                current_user['id'],
-                                {current_port_id: [current_hostname_id]},
-                                "Need to recheck",
-                                current_project['id'],
-                                issue_cve,
-                                0,
-                                "web",
-                                issue_fix,
-                                ""
-                            )
-
-                    # Theme
-                    main_theme_obj = file_dict['main_theme']
-                    if main_theme_obj:
-                        note_output += "<h1>Main theme </h1></br>"
-                        note_output += "<b>Name:</b> " + main_theme_obj["slug"] + "</br>"
-                        note_output += "<b>Location:</b> " + main_theme_obj["location"] + "</br>"
-                        if "readme_url" in main_theme_obj:
-                            note_output += "<b>Readme URL:</b> " + main_theme_obj["readme_url"] + "</br>"
-                        if "style_uri" in main_theme_obj:
-                            note_output += "<b>Official URL:</b> " + main_theme_obj["style_uri"] + "</br>"
-                        if "version" in main_theme_obj and main_theme_obj["version"]:
-                            note_output += "<b>Version:</b> " + main_theme_obj["version"]["number"] + "</br>"
-
-                            note_output += "<b>Interesting entries:</b> <ol>"
-                            for entry in main_theme_obj["version"]["interesting_entries"]:
-                                note_output += "<li>" + htmlspecialchars(entry) + "</li>"
-                            note_output += "</ol></br>"
-
-                        for current_issue in main_theme_obj["vulnerabilities"]:
-                            issue_name = current_issue["title"]
-                            issue_fix = "Upgrade main theme {} to version >= {}".format(main_theme_obj["slug"],
-                                                                                        current_issue["fixed_in"])
-                            issue_cve = ",".join(current_issue["references"]["cve"])
-                            issue_description = "{}\n\nURLs:\n{}\n\nwpvulndb: {}".format(issue_name,
-                                                                                         "\n".join([" - " + x for x in
-                                                                                                    current_issue[
-                                                                                                        "references"][
-                                                                                                        "url"]]),
-                                                                                         ", ".join(current_issue[
-                                                                                                       "references"][
-                                                                                                       "wpvulndb"]))
-                            if "exploitdb" in current_issue:
-                                issue_description += "\n\nExploitDB: {}".format(current_issue["exploitdb"])
-                            if "youtube" in current_issue:
-                                issue_description += "\n\nYoutube: {}".format(current_issue["youtube"])
-
-                            issue_id = db.insert_new_issue_no_dublicate(
-                                issue_name,
-                                issue_description,
-                                current_wordpress_path,
-                                0,
-                                current_user['id'],
-                                {current_port_id: [current_hostname_id]},
-                                "Need to recheck",
-                                current_project['id'],
-                                issue_cve,
-                                0,
-                                "web",
-                                issue_fix,
-                                ""
-                            )
-
-                    # Plugins
-                    plugins_obj = file_dict['plugins']
-                    if plugins_obj:
-                        note_output += "<h1>Plugins</h1></br>"
-                        for plugin_name in plugins_obj:
-                            plugin_obj = plugins_obj[plugin_name]
-                            note_output += "<h2>" + plugin_name + "</h2></br>"
-                            note_output += "<b>Location:</b> " + plugin_obj["location"] + "</br>"
-                            note_output += "<b>Found by:</b> " + plugin_obj["found_by"] + "</br>"
-                            if "error_log_url" in plugins_obj and plugin_obj["error_log_url"]:
-                                note_output += "<b>Error log URL:</b> " + plugin_obj["error_log_url"] + "</br>"
-                            if "directory_listing" in plugin_obj and plugin_obj["directory_listing"]:
-                                note_output += "<b>Dir listing URL:</b> " + plugin_obj["directory_listing"] + "</br>"
-                            if "changelog_url" in plugin_obj and plugin_obj["changelog_url"]:
-                                note_output += "<b>Changelog URL:</b> " + plugin_obj["changelog_url"] + "</br>"
-                            if "readme_url" in plugin_obj and plugin_obj["readme_url"]:
-                                note_output += "<b>Readme URL:</b> " + plugin_obj["readme_url"] + "</br>"
-                            note_output += "<b>Interesting entries:</b> <ol>"
-                            for entry in plugin_obj["interesting_entries"]:
-                                note_output += "<li>" + htmlspecialchars(entry) + "</li>"
-                            note_output += "</ol></br>"
-                            if "version" in plugin_obj and plugin_obj["version"]:
-                                note_output += "<b>Version:</b> " + plugin_obj["version"]["number"] + "</br>"
-                                note_output += "<b>Version entries:</b> <ol>"
-                                for entry in plugin_obj["version"]["interesting_entries"]:
-                                    note_output += "<li>" + htmlspecialchars(entry) + "</li>"
-                                note_output += "</ol></br>"
-                            for current_issue in plugin_obj["vulnerabilities"]:
-                                issue_name = current_issue["title"]
-                                issue_fix = "Upgrade plugin {} to version >= {}".format(plugin_name,
-                                                                                        current_issue["fixed_in"])
-                                issue_cve = ",".join(current_issue["references"]["cve"])
-                                issue_description = "{}\n\nURLs:\n{}\n\nwpvulndb: {}".format(issue_name,
-                                                                                             "\n".join(
-                                                                                                 [" - " + x for x in
-                                                                                                  current_issue[
-                                                                                                      "references"][
-                                                                                                      "url"]]),
-                                                                                             ", ".join(current_issue[
-                                                                                                           "references"][
-                                                                                                           "wpvulndb"]))
-                                if "exploitdb" in current_issue:
-                                    issue_description += "\n\nExploitDB: {}".format(current_issue["exploitdb"])
-                                if "youtube" in current_issue:
-                                    issue_description += "\n\nYoutube: {}".format(current_issue["youtube"])
-
-                                issue_id = db.insert_new_issue_no_dublicate(
-                                    issue_name,
-                                    issue_description,
-                                    current_wordpress_path,
-                                    0,
-                                    current_user['id'],
-                                    {current_port_id: [current_hostname_id]},
-                                    "Need to recheck",
-                                    current_project['id'],
-                                    issue_cve,
-                                    0,
-                                    "web",
-                                    issue_fix,
-                                    ""
-                                )
-                    # Add note
-                    note_id = db.insert_new_note(current_project['id'],
-                                                 "WPScan: {}".format(current_port_num),
-                                                 current_user['id'],
-                                                 current_host_id,
-                                                 note_output)
-
-
-
-                except ValueError as e:
-                    errors.append('One of files was corrupted: {}'.format(e))
-
-    return render_template('project/tools/import/wpscan.html',
-                           current_project=current_project,
-                           tab_name='WPScan',
-                           errors=errors)
-
-
 @routes.route('/project/<uuid:project_id>/tools/kube-hunter/', methods=['GET'])
 @requires_authorization
 @check_session
@@ -5352,72 +5043,6 @@ def dnsrecon_page_form(project_id, current_project, current_user):
                            errors=errors)
 
 
-@routes.route('/project/<uuid:project_id>/tools/theharvester/', methods=['GET'])
-@requires_authorization
-@check_session
-@check_project_access
-@check_project_archived
-@send_log_data
-def theharvester_page(project_id, current_project, current_user):
-    return render_template('project/tools/import/theharvester.html',
-                           current_project=current_project,
-                           tab_name='theHarvester')
-
-
-@routes.route('/project/<uuid:project_id>/tools/theharvester/', methods=['POST'])
-@requires_authorization
-@check_session
-@check_project_access
-@check_project_archived
-@send_log_data
-def theharvester_page_form(project_id, current_project, current_user):
-    form = theHarvesterForm()
-    form.validate()
-    errors = []
-    if form.errors:
-        for field in form.errors:
-            for error in form.errors[field]:
-                errors.append(error)
-
-    if not errors:
-        for file in form.xml_files.data:
-            if file.filename:
-                soup = BeautifulSoup(file.read(), "html.parser")
-
-                scan_result = soup.findAll('host')
-
-                for hostname_row in scan_result:
-                    if hostname_row.find('ip') and hostname_row.find('hostname'):
-                        ips_str = hostname_row.find('ip').text
-                        hostname = hostname_row.find('hostname').text
-
-                        # some theHarvester's hosts don't have IP (only hostname)
-                        if ips_str == '':
-                            continue
-
-                        ip_array = ips_str.replace(' ', '').split(',')
-                        for ip_address in ip_array:
-                            # check valid ip
-                            ipaddress.ip_address(ip_address)
-
-                            current_host = db.select_project_host_by_ip(current_project['id'], ip_address)
-                            if current_host:
-                                host_id = current_host[0]['id']
-                            else:
-                                host_id = db.insert_host(current_project['id'], ip_address, current_user['id'],
-                                                         form.hosts_description.data)
-
-                            current_hostname = db.select_ip_hostname(host_id, hostname)
-                            if not current_hostname:
-                                hostname_id = db.insert_hostname(host_id, hostname, form.hostnames_description.data,
-                                                                 current_user['id'])
-
-    return render_template('project/tools/import/theharvester.html',
-                           current_project=current_project,
-                           tab_name='theHarvester',
-                           errors=errors)
-
-
 @routes.route('/project/<uuid:project_id>/tools/metasploit/', methods=['GET'])
 @requires_authorization
 @check_session
@@ -6231,96 +5856,6 @@ def maxpatrol_form(project_id, current_project, current_user):
                            errors=errors)
 
 
-@routes.route('/project/<uuid:project_id>/tools/scanvus/', methods=['GET'])
-@requires_authorization
-@check_session
-@check_project_access
-@check_project_archived
-@send_log_data
-def scanvus_page(project_id, current_project, current_user):
-    return render_template('project/tools/import/scanvus.html',
-                           current_project=current_project,
-                           tab_name='Scanvus')
-
-
-@routes.route('/project/<uuid:project_id>/tools/scanvus/', methods=['POST'])
-@requires_authorization
-@check_session
-@check_project_access
-@check_project_archived
-@send_log_data
-def scanvus_page_form(project_id, current_project, current_user):
-    form = ScanvusForm()
-    form.validate()
-    errors = []
-    if form.errors:
-        for field in form.errors:
-            for error in form.errors[field]:
-                errors.append(error)
-
-    if not errors:
-        host_id = None
-        port_id = None
-        if form.host_id.data and is_valid_uuid(form.host_id.data):
-            current_host = db.select_project_host(current_project['id'], form.host_id.data)
-            if current_host:
-                current_host = current_host[0]
-                host_id = current_host['id']
-        elif form.ip.data:
-            try:
-                ipaddress.ip_address(form.ip.data)
-                current_host = db.select_project_host_by_ip(current_project['id'], form.ip.data)
-                if current_host:
-                    current_host = current_host[0]
-                    host_id = current_host['id']
-                else:
-                    host_id = db.insert_host(current_project['id'], form.ip.data, current_user['id'],
-                                             comment=form.host_description.data, os='Linux')
-            except Exception as e:
-                pass
-        if host_id:
-            port_id = db.select_host_port(host_id)[0]['id']
-        for file in form.json_files.data:
-            if file.filename:
-                json_report_data = file.read().decode('charmap')
-                scan_result = json.loads(json_report_data)
-                for script_name in scan_result:
-                    vuln_versions = ''
-                    for package_name in scan_result[script_name]['packages']:
-                        package_obj = scan_result[script_name]['packages'][package_name]
-                        operator = package_obj['operator'].replace('lt', '<')
-                        operator = operator.replace('gt', '>')
-                        version = package_obj['bulletinVersion']
-                        if len(operator) in ['gt', 'lt']:
-                            operator = '='
-                        vuln_versions += '{} {}{},'.format(package_name, operator, version)
-                    vuln_versions = vuln_versions.strip('\n')
-                    vuln_obj = scan_result[script_name]['vuln']
-                    vuln_level = vuln_obj['Level']
-                    vuln_cves = ','.join(vuln_obj['CVE List'])
-                    vuln_cvss_num = vuln_obj['CVSS']['score']
-                    vuln_cvss_vector = vuln_obj['CVSS']['vector']
-
-                    vuln_desc_full = ''
-                    if vuln_versions:
-                        vuln_desc_full += 'Vulnerable software: ' + vuln_versions
-
-                    vuln_services = {}
-                    if port_id:
-                        vuln_services = {port_id: ["0"]}
-
-                    issue_id = db.insert_new_issue_no_dublicate('Scanvus: {}'.format(script_name),
-                                                                vuln_desc_full, '', vuln_cvss_num, current_user['id'],
-                                                                vuln_services,
-                                                                'need to recheck', current_project['id'], cve=vuln_cves
-
-                                                                )
-    return render_template('project/tools/import/scanvus.html',
-                           current_project=current_project,
-                           tab_name='Scanvus',
-                           errors=errors)
-
-
 @routes.route('/project/<uuid:project_id>/tools/aiodnsbrute/', methods=['GET'])
 @requires_authorization
 @check_session
@@ -6690,7 +6225,6 @@ for module_name in modules:
     process_request = import_plugin.process_request
 
 
-
     def render_page(current_project, current_user, import_plugin, path_to_module, errors=None):
         # plugin data
         tools_description = import_plugin.tools_description
@@ -6722,7 +6256,8 @@ for module_name in modules:
             field_class = getattr(input_obj, 'field_class')
             field_kwargs = getattr(input_obj, 'kwargs')
             input_meta = getattr(input_obj, 'kwargs')["_meta"]
-            required_str = "required" if wtforms.validators.DataRequired in [x.__class__ for x in field_kwargs['validators']] else ""
+            required_str = "required" if wtforms.validators.DataRequired in [x.__class__ for x in
+                                                                             field_kwargs['validators']] else ""
             input_html = ""
             if field_class == wtforms.fields.simple.MultipleFileField:
                 input_html = """
@@ -6744,7 +6279,7 @@ for module_name in modules:
                             <input type="number" name="{}" placeholder="{}" value="{}" {}>
                         """.format(field_kwargs["description"],
                                    input_name,
-                                    field_kwargs['default'] if 'default' in field_kwargs else '',
+                                   field_kwargs['default'] if 'default' in field_kwargs else '',
                                    field_kwargs['default'] if 'default' in field_kwargs else '',
                                    required_str)
             elif field_class == wtforms.fields.BooleanField:
@@ -6827,8 +6362,9 @@ for module_name in modules:
                 elif class_name == wtforms.fields.simple.MultipleFileField:
                     input_dict[input_name] = []
                     for file_obj in input_obj.data:
-                        file_data = file_obj.read()  # codecs.iterdecode(file, 'utf-8')
-                        input_dict[input_name].append(file_data)
+                        if file_obj.filename:
+                            file_data = file_obj.read()  # codecs.iterdecode(file, 'utf-8')
+                            input_dict[input_name].append(file_data)
             try:
                 error_str = process_request(current_user, current_project, db, input_dict)
             except OverflowError as e:
