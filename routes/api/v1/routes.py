@@ -101,8 +101,11 @@ def check_access_token(fn):
         access_token = ""
         if not args or 'access_token' not in args[0]:
             # some bad fix for plugin support
-            if is_valid_uuid(request.json['access_token']):
-                access_token = request.json['access_token']
+            if request.json:
+                    if 'access_token' not in request.json:
+                        abort(fail(['access_token not found!']))
+                    if is_valid_uuid(request.json['access_token']):
+                        access_token = request.json['access_token']
             else:
                 abort(fail(['Invalid token - must be UUID!']))
         else:

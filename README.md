@@ -246,6 +246,8 @@ cd pcf
 Run docker-compose:
 
 ```bash
+# if it clean installation run this:
+# rm ./configuration/database.sqlite3
 docker-compose up
 ```
 

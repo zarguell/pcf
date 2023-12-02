@@ -850,14 +850,6 @@ class ShodanForm(FlaskForm):
     need_network = IntegerField('need_networks', default=0)
 
 
-class CheckmaxForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    csv_files = MultipleFileField('csv_files')
-
-
-class Depcheck(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    # csv_files = MultipleFileField('csv_files')
 
 
 class Openvas(FlaskForm):
@@ -1129,11 +1121,6 @@ class NewTemplateFromIssue(FlaskForm):
                            validators=[UUID(message='Invalid issue template uuid!'), DataRequired()]
                            )
 
-
-class KuberHunter(FlaskForm):
-    json_files = MultipleFileField('json_files')
-    hosts_description = StringField('hosts_description', default='Added from kube-hunter scan')
-    ports_description = StringField('ports_description', default='Added from kube-hunter scan')
 
 
 class BurpEnterpriseForm(FlaskForm):
