@@ -654,13 +654,6 @@ class NessusForm(FlaskForm):
     only_import_network = IntegerField('only_import_network', default=0)
 
 
-class QualysForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    add_empty_host = IntegerField('add_empty_host', default=0)
-    hosts_description = StringField('hosts_description', default='Added from Qualys scan')
-    ports_description = StringField('ports_description', default='Added from Qualys scan')
-
-
 class DeleteHostIssue(FlaskForm):
     issue_id = StringField('issue_id',
                            validators=[UUID(message='Wrong issue id!')]
@@ -695,15 +688,6 @@ class DeletePort(FlaskForm):
     port_id = StringField('port_id',
                           validators=[UUID(message='Wrong port id!')]
                           )
-
-
-class NiktoForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    csv_files = MultipleFileField('csv_files')
-    json_files = MultipleFileField('json_files')
-    hosts_description = StringField('hosts_description', default='Added from Nikto scan')
-    hostnames_description = StringField('hostnames_description', default='Added from Nikto scan')
-    ports_description = StringField('ports_description', default='Added from Nikto scan')
 
 
 class AcunetixForm(FlaskForm):
@@ -848,25 +832,6 @@ class ShodanForm(FlaskForm):
     api_key = StringField('api_key', default='')
     api_id = StringField('api_id', default='')
     need_network = IntegerField('need_networks', default=0)
-
-
-
-
-class Openvas(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    # csv_files = MultipleFileField('csv_files')
-    hosts_description = StringField('hosts_description', default='Added from OpenVAS scan')
-    hostnames_description = StringField('hostnames_description', default='Added from OpenVAS scan')
-    ports_description = StringField('ports_description', default='Added from OpenVAS scan')
-
-
-class Netsparker(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    only_confirmed = IntegerField('only_confirmed', default=0)
-    hosts_description = StringField('hosts_description', default='Added from NetSparker scan')
-    hostnames_description = StringField('hostnames_description', default='Added from NetSparker scan')
-    ports_description = StringField('ports_description', default='Added from NetSparker scan')
-    # csv_files = MultipleFileField('csv_files')
 
 
 class EditServiceForm(FlaskForm):
@@ -1316,10 +1281,6 @@ class NewPath(FlaskForm):
 class DeletePath(FlaskForm):
     path_id = StringField('path_id',
                           validators=[UUID(message='Wrong UUID!')])
-
-
-class PingCastleForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
 
 
 class MaxpatrolForm(FlaskForm):

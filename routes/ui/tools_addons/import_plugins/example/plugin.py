@@ -89,7 +89,8 @@ def process_request(
         current_user: dict,  # current_user['id'] - UUID of current user
         current_project: dict,  # current_project['id'] - UUID of current project
         db: Database,  # object of Database() class /system/db.py
-        input_dict: object  # dict with keys - input field names, and values.
+        input_dict: object,  # dict with keys - input field names, and values.
+        global_config: object  # dict with keys - setting.ini file data
 ) -> str:  # returns error text or "" (if finished successfully)
 
     # fields variables
@@ -122,6 +123,12 @@ def process_request(
 
     # same input/get can be done with almost any data, database functions start with type of request
     # insert_..., select_..., update_..., delete_...
+
+
+
+    # get data from config
+    if global_config['files']['poc_storage'] == 'database':
+        pass
 
     # return status
     success = True

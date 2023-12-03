@@ -66,7 +66,8 @@ def process_request(
         current_user: dict,  # current_user['id'] - UUID of current user
         current_project: dict,  # current_project['id'] - UUID of current project
         db: Database,  # object of Database() class /system/db.py
-        input_dict: object  # dict with keys - input field names, and values.
+        input_dict: object,  # dict with keys - input field names, and values.
+        global_config: object  # dict with settings.ini information
 ) -> str:  # returns error text or "" (if finished successfully)
 
     # fields variables

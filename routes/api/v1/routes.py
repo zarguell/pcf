@@ -3451,7 +3451,7 @@ for module_name in modules:
                         input_dict[input_name] = input_obj.data
         if not errors:
             try:
-                error_str = process_request(current_user, current_project, db, input_dict)
+                error_str = process_request(current_user, current_project, db, input_dict, config)
             except OverflowError as e:
                 error_str = "Unhandled python exception in plugin!"
                 logging.error("Error with {} plugin: {}".format(import_plugin.route_name, e))
