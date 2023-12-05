@@ -644,16 +644,6 @@ class NmapForm(FlaskForm):
     hostnames_description = StringField('hostnames_description', default='Added from NMAP scan')
 
 
-class NessusForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    add_info_issues = IntegerField('add_info_issues', default=0)
-    add_technical_info = IntegerField('add_technical_info', default=0)
-    hosts_description = StringField('hosts_description', default='Added from Nessus scan')
-    hostnames_description = StringField('hostnames_description', default='Added from Nessus scan')
-    ports_description = StringField('ports_description', default='Added from Nessus scan')
-    only_import_network = IntegerField('only_import_network', default=0)
-
-
 class DeleteHostIssue(FlaskForm):
     issue_id = StringField('issue_id',
                            validators=[UUID(message='Wrong issue id!')]
@@ -1087,7 +1077,6 @@ class NewTemplateFromIssue(FlaskForm):
                            )
 
 
-
 class BurpEnterpriseForm(FlaskForm):
     html_files = MultipleFileField('html_files')
     auto_resolve = IntegerField('auto_resolve', default=0)
@@ -1229,7 +1218,6 @@ class DNSreconForm(FlaskForm):
     ignore_ipv6 = IntegerField('ignore_ipv6', default=0)
 
 
-
 class MetasploitForm(FlaskForm):
     xml_files = MultipleFileField('xml_files')
     ports_description = StringField('ports_description', default='Added from Metasploit scan')
@@ -1317,7 +1305,6 @@ class IssueRuleIDS(FlaskForm):
 class RuleUseForm(FlaskForm):
     issues_ids = StringField('issues_ids', default='')
     rules_ids = StringField('rule_ids', default='')
-
 
 
 class AddNewTask(FlaskForm):
