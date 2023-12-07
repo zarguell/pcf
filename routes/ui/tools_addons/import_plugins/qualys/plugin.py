@@ -54,10 +54,10 @@ class ToolArguments(FlaskForm):
     )
 
     add_empty_host = BooleanField(label='add_empty_host',
-                               description="Add hosts without ports/issues",
-                               default=False,
-                               validators=[],
-                               _meta={"display_row": 2, "display_column": 2})
+                                  description="Add hosts without ports/issues",
+                                  default=False,
+                                  validators=[],
+                                  _meta={"display_row": 2, "display_column": 2})
 
 
 ########### Request processing
@@ -67,12 +67,13 @@ def beautify_output(xml_str):
     xml_str = xml_str.replace('<BR>', '\n').replace('</p>', '\n')
     return xml_str
 
+
 def process_request(
         current_user: dict,  # current_user['id'] - UUID of current user
         current_project: dict,  # current_project['id'] - UUID of current project
         db: Database,  # object of Database() class /system/db.py
         input_dict: object,  # dict with keys - input field names, and values.
-        global_config: object # dict with keys - setting.ini file data
+        global_config: object  # dict with keys - setting.ini file data
 ) -> str:  # returns error text or "" (if finished successfully)
     # xml files
     for bin_file_data in input_dict['xml_files']:

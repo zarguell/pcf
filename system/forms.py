@@ -1218,14 +1218,6 @@ class DNSreconForm(FlaskForm):
     ignore_ipv6 = IntegerField('ignore_ipv6', default=0)
 
 
-class MetasploitForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    ports_description = StringField('ports_description', default='Added from Metasploit scan')
-    hostnames_description = StringField('hostnames_description', default='Added from Metasploit scan')
-    add_nmap_scripts = IntegerField('add_nmap_scripts', default=0)
-    only_nmap = IntegerField('only_nmap', default=0)
-
-
 class NucleiForm(FlaskForm):
     json_files = MultipleFileField('json_files')
     auto_resolve = IntegerField('auto_resolve', default=0)
@@ -1270,12 +1262,6 @@ class DeletePath(FlaskForm):
     path_id = StringField('path_id',
                           validators=[UUID(message='Wrong UUID!')])
 
-
-class MaxpatrolForm(FlaskForm):
-    xml_files = MultipleFileField('xml_files')
-    add_empty_host = IntegerField('add_empty_host', default=0)
-    hosts_description = StringField('hosts_description', default='Added from MaxPatrol scan')
-    ports_description = StringField('ports_description', default='Added from MaxPatrol scan')
 
 
 class ExportIssueRules(FlaskForm):
