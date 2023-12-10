@@ -3444,7 +3444,9 @@ for module_name in modules:
                     if input_obj.meta["is_file"]:
                         input_dict[input_name] = []
                         try:
-                            input_dict[input_name].append(base64.b64decode(input_obj.data))
+                            decoded_data = base64.b64decode(input_obj.data)
+                            if decoded_data:
+                                input_dict[input_name].append(decoded_data)
                         except Exception as e:
                             errors.append("Wrong base64 for file {}!".format(input_name))
                     else:
