@@ -309,6 +309,24 @@
                 value = $('#input_search_hostname')[0].value;
                 list_hostnames(hostnames, value);
             };
+
+            $.get('/static/files/wordlists/cwe.txt', function (data) {
+                cwes_list = data.split('\n');
+                datalist_name = document.getElementById('issue_name_hints');
+                datalist_cwe = document.getElementById('cwe_hints');
+                for (const element of cwes_list) {
+                    option = document.createElement('option');
+                    option.value = element;
+                    datalist_name.appendChild(option);
+
+                    option = document.createElement('option');
+                    option.value = element.split("-")[1].split(":")[0];
+                    option.innerText = element;
+
+                    datalist_cwe.appendChild(option);
+                }
+            }, 'text');
+
         });
 
         function switch_host(port_id, hostname_id) {
@@ -355,7 +373,8 @@
                     Additional fields
                 </a>
             </div>
-            <form class="ui form" enctype="multipart/form-data" method="post" action="/project/{{ current_project['id'] }}/new_issue"
+            <form class="ui form" enctype="multipart/form-data" method="post"
+                  action="/project/{{ current_project['id'] }}/new_issue"
                   style="margin-top: 15px; width: 100%" novalidate>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="ui tab active" data-tab="info">
@@ -368,7 +387,13 @@
                                         <div class="ui label" style="width: 125px;">
                                             <i class="at icon"></i>Name:
                                         </div>
-                                        <input type="text" name="name" placeholder="SQL injection.." required>
+                                        <input type="text" name="name" list="issue_name_hints"
+                                               placeholder="SQL injection.." required>
+                                        <datalist id="issue_name_hints">
+                                            {% for issue_name in issues_list %}
+                                                <option value="{{ issue_name }}">
+                                            {% endfor %}
+                                        </datalist>
                                     </div>
                                 </div>
                                 <div class="ui field">
@@ -376,7 +401,8 @@
                                         <div class="ui label" style="width: 125px;">
                                             <i class="sticky note outline icon"></i>Description:
                                         </div>
-                                        <textarea rows="8" name="description" placeholder="Vulnerability description"></textarea>
+                                        <textarea rows="8" name="description"
+                                                  placeholder="Vulnerability description"></textarea>
                                     </div>
                                 </div>
                                 <div class="ui field">
@@ -402,7 +428,8 @@
                                         <div class="ui label" style="width: 125px;">
                                             <i class="exclamation triangle icon"></i>Risks:
                                         </div>
-                                        <textarea rows="2" name="risks" placeholder="Issue exploitation risks"></textarea>
+                                        <textarea rows="2" name="risks"
+                                                  placeholder="Issue exploitation risks"></textarea>
                                     </div>
                                 </div>
                                 <div class="ui field">
@@ -417,13 +444,16 @@
                                 <div class="ui grid" style="height: 400px;">
                                     <div class="eight wide column">
                                         <div class="ui field">
-                                            <div class="ui dropdown" id="hosts_list" style="width: 100%; min-width: 100%">
+                                            <div class="ui dropdown" id="hosts_list"
+                                                 style="width: 100%; min-width: 100%">
                                                 <div class="menu transition visible" style="width: 90%;">
                                                     <div class="ui icon search input">
                                                         <i class="search icon"></i>
-                                                        <input type="text" name="Search" placeholder="Search&hellip;" id="input_search_ip">
+                                                        <input type="text" name="Search" placeholder="Search&hellip;"
+                                                               id="input_search_ip">
                                                     </div>
-                                                    <div class="scrolling menu" style="height:270px;" id="host-port-list">
+                                                    <div class="scrolling menu" style="height:270px;"
+                                                         id="host-port-list">
                                                     </div>
                                                 </div>
                                             </div>
@@ -435,9 +465,11 @@
                                                 <div class="menu transition visible" style="width: 90%;">
                                                     <div class="ui icon search input">
                                                         <i class="search icon"></i>
-                                                        <input type="text" name="Search" placeholder="Search&hellip;" id="input_search_hostname">
+                                                        <input type="text" name="Search" placeholder="Search&hellip;"
+                                                               id="input_search_hostname">
                                                     </div>
-                                                    <div class="scrolling menu" style="height:270px;" id="hostname-port-list">
+                                                    <div class="scrolling menu" style="height:270px;"
+                                                         id="hostname-port-list">
                                                     </div>
                                                 </div>
                                             </div>
@@ -464,7 +496,8 @@
                                     <div class="ui label" style="width: 160px;">
                                         <i class="hashtag icon"></i>CVSS:
                                     </div>
-                                    <input type="number" name="cvss" step="0.01" min="0" max="10" placeholder="10.0" value="0">
+                                    <input type="number" name="cvss" step="0.01" min="0" max="10" placeholder="10.0"
+                                           value="0">
                                     <button type="button" class="ui button blue" onclick="$('#cvss_hidden').toggle();">
                                         <i class="ui calculator icon"></i>CVSS calculator
                                     </button>
@@ -489,7 +522,9 @@
                                     <div class="ui label" style="width: 160px;">
                                         <i class="hashtag icon"></i>CWE:
                                     </div>
-                                    <input type="number" name="cwe" placeholder="123">
+                                    <input type="search" name="cwe" pattern="[0-9]+" placeholder="123" list="cwe_hints" title="Invalid CWE (0-...)">
+                                    <datalist id="cwe_hints">
+                                    </datalist>
                                 </div>
                             </div>
                             <div class="ui field">
@@ -526,11 +561,21 @@
                                         <div class="default text">Select criticality</div>
                                         <div class="menu">
                                             <div class="item" data-value="-1">use CVSS criticality</div>
-                                            <div class="item" data-value="0"><i class="warning circle blue icon"></i>Information (cvss=0.0)</div>
-                                            <div class="item" data-value="2"><i class="warning circle green icon"></i>Low (cvss=2.0)</div>
-                                            <div class="item" data-value="5"><i class="warning circle yellow icon"></i>Medium (cvss=5.0)</div>
-                                            <div class="item" data-value="8"><i class="warning circle orange icon"></i>High (cvss=8.0)</div>
-                                            <div class="item" data-value="9.5"><i class="warning circle red icon"></i>Critical (cvss=9.5)</div>
+                                            <div class="item" data-value="0"><i class="warning circle blue icon"></i>Information
+                                                (cvss=0.0)
+                                            </div>
+                                            <div class="item" data-value="2"><i class="warning circle green icon"></i>Low
+                                                (cvss=2.0)
+                                            </div>
+                                            <div class="item" data-value="5"><i class="warning circle yellow icon"></i>Medium
+                                                (cvss=5.0)
+                                            </div>
+                                            <div class="item" data-value="8"><i class="warning circle orange icon"></i>High
+                                                (cvss=8.0)
+                                            </div>
+                                            <div class="item" data-value="9.5"><i class="warning circle red icon"></i>Critical
+                                                (cvss=9.5)
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -566,7 +611,8 @@
                                     <div class="ui label" style="width: 160px;">
                                         <i class="user secret icon"></i>Intruder:
                                     </div>
-                                    <input type="text" name="intruder" placeholder="Internal / External / Authenticated">
+                                    <input type="text" name="intruder"
+                                           placeholder="Internal / External / Authenticated">
                                 </div>
                             </div>
                             {% if errors is defined and errors %}
@@ -609,7 +655,8 @@
                                 <div class="ui three fields">
                                     <div class="field">
                                         <div class="ui input">
-                                            <input type="text" id="field_name" placeholder="field_name [a-zA-Z0-9_]"> </input>
+                                            <input type="text" id="field_name"
+                                                   placeholder="field_name [a-zA-Z0-9_]"> </input>
                                         </div>
                                     </div>
                                     <div class="field">
@@ -642,7 +689,8 @@
                                 <div class="ui two fields">
                                     <div class="field">
                                         <div class="ui input">
-                                            <input type="text" placeholder="field_name1 [a-zA-Z0-9_]" id="file_name"> </input>
+                                            <input type="text" placeholder="field_name1 [a-zA-Z0-9_]"
+                                                   id="file_name"> </input>
                                         </div>
                                     </div>
                                     <div class="field">

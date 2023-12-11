@@ -53,7 +53,7 @@ when carrying out various works for testing!</b>
 
 | Structure |                          |
 | ---------------- | ---------------------- |
-| <ul><li>:family_mmb: Teams<ul><li>Work team</li><li>Personal team</li></ul></li><li>⛑ Pentest projects<ul><li>🖥️ Hosts<ul><li>ip-address</li><li>hostnames</li><li>operation system</li><li>open ports</li><li>tester notes</li></ul></li><li>🐞 Issues<ul><li>Proof of concept</li></ul></li><li>🌐 Networks</li><li>🔑 Found credentials</li><li>📝 Notes</li><li>💬 Chats</li><li>📊 Report generation<ul><li>plaintext</li><li>docx</li><li>zip</li></ul></li><li>📁 Files</li><li>🛠 Tools</li></ul></li></ul> | ![image](https://i.ibb.co/v48y1py/2022-01-12-003906.png) |
+| <ul><li>:family_mmb: Teams<ul><li>Work team</li><li>Personal team</li></ul></li><li>⛑ Pentest projects<ul><li>🖥️ Hosts<ul><li>ip-address</li><li>hostnames</li><li>operation system</li><li>open ports</li><li>tester notes</li></ul></li><li>🐞 Issues<ul><li>Proof of concept</li></ul></li><li>🌐 Networks</li><li>🔑 Found credentials</li><li>📝 Notes</li><li>💬 Chats</li><li>📊 Report generation<ul><li>plaintext</li><li>docx</li><li>zip</li></ul></li><li>📁 Files</li><li>🛠 Tools</li></ul></li></ul> | ![image](https://i.ibb.co/x23DXMK/pcf-main-page.jpg) |
 
 * 🔬 You can create private or team projects!
 * 💼 Team moderation.

@@ -339,6 +339,14 @@ class EditIssueField(FlaskForm):
                                          )
 
 
+class EditPOC(FlaskForm):
+    poc_id = StringField('poc_id', validators=[UUID(message="Invalid UUID!")],
+                         default='')
+    service = StringField('service', validators=[ip_host_port_validator],
+                          default='')
+    comment = StringField('comment', default='')
+
+
 class DeletePOC(FlaskForm):
     poc_id = StringField('poc_id',
                          validators=[DataRequired(message='POC id required!'),
@@ -350,10 +358,7 @@ class SetPoCPriority(FlaskForm):
                          validators=[DataRequired(message='POC id required!'),
                                      UUID(message='POC id invalid!')])
     priority = IntegerField('priority',
-                            validators=[DataRequired(message='Priority id required!'),
-                                        AnyOf([0, 1])
-                                        ],
-                            default=1)
+                            validators=[AnyOf([0, 1])])
 
 
 class NewNetwork(FlaskForm):
@@ -1246,7 +1251,6 @@ class NewPath(FlaskForm):
 class DeletePath(FlaskForm):
     path_id = StringField('path_id',
                           validators=[UUID(message='Wrong UUID!')])
-
 
 
 class ExportIssueRules(FlaskForm):

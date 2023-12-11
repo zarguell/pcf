@@ -1355,6 +1355,17 @@ class Database:
                                                           current_issue['name']))
         return str(poc_id)
 
+    def update_poc_info(self, poc_id, port_id, hostname_id, description, issue_id):
+
+        self.execute(
+            '''UPDATE  PoC set port_id=?, hostname_id=?, description=? WHERE id=?''',
+            (port_id, hostname_id, description, poc_id)
+        )
+        self.conn.commit()
+        current_issue = self.select_issue(issue_id)[0]
+        self.insert_log('Updated PoC {} of issue {}'.format(poc_id, current_issue['id']))
+        return
+
     def select_issue_pocs(self, issue_id):
         self.execute(
             '''SELECT * FROM PoC WHERE issue_id=?''',

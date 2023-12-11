@@ -494,8 +494,10 @@ def multiple_host_delete(project_id, current_project, current_user):
 @check_project_archived
 @send_log_data
 def new_issue(project_id, current_project, current_user):
+    issues_list = [x['name'] for x in db.select_project_issues(current_project['id'])]
     return render_template('project/issues/new.html',
                            current_project=current_project,
+                           issues_list=issues_list,
                            tab_name='New issue')
 
 
@@ -506,6 +508,9 @@ def new_issue(project_id, current_project, current_user):
 @check_project_archived
 @send_log_data
 def new_issue_form(project_id, current_project, current_user):
+
+    issues_list = [x['name'] for x in db.select_project_issues(current_project['id'])]
+
     form = NewIssue()
     form.validate()
     errors = []
@@ -646,6 +651,7 @@ def new_issue_form(project_id, current_project, current_user):
     return render_template('project/issues/new.html',
                            current_project=current_project,
                            errors=errors,
+                           issues_list=issues_list,
                            tab_name='New issue')
 
 
@@ -1292,8 +1298,7 @@ def new_poc_form(project_id, issue_id, current_project, current_user,
 @check_project_archived
 @check_project_issue
 @send_log_data
-def delete_poc_form(project_id, issue_id, current_project, current_user,
-                    current_issue):
+def delete_poc_form(project_id, issue_id, current_project, current_user, current_issue):
     form = DeletePOC()
 
     form.validate()
@@ -1324,8 +1329,48 @@ def delete_poc_form(project_id, issue_id, current_project, current_user,
                            tab_name=current_issue['name'] if current_issue['name'] else 'Issue')
 
 
-@routes.route('/project/<uuid:project_id>/issue/<uuid:issue_id>/edit_field',
+@routes.route('/project/<uuid:project_id>/issue/<uuid:issue_id>/edit_poc',
               methods=['POST'])
+@requires_authorization
+@check_session
+@check_project_access
+@check_project_archived
+@check_project_issue
+@send_log_data
+def edit_poc_form(project_id, issue_id, current_project, current_user, current_issue):
+    form = EditPOC()
+
+    form.validate()
+    errors = []
+
+    if form.errors:
+        for field in form.errors:
+            for error in form.errors[field]:
+                errors.append(error)
+
+    if not errors:
+        port_id = form.service.data.split(':')[0]
+        hostname_id = form.service.data.split(':')[1]
+        if not (port_id == '0' and hostname_id == '0'):
+            # check if port-host in issue
+            if not db.check_hostname_port_in_issue(hostname_id, port_id,
+                                                   current_issue['id']):
+                errors.append('Hostname-port id pair is not in this issue!')
+
+    if not errors:
+        current_poc = db.select_poc(form.poc_id.data)
+        if not current_poc:
+            errors.append('Poc-ID does not exist!')
+        elif current_poc[0]['issue_id'] != current_issue['id']:
+            errors.append('PoC is not in this issue!')
+        else:
+            current_poc = current_poc[0]
+            db.update_poc_info(current_poc['id'], port_id, hostname_id, form.comment.data, current_issue['id'])
+            return {"status": "ok"}
+    return {"status": "error", "errors": errors}
+
+
+@routes.route('/project/<uuid:project_id>/issue/<uuid:issue_id>/edit_field', methods=['POST'])
 @requires_authorization
 @check_session
 @check_project_access
@@ -4865,7 +4910,8 @@ def todo_import_tasks_form(project_id, current_project, current_user):
                                 if hostname_id == "0":
                                     add_service(real_port['id'], "0")
                                 else:
-                                    real_hostname = db.select_hostname_with_host_id(real_port['host_id'], str(hostname_id))
+                                    real_hostname = db.select_hostname_with_host_id(real_port['host_id'],
+                                                                                    str(hostname_id))
                                     if real_hostname:
                                         real_hostname = real_hostname[0]
                                         add_service(real_port['id'], real_hostname)

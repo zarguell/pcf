@@ -15,7 +15,8 @@
     {% endif %}
     {% if external_css %}
         <link rel="stylesheet" type="text/css" media="all" href="https://cdn.jsdelivr.net/gh/cvssjs/cvssjs/cvss.csss">
-        <link rel="stylesheet" type="text/css" media="all" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.3/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" media="all"
+              href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.3/css/bootstrap.min.css">
         <style>
             /* OWASP RISK CSS */
             @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -344,6 +345,24 @@
                 value = $('#input_search_hostname')[0].value;
                 list_hostnames(hostnames, value);
             };
+
+            $.get('/static/files/wordlists/cwe.txt', function (data) {
+                cwes_list = data.split('\n');
+                datalist_name = document.getElementById('issue_name_hints');
+                datalist_cwe = document.getElementById('cwe_hints');
+                for (const element of cwes_list) {
+                    option = document.createElement('option');
+                    option.value = element;
+                    datalist_name.appendChild(option);
+
+                    option = document.createElement('option');
+                    option.value = element.split("-")[1].split(":")[0];
+                    option.innerText = element;
+
+                    datalist_cwe.appendChild(option);
+                }
+            }, 'text');
+
         });
 
         function switch_host(port_id, hostname_id) {
@@ -539,7 +558,8 @@
                             <div class="ui label">
                                 <i class="sticky note outline icon"></i>Description
                             </div>
-                            <input type="text" name="description" id="poc_description_value" placeholder="PoC description">
+                            <input type="text" name="description" id="poc_description_value"
+                                   placeholder="PoC description">
                         </div>
                     </div>
                     <div class="field">
@@ -557,12 +577,14 @@
                                         {% if hostname_id=='0' %}
                                             {% set host = db.select_host_by_port_id(port_id)[0] %}
                                             <div class="item" data-value="{{ port_id }}:0">
-                                                {{ (host['ip']) }}{% if current_port['port'] != 0 %}:{{ (current_port['port']) }}{% endif %}</div>
+                                                {{ (host['ip']) }}{% if current_port['port'] != 0 %}:
+                                                    {{ (current_port['port']) }}{% endif %}</div>
                                         {% else %}
                                             {% set current_hostname=db.select_hostname(hostname_id)[0] %}
                                             <div class="item" data-value="{{ port_id }}:{{ hostname_id }}">
                                                 {{ (current_hostname['hostname']) }}
-                                                {% if current_port['port'] != 0 %}:{{ (current_port['port']) }}{% endif %}</div>
+                                                {% if current_port['port'] != 0 %}:
+                                                    {{ (current_port['port']) }}{% endif %}</div>
                                         {% endif %}
                                     {% endfor %}
                                 {% endfor %}
@@ -572,11 +594,14 @@
                 </form>
             </div>
         </div>
-        <div class="ui active progress" id="progress_bar" style="width: 90%; margin-left: auto; margin-right: auto; height: 50px;">
+        <div class="ui active progress" id="progress_bar"
+             style="width: 90%; margin-left: auto; margin-right: auto; height: 50px;">
             <div class="bar">
                 <div class="progress" style="top:20px; overflow: initial; background: unset; top: 20px;"></div>
             </div>
-            <div class="label" style="top: 35px; border: unset !important; background-color: unset !important;">Uploading file</div>
+            <div class="label" style="top: 35px; border: unset !important; background-color: unset !important;">
+                Uploading file
+            </div>
         </div>
         <div class="actions">
             <button class="ui black deny button" id="next_file_button">
@@ -602,7 +627,8 @@
             {% include 'project/sidebar.html' %}
         </div>
         <div class="ui column" style="width: calc(100% - 75px)">
-            <h1 class="ui header" style="width: calc(100% - 220px); float:left; overflow-wrap: anywhere">Issue: {{ (current_issue['name']) }}</h1>
+            <h1 class="ui header" style="width: calc(100% - 220px); float:left; overflow-wrap: anywhere">
+                Issue: {{ (current_issue['name']) }}</h1>
             <div class="ui floating dropdown labeled icon button green" style="float:right" id="template_dropdown">
                 <i class="plus icon"></i>
                 <span class="text">Use template</span>
@@ -617,7 +643,8 @@
                         Issue templates
                     </div>
                     <div class="scrolling menu">
-                        <a target="_blank" rel="noopener noreferrer" class="item" href="/profile#/config" style="width: 285px; white-space:normal; word-break: break-all">
+                        <a target="_blank" rel="noopener noreferrer" class="item" href="/profile#/config"
+                           style="width: 285px; white-space:normal; word-break: break-all">
                             <div></div>
                             <i class="yellow star outline icon"></i>Create a new template
                         </a>
@@ -634,9 +661,13 @@
                             {% else %}
                                 {% set template_color = 'red' %}
                             {% endif %}
-                            <a target="_blank" rel="noopener noreferrer" class="item" href="/project/{{ current_project['id'] }}/issue/{{ current_issue['id'] }}/template/{{ current_template['id'] }}/" style="width: 100%; white-space:normal; word-break: break-all">
+                            <a target="_blank" rel="noopener noreferrer" class="item"
+                               href="/project/{{ current_project['id'] }}/issue/{{ current_issue['id'] }}/template/{{ current_template['id'] }}/"
+                               style="width: 100%; white-space:normal; word-break: break-all">
                                 <div class="ui {{ template_color }} empty circular label"></div>
-                                {{ (current_template['tpl_name']) }} ({% if current_template['user_id'] %}Personal{% else %}Team: {{ db.select_team_by_id(current_template['team_id'])[0]['name'] }}{% endif %})</a>
+                                {{ (current_template['tpl_name']) }} ({% if current_template['user_id'] %}
+                                Personal{% else %}Team:
+                                {{ db.select_team_by_id(current_template['team_id'])[0]['name'] }}{% endif %})</a>
                         {% endfor %}
                     </div>
                 </div>
@@ -670,7 +701,12 @@
                                             <i class="at icon"></i>Name:
                                         </div>
                                         <input type="text" name="name" placeholder="SQL injection.." required
-                                               value="{{ (current_issue['name']) }}">
+                                               value="{{ (current_issue['name']) }}" list="issue_name_hints">
+                                        <datalist id="issue_name_hints">
+                                            {% for issue_name in issues_list %}
+                                                <option value="{{ issue_name }}">
+                                            {% endfor %}
+                                        </datalist>
                                     </div>
                                 </div>
                                 <div class="ui field">
@@ -705,7 +741,8 @@
                                         <div class="ui label" style="width: 125px;">
                                             <i class="exclamation triangle icon"></i>Risks:
                                         </div>
-                                        <textarea rows="2" name="risks" placeholder="Issue exploitation risks">{{ (current_issue['risks']) }}</textarea>
+                                        <textarea rows="2" name="risks"
+                                                  placeholder="Issue exploitation risks">{{ (current_issue['risks']) }}</textarea>
                                     </div>
                                 </div>
                                 <div class="ui field">
@@ -770,7 +807,8 @@
                                     <div class="ui label" style="width: 170px;">
                                         <i class="hashtag icon"></i>CVSS:
                                     </div>
-                                    <input type="number" id="origin_cvss" name="cvss" step="0.01" min="0" max="10" placeholder="10.0"
+                                    <input type="number" id="origin_cvss" name="cvss" step="0.01" min="0" max="10"
+                                           placeholder="10.0"
                                            value="{{ (current_issue['cvss']) }}">
                                     <button type="button" class="ui button blue" onclick="$('#cvss_hidden').toggle();">
                                         <i class="ui calculator icon"></i>CVSS calculator
@@ -797,8 +835,10 @@
                                     <div class="ui label" style="width: 170px;">
                                         <i class="hashtag icon"></i>CWE:
                                     </div>
-                                    <input type="number" name="cwe" placeholder="123"
-                                           value="{{ (current_issue['cwe']) }}">
+                                    <input type="search" name="cwe" placeholder="123"
+                                           value="{{ (current_issue['cwe']) }}" list="cwe_hints" title="Invalid CWE (0-...)" pattern="[0-9]+">
+                                    <datalist id="cwe_hints">
+                                    </datalist>
                                 </div>
                             </div>
                             <div class="ui field">
@@ -888,7 +928,8 @@
                                     <div class="ui label" style="width: 170px;">
                                         <i class="user secret icon"></i>Intruder:
                                     </div>
-                                    <input type="text" name="intruder" placeholder="Internal / External / Authenticated" value="{{ current_issue['intruder'] }}">
+                                    <input type="text" name="intruder" placeholder="Internal / External / Authenticated"
+                                           value="{{ current_issue['intruder'] }}">
                                 </div>
                             </div>
                             {% if update_info_errors is defined and update_info_errors %}
@@ -933,7 +974,8 @@
                         <i class="copy icon"></i>New template
                     </button>
                 </form>
-                <a href="/project/{{ current_project['id'] }}/tools/exporter/?issue_name={{ current_issue['id'] }}" target="_blank" rel="noopener noreferrer" class="ui button green" style="align: left;">
+                <a href="/project/{{ current_project['id'] }}/tools/exporter/?issue_name={{ current_issue['id'] }}"
+                   target="_blank" rel="noopener noreferrer" class="ui button green" style="align: left;">
                     <i class="ui icon share"></i>Export hosts
                 </a>
             </div>
@@ -993,6 +1035,85 @@
 
                 };
 
+                function edit_poc(this_button) {
+                    poc_uuid = this_button.attributes["data-value"].value;
+                    this_row = this_button.parentElement.parentElement;
+                    cell_host = this_row.children[1];
+                    cell_description = this_row.children[2];
+                    old_description = cell_description.textContent;
+                    hostname_id = "0";
+                    port_id = "0";
+                    if (cell_host.children.length > 0) {
+                        hostname_id = cell_host.children[0].attributes["hostname_id"].value;
+                        port_id = cell_host.children[0].attributes["port_id"].value;
+                    }
+
+                    // textarea
+                    form_elem = document.createElement("div");
+                    form_elem.classList.add("ui");
+                    form_elem.classList.add("form");
+                    field_elem = document.createElement("div");
+                    field_elem.classList.add("ui");
+                    field_elem.classList.add("field");
+
+                    description_textarea = document.createElement("textarea");
+                    description_textarea.value = old_description;
+
+                    field_elem.appendChild(description_textarea);
+                    form_elem.appendChild(field_elem);
+
+                    cell_description.innerHTML = "";
+                    cell_description.appendChild(form_elem);
+
+
+                    // clone list of services
+                    var elem = document.querySelector('#services_list_poc');
+                    var clone = elem.cloneNode(true);
+                    clone.childNodes[1].value = port_id + ":" + hostname_id;
+                    clone.id = 'services_list_edit_poc';
+                    cell_host.innerHTML = "";
+                    cell_host.appendChild(clone);
+
+                    $('#services_list_edit_poc').dropdown({});
+
+
+                    // change action this button
+                    this_button.attributes["onclick"].value = "save_edit_poc(this);";
+
+                    this_button.classList.replace("orange", "green");
+                    this_button.children[2].children[0].classList.replace("edit", "save");
+                    this_button.children[1].innerHTML = "Save";
+
+
+                }
+
+                function save_edit_poc(this_button) {
+                    poc_uuid = this_button.attributes["data-value"].value;
+                    this_row = this_button.parentElement.parentElement;
+                    cell_host = this_row.children[1];
+                    cell_description = this_row.children[2];
+                    new_description = cell_description.childNodes[0].childNodes[0].childNodes[0].value;
+                    services_str = cell_host.childNodes[0].childNodes[1].value;
+
+                    $.post("/project/{{ current_project['id'] }}/issue/{{ current_issue['id'] }}/edit_poc", {
+                        csrf_token: "{{ csrf_token() }}",
+                        poc_id: poc_uuid,
+                        service: services_str,
+                        comment: new_description
+                    }).done(function (json_data) {
+                        if (json_data.status === "ok") {
+                            location.reload();
+                            return;
+                        }
+                        $('body').toast({
+                            class: 'error',
+                            position: 'bottom right',
+                            message: "Problem with editting this issue rule! " + json_data.errors[0]
+                        });
+                    });
+
+                }
+
             </script>
 
             <style>
@@ -1038,11 +1159,13 @@
                         {% endif %}
                         <td style="word-break: break-all;text-align: left;">
                             {% if not (current_poc['hostname_id']=='0' and current_poc['port_id']=='0') %}
-                                <h4>{{ (host) }}{% if current_port['port'] != 0 %}:
-                                    {{ (current_port['port']) }}{% endif %}</h4>
+                                <h4 hostname_id="{{ current_poc['hostname_id'] }}"
+                                    port_id="{{ current_poc['port_id'] }}">
+                                    {{ (host) }}{% if current_port['port'] != 0 %}:
+                                        {{ (current_port['port']) }}{% endif %}</h4>
                             {% endif %}
                         </td>
-                        <td>{{ (current_poc['description']) }}</td>
+                        <td style="white-space: pre-wrap;">{{ (current_poc['description']) }}</td>
                         <td style="align-content: center;">
                             {% if current_poc['type']=='image' %}
                             <div class="ui grid">
@@ -1053,23 +1176,33 @@
                             </div>
                             {% else %}{% autoescape false %}
                             <pre style="overflow: auto"><code
-                                    style="max-height: 400px; max-width:800px; margin-left: 10px; margin-right: 10px;">{% if current_poc['storage']=='filesystem' %}{{ escape(open('static/files/poc/'+current_poc['id']).read().replace('\r','')) }}{% elif current_poc['storage']=='database' %}{{ escape(b64decode(current_poc['base64']).decode('charmap').replace('\r','')) }}{% endif %}</code></pre>
+                                    style="max-height: 400px; max-width:800px; margin-left: 10px; margin-right: 10px;">{% if current_poc['storage']=='filesystem' %}
+                                {{ escape(open('static/files/poc/'+current_poc['id']).read().replace('\r','')) }}{% elif current_poc['storage']=='database' %}
+                                {{ escape(b64decode(current_poc['base64']).decode('charmap').replace('\r','')) }}{% endif %}</code></pre>
                             {% endautoescape %}{% endif %}
                         </td>
                         <td>
-                            <a href="/static/files/poc/{{ current_poc['id'] }}" class="ui vertical animated button blue"
-                               tabindex="0">
+                            <a href="/static/files/poc/{{ current_poc['id'] }}" class="ui vertical animated button blue" tabindex="0"
+                               style="float:left; margin-top: 5px;">
                                 <div class="hidden content">Download</div>
                                 <div class="visible content">
                                     <i class="download icon"></i>
                                 </div>
                             </a>
-                            <form style="float:left;"
+                            <button type="button" class="ui vertical animated button orange" id="edit_poc_button" tabindex="0"
+                                    data-value="{{ current_poc['id'] }}" style="float:left; margin-top: 5px;"
+                                    onclick="edit_poc(this);">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <div class="hidden content">Edit</div>
+                                <div class="visible content">
+                                    <i class="edit icon"></i>
+                                </div>
+                            </button>
+                            <form style="float:left;  margin-top: 5px;"
                                   action="/project/{{ current_project['id'] }}/issue/{{ current_issue['id'] }}/delete_poc"
                                   method="post" onsubmit="return delete_prompt(this,'Are you sure to delete PoC?')">
                                 <button type="submit" class="ui vertical animated button red" tabindex="0" name="poc_id"
-                                        value="{{ current_poc['id'] }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        value="{{ current_poc['id'] }}" data-value="{{ csrf_token() }}">
                                     <div class="hidden content">Delete</div>
                                     <div class="visible content">
                                         <i class="trash icon"></i>
@@ -1089,7 +1222,7 @@
                     <div class="ui field">
                         <div class="four fields">
                             <div class="field">
-                                <div class="ui fluid selection dropdown" id="services_list">
+                                <div class="ui fluid selection dropdown" id="services_list_poc">
                                     <input type="hidden" name="service" required value="0:0">
                                     <i class="dropdown icon"></i>
                                     <div class="default text">Select type</div>
@@ -1588,15 +1721,18 @@
                         <div class="ui label" style="width: 125px;">
                             <i class="hashtag icon"></i>CVSS:
                         </div>
-                        <input type="number" id="cvss_tab_num" name="cvss" step="0.01" min="0" max="10" placeholder="10.0" value="{{ (current_issue['cvss']) }}">
+                        <input type="number" id="cvss_tab_num" name="cvss" step="0.01" min="0" max="10"
+                               placeholder="10.0" value="{{ (current_issue['cvss']) }}">
                     </div>
                     <div class="ui labeled input">
                         <div class="ui label" style="width: 125px;">
                             <i class="hashtag icon"></i>Vector:
                         </div>
-                        <input id="cvss_tab_vector" style="min-width: 350px;" type="text" name="cvss_vector" placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}">
+                        <input id="cvss_tab_vector" style="min-width: 350px;" type="text" name="cvss_vector"
+                               placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}">
                     </div>
-                    <button type="button" onclick="update_cvss();" class="ui blue button"><i class="icon save"></i>Save</button>
+                    <button type="button" onclick="update_cvss();" class="ui blue button"><i class="icon save"></i>Save
+                    </button>
                     <div class="ui divider"></div>
                     <div id="cvssboard_metrics">
                     </div>
@@ -1665,12 +1801,19 @@
                                 <div class="ui label" style="width: 125px;">
                                     <i class="hashtag icon"></i>Vector:
                                 </div>
-                                <input id="owasp_vector" style="min-width: 590px;" type="text" name="owasp_vector" placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3" value="{% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
+                                <input id="owasp_vector" style="min-width: 590px;" type="text" name="owasp_vector"
+                                       placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3"
+                                       value="{% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
                             </div>
-                            <button type="button" onclick="update_owasp();" class="ui blue button"><i class="icon save"></i>Save</button>
+                            <button type="button" onclick="update_owasp();" class="ui blue button"><i
+                                    class="icon save"></i>Save
+                            </button>
                             <div>
-                                <b>VECTOR: </b><a id="score" target="_blank">({% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %})</a>
-                                <button type="button" class="ui orange button" onclick="copy_owasp();"><i class="icon copy"></i>Copy vector</button>
+                                <b>VECTOR: </b><a id="score" target="_blank">({% if 'owasp_vector' in issue_fields %}
+                                {{ issue_fields['owasp_vector']['val'] }}{% endif %})</a>
+                                <button type="button" class="ui orange button" onclick="copy_owasp();"><i
+                                        class="icon copy"></i>Copy vector
+                                </button>
                                 <br>
                             </div>
                         </section>
@@ -1684,9 +1827,13 @@
                         <div class="row">
                             <!-- THREAT AGENT FACTORS -->
                             <section>
-                                <h5 class="border-bottom" title="The first set of factors are related to the threat agent involved. The goal here is to estimate the likelihood of a successful attack by this group of threat agents. Use the worst-case threat agent.">Threat Agent Factors</h5>
+                                <h5 class="border-bottom"
+                                    title="The first set of factors are related to the threat agent involved. The goal here is to estimate the likelihood of a successful attack by this group of threat agents. Use the worst-case threat agent.">
+                                    Threat Agent Factors</h5>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How technically skilled is this group of threat agents?">Skill level</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How technically skilled is this group of threat agents?">Skill level
+                                    </div>
                                     <div class="col-8">
                                         <select class="form-control" id="sl" name="sl" onchange="calculate()">
                                             <option value="1">No technical skills (1)</option>
@@ -1698,9 +1845,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How motivated is this group of threat agents to find and exploit this vulnerability?">Motive</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How motivated is this group of threat agents to find and exploit this vulnerability?">
+                                        Motive
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="m" name="m" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="m"
+                                                name="m" onchange="calculate()">
                                             <option value="1">Low or no reward (1)</option>
                                             <option value="4">Possible reward (4)</option>
                                             <option value="9">High reward (9)</option>
@@ -1708,9 +1859,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="What resources and opportunities are required for this group of threat agents to find and exploit this vulnerability?">Opportunity</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="What resources and opportunities are required for this group of threat agents to find and exploit this vulnerability?">
+                                        Opportunity
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="o" name="o" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="o"
+                                                name="o" onchange="calculate()">
                                             <option value="0">Full access or expensive resources required (0)</option>
                                             <option value="4">Special access or resources required (4)</option>
                                             <option value="7">Some access or resources required (7)</option>
@@ -1719,9 +1874,12 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How large is this group of threat agents?">Size</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How large is this group of threat agents?">Size
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="s" name="s" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="s"
+                                                name="s" onchange="calculate()">
                                             <option value="2">Developers, System administrators (2)</option>
                                             <option value="4">Intranet users (4)</option>
                                             <option value="5">Partners (5)</option>
@@ -1738,9 +1896,13 @@
                                     title="Technical impact can be broken down into factors aligned with the traditional security areas of concern: confidentiality, integrity, availability, and accountability. The goal is to estimate the magnitude of the impact on the system if the vulnerability were to be exploited. ">
                                     Technical Impact Factors</h5>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How much data could be disclosed and how sensitive is it?">Loss of confidentiality</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How much data could be disclosed and how sensitive is it?">Loss of
+                                        confidentiality
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="lc" name="lc" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="lc"
+                                                name="lc" onchange="calculate()">
                                             <option value="2">Minimal non-sensitive data disclosed (2)</option>
                                             <option value="6">minimal critical data disclosed (6)</option>
                                             <option value="6">extensive non-sensitive data disclosed (6)</option>
@@ -1750,9 +1912,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How much data could be corrupted and how damaged is it?">Loss of integrity</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How much data could be corrupted and how damaged is it?">Loss of
+                                        integrity
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="li" name="li" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="li"
+                                                name="li" onchange="calculate()">
                                             <option value="1">Minimal slightly corrupt data (1)</option>
                                             <option value="3">Minimal seriously corrupt data (3)</option>
                                             <option value="5">Extensive slightly corrupt data (5)</option>
@@ -1762,9 +1928,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How much service could be lost and how vital is it?">Loss of availability</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How much service could be lost and how vital is it?">Loss of
+                                        availability
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="lav" name="lav" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="lav"
+                                                name="lav" onchange="calculate()">
                                             <option value="1">Minimal secondary services interrupted (1)</option>
                                             <option value="5">Minimal primary services interrupted (5)</option>
                                             <option value="5">Extensive secondary services interrupted (5)</option>
@@ -1774,9 +1944,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="Are the threat agents' actions traceable to an individual?">Loss of accountability</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="Are the threat agents' actions traceable to an individual?">Loss of
+                                        accountability
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="lac" name="lac" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="lac"
+                                                name="lac" onchange="calculate()">
                                             <option value="1">Fully traceable (1)</option>
                                             <option value="7">Possibly traceable (7)</option>
                                             <option value="9">Completely anonymous (9)</option>
@@ -1790,12 +1964,17 @@
                         <div class="row">
                             <!-- VULNERABILITY FACTORS -->
                             <section>
-                                <h5 class="border-bottom" title="The next set of factors are related to the vulnerability involved. The goal here is to estimate the likelihood of the particular vulnerability involved being discovered and exploited. Assume the threat agent selected above.">
+                                <h5 class="border-bottom"
+                                    title="The next set of factors are related to the vulnerability involved. The goal here is to estimate the likelihood of the particular vulnerability involved being discovered and exploited. Assume the threat agent selected above.">
                                     Vulnerability Factors</h5>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How easy is it for this group of threat agents to discover this vulnerability?">Ease of discovery</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How easy is it for this group of threat agents to discover this vulnerability?">
+                                        Ease of discovery
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="ed" name="ed" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="ed"
+                                                name="ed" onchange="calculate()">
                                             <option value="1">Practically impossible (1)</option>
                                             <option value="3">Difficult (3)</option>
                                             <option value="7">Easy (7)</option>
@@ -1804,9 +1983,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How easy is it for this group of threat agents to actually exploit this vulnerability?">Ease of exploit</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How easy is it for this group of threat agents to actually exploit this vulnerability?">
+                                        Ease of exploit
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="ee" name="ee" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="ee"
+                                                name="ee" onchange="calculate()">
                                             <option value="1">Theoretical (1)</option>
                                             <option value="3">Difficult (3)</option>
                                             <option value="5">Easy (5)</option>
@@ -1815,9 +1998,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How well known is this vulnerability to this group of threat agents?">Awareness</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How well known is this vulnerability to this group of threat agents?">
+                                        Awareness
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="a" name="a" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="a"
+                                                name="a" onchange="calculate()">
                                             <option value="1">Unknown (1)</option>
                                             <option value="4">Hidden (4)</option>
                                             <option value="6">Obvious (6)</option>
@@ -1826,9 +2013,12 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How likely is an exploit to be detected?">Intrusion detection</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How likely is an exploit to be detected?">Intrusion detection
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="id" name="id" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="id"
+                                                name="id" onchange="calculate()">
                                             <option value="1">Active detection in application (1)</option>
                                             <option value="3">Logged and reviewed (3)</option>
                                             <option value="8">Logged without review (8)</option>
@@ -1844,9 +2034,12 @@
                                     title="The business impact stems from the technical impact, but requires a deep understanding of what is important to the company running the application. In general, you should be aiming to support your risks with business impact, particularly if your audience is executive level. The business risk is what justifies investment in fixing security problems.">
                                     Business Impact Factors</h5>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How much financial damage will result from an exploit?">Financial damage</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How much financial damage will result from an exploit?">Financial damage
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="fd" name="fd" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="fd"
+                                                name="fd" onchange="calculate()">
                                             <option value="1">Less than the cost to fix the vulnerability (1)</option>
                                             <option value="3">Minor effect on annual profit (3)</option>
                                             <option value="7">Significant effect on annual profit (7)</option>
@@ -1855,9 +2048,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="Would an exploit result in reputation damage that would harm the business?">Reputation damage</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="Would an exploit result in reputation damage that would harm the business?">
+                                        Reputation damage
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="rd" name="rd" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="rd"
+                                                name="rd" onchange="calculate()">
                                             <option value="1">Minimal damage (1)</option>
                                             <option value="4">Loss of major accounts (4)</option>
                                             <option value="5">Loss of goodwill (5)</option>
@@ -1866,9 +2063,12 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How much exposure does non-compliance introduce?">Non-compliance</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How much exposure does non-compliance introduce?">Non-compliance
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="nc" name="nc" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="nc"
+                                                name="nc" onchange="calculate()">
                                             <option value="2">Minor violation (2)</option>
                                             <option value="5">Clear violation (5)</option>
                                             <option value="7">High profile violation (7)</option>
@@ -1876,9 +2076,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="h6 nomargin col-4 d-flex align-items-center" title="How much personally identifiable information could be disclosed?">Privacy violation</div>
+                                    <div class="h6 nomargin col-4 d-flex align-items-center"
+                                         title="How much personally identifiable information could be disclosed?">
+                                        Privacy violation
+                                    </div>
                                     <div class="col-8">
-                                        <select class="form-control" aria-label=".form-select-sm example" id="pv" name="pv" onchange="calculate()">
+                                        <select class="form-control" aria-label=".form-select-sm example" id="pv"
+                                                name="pv" onchange="calculate()">
                                             <option value="3">One individual (3)</option>
                                             <option value="5">Hundreds of people (5)</option>
                                             <option value="7">Thousands of people (7)</option>
@@ -1907,17 +2111,22 @@
                         <!-- CREDITS -->
                         <section>
                             <div>
-                                2021 OWASP Risk Assessment Calculator | Developed by <a href="https://hackpuntes.com" target="_blank"><span>Javier Olmedo</span></a> | Source Code on <a href="https://github.com/JavierOlmedo/OWASP-Calculator" target="_blank"><span>Github</span></a> repository.
+                                2021 OWASP Risk Assessment Calculator | Developed by <a href="https://hackpuntes.com"
+                                                                                        target="_blank"><span>Javier Olmedo</span></a>
+                                | Source Code on <a href="https://github.com/JavierOlmedo/OWASP-Calculator"
+                                                    target="_blank"><span>Github</span></a> repository.
                             </div>
                         </section>
                     </main>
 
                     <!-- MODAL -->
-                    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+                         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLongTitle">How is Severity Risk caculated?</h5>
+                                    <h5 class="modal-title" id="exampleModalLongTitle">How is Severity Risk
+                                        caculated?</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -1954,12 +2163,16 @@
                                             <table class="table table-bordered">
                                                 <thead>
                                                 <tr>
-                                                    <th scope="col" colspan="5">Overall Risk Severity = Likelihood x Impact</th>
+                                                    <th scope="col" colspan="5">Overall Risk Severity = Likelihood x
+                                                        Impact
+                                                    </th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                 <tr>
-                                                    <td colspan="1" rowspan="4" style="vertical-align: middle; font-weight: bold">Impact</td>
+                                                    <td colspan="1" rowspan="4"
+                                                        style="vertical-align: middle; font-weight: bold">Impact
+                                                    </td>
                                                     <td>HIGH</td>
                                                     <td class="classMedium">Medium</td>
                                                     <td class="classHigh">High</td>
