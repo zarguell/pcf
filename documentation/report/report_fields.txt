@@ -79,8 +79,9 @@
 9. notes {note_id}
     9.1 name
     9.2 host_id (or  '')
-    9.3 html
+    9.3 text
     9.4 markdown
+	9.5 type # plaintext,html,markdown,url,google_drive,excalidraw
 10. paths {path_id}
     10.1 host_out
     10.2 network_out

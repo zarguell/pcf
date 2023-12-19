@@ -1,6 +1,7 @@
 from shutil import copyfile
 
 from fix_scripts.val_problem import val_db_fixer
+from fix_scripts.new_notes_type_field import note_type_add
 from os import path
 import time
 
@@ -45,6 +46,7 @@ except Exception as e:
     print("2. If PostgreSQL -> check for postgresql library")
     print("3. If PostgreSQL -> Wrong password/ip/port/username/database/no privileges")
     print("4. If SQLite -> wrong path to database file")
+    exit(0)
 
 print("######### Database backup SQLite3 START #########")
 
@@ -76,5 +78,8 @@ print("######### Database fixes START #########")
 
 print('## Fix all "value" -> "val" inside database')
 val_db_fixer.val_db_fixer(config, db)
+
+print('## Add new column to Notes - "type"')
+note_type_add.note_type_add(config, db)
 
 print("######### Database fixes END #########")

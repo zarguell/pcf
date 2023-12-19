@@ -1,4 +1,5 @@
 import ipaddress
+from urllib.parse import urlparse
 
 from routes.ui import routes
 from functools import wraps
@@ -508,7 +509,6 @@ def new_issue(project_id, current_project, current_user):
 @check_project_archived
 @send_log_data
 def new_issue_form(project_id, current_project, current_user):
-
     issues_list = [x['name'] for x in db.select_project_issues(current_project['id'])]
 
     form = NewIssue()
@@ -2523,9 +2523,30 @@ def new_note_form(project_id, current_project, current_user):
             else:
                 host_id = current_host[0]['id']
 
+    note_id = ""
+
     if not errors:
-        note_id = db.insert_new_note(current_project['id'], form.name.data,
-                                     current_user['id'], host_id=host_id)
+        if form.note_type.data == "google_drive":
+            # check url for google drive
+            if urlparse(form.url.data).netloc.lower() == "docs.google.com":
+                note_id = db.insert_new_note(current_project['id'], form.name.data,
+                                             current_user['id'], host_id=host_id, note_type=form.note_type.data,
+                                             text=form.url.data)
+        elif form.note_type.data == "excalidraw":
+            # check url for excalidraw
+            if urlparse(form.url.data).netloc.lower() == "excalidraw.com":
+                note_id = db.insert_new_note(current_project['id'], form.name.data,
+                                             current_user['id'], host_id=host_id, note_type=form.note_type.data,
+                                             text=form.url.data)
+        elif form.note_type.data == "url":
+            if urlparse(form.url.data).scheme.lower() in ["http", "https"]:
+                note_id = db.insert_new_note(current_project['id'], form.name.data,
+                                             current_user['id'], host_id=host_id, note_type=form.note_type.data,
+                                             text=form.url.data)
+
+        elif form.note_type.data in ["markdown", "html", "plaintext"]:
+            note_id = db.insert_new_note(current_project['id'], form.name.data,
+                                         current_user['id'], host_id=host_id, note_type=form.note_type.data)
 
     referer = request.headers.get("Referer")
     if '/host/' in referer:
@@ -2554,13 +2575,19 @@ def edit_note_form(project_id, current_project, current_user):
                 errors.append(error)
 
     if not errors:
-        if form.action.data == 'Update':
-            db.update_note(form.note_id.data, form.text.data,
-                           current_project['id'])
+
+        current_note = db.select_project_note(current_project['id'], form.note_id.data)
+        if not current_note:
+            return redirect('/project/{}/notes/'.format(current_project['id']))
+
+        current_note = current_note[0]
+
+        if form.action.data == 'Update' and current_note['type'] in ["html", "plaintext", "markdown"]:
+            db.update_note(current_note['id'], form.text.data, current_project['id'])
         elif form.action.data == 'Delete':
-            db.delete_note(form.note_id.data, current_project['id'])
+            db.delete_note(current_note['id'], current_project['id'])
         elif form.action.data == 'Rename':
-            db.update_note_name(form.note_id.data, form.text.data, current_project['id'])
+            db.update_note_name(current_note['id'], form.text.data, current_project['id'])
 
     return redirect('/project/{}/notes/'.format(current_project['id']))
 

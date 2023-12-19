@@ -1651,13 +1651,13 @@ class Database:
         result = self.return_arr_dict()
         return result
 
-    def insert_new_note(self, project_id, name, user_id, host_id='', text=''):
+    def insert_new_note(self, project_id, name, user_id, host_id='', text='', note_type="html"):
         note_id = gen_uuid()
         self.execute(
             '''INSERT INTO Notes(
-            id,project_id,name,text,user_id,host_id) 
-               VALUES (?,?,?,?,?,?)''',
-            (note_id, project_id, name, text, user_id, host_id)
+            id,project_id,name,text,user_id,host_id,type) 
+               VALUES (?,?,?,?,?,?,?)''',
+            (note_id, project_id, name, text, user_id, host_id,note_type)
         )
         self.conn.commit()
         self.insert_log('Created new note "{}"'.format(name))
@@ -3076,8 +3076,9 @@ class Database:
             result['notes'][note['id']] = {
                 'name': note['name'],
                 'host_id': note['host_id'],
-                'html': note['text'],
+                'text': note['text'],
                 'markdown': '',
+                'type': note['type'],
                 'base64': base64.b64encode(note['text'].encode('charmap', 'ignore')).decode('charmap', 'ignore')
             }
             try:
@@ -3171,10 +3172,6 @@ class Database:
                 'services': json.loads(task['services'])
 
             }
-            try:
-                result['notes'][note['id']]['markdown'] = markdownify(note['text'])
-            except Exception as e:
-                pass
 
         return result
 
