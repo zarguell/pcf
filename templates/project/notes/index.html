@@ -433,7 +433,12 @@
 
                                     easymde = new EasyMDE({
                                         element: input,
-                                        sideBySideFullscreen: false
+                                        sideBySideFullscreen: false,
+                                        renderingConfig: {
+                                            markedOptions: {
+                                                sanitize: true
+                                            }
+                                        }
                                     });
 
 
@@ -502,7 +507,8 @@
                                     delta = quill_{{ loop.index }}.clipboard.convert({html: text_val});
 
                                     for (let i = 0; i < delta.ops.length; i++) {
-                                        delta.ops[i].insert = delta.ops[i].insert.replace("PlainBashC++C#CSSDiffHTML/XMLJavaJavascriptMarkdownPHPPythonRubySQL\n", "");
+                                        if (delta.ops[i].insert.replace !== undefined)
+                                            delta.ops[i].insert = delta.ops[i].insert.replace("PlainBashC++C#CSSDiffHTML/XMLJavaJavascriptMarkdownPHPPythonRubySQL\n", "");
                                     }
 
                                     quill_{{ loop.index }}.setContents(delta, 'silent');
