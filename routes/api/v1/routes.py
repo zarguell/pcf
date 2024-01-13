@@ -775,7 +775,7 @@ def team_delete_user(args, current_user=None, current_token=None, user_id='',
         "user_id":"c982b640-c279-48ea-ba09-970338c6790b"
     }
     """
-    message = db.delete_user_from_team(current_team['id'],
+    message = db.delete_user_from_team_safe(current_team['id'],
                                        str(args['user_id']),
                                        current_user['id'])
     if message:
