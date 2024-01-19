@@ -2946,8 +2946,12 @@ def nuclei_page_form(project_id, current_project, current_user):
     # json files
     for file in form.json_files.data:
         if file.filename:
-            json_data = json.loads(
-                '[{}]'.format(file.read().decode('charmap').strip(' \t\r\n').replace('\r', '').replace('\n', ',')))
+            bin_data = file.read().decode('charmap').strip(' \t\r\n')
+            json_data = []
+            if bin_data.startswith('['):
+                json_data = json.loads(bin_data)
+            else:
+                json_data = json.loads('[{}]'.format(bin_data.replace('\r', '').replace('\n', ',')))
             for issue_obj in json_data:
                 # important fields
                 issue_name = 'Nuclei: {}'.format(issue_obj['info']['name'])
