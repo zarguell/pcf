@@ -68,8 +68,7 @@ class RegistrationForm(FlaskForm):
         EqualTo('password2', message='Passwords must match!'),
         Length(min=8, message='Minimum password len=8!')
     ])
-    password2 = StringField('password2',
-                            validators=[DataRequired()])
+    password2 = StringField('password2', validators=[DataRequired()])
 
 
 class LoginForm(FlaskForm):

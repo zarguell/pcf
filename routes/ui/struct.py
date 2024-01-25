@@ -183,7 +183,7 @@ def register_form():
         error = 'Registration was disabled!'
     elif form.validate():
         if len(db.select_user_by_email(form.email.data)) > 0:
-            error = 'Email has already exists!'
+            error = 'Email already exists!'
         else:
             db.insert_user(form.email.data, form.password1.data)
     else:
