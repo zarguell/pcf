@@ -2222,7 +2222,8 @@ class Database:
     def delete_port_safe(self, port_id):
         # delete port
 
-        port_id = str(port_id)
+        #port_id = str(port_id)
+        # fast fix - better dont do it :)
 
         self.execute(
             '''DELETE FROM Ports WHERE id=? ''',
