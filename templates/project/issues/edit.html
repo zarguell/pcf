@@ -1201,8 +1201,9 @@
                             <form style="float:left;  margin-top: 5px;"
                                   action="/project/{{ current_project['id'] }}/issue/{{ current_issue['id'] }}/delete_poc"
                                   method="post" onsubmit="return delete_prompt(this,'Are you sure to delete PoC?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <button type="submit" class="ui vertical animated button red" tabindex="0" name="poc_id"
-                                        value="{{ current_poc['id'] }}" data-value="{{ csrf_token() }}">
+                                        value="{{ current_poc['id'] }}">
                                     <div class="hidden content">Delete</div>
                                     <div class="visible content">
                                         <i class="trash icon"></i>
