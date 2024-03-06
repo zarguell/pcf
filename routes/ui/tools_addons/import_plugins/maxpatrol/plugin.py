@@ -67,7 +67,7 @@ def process_request(
     for bin_file_data in input_dict['xml_files']:
         try:
             # scan_result = BeautifulSoup(bin_file_data.decode('charmap'), "html.parser")
-            scan_result = BeautifulSoup(bin_file_data.decode('charmap'), "lxml")
+            scan_result = BeautifulSoup(bin_file_data.decode('utf-8'), "lxml")
             hosts_list = scan_result.find("content").data
             vulns_db = scan_result.find("content").find("vulners", recursive=False)
             for host in hosts_list.findAll('host'):
