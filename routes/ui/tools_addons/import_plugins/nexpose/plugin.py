@@ -5,7 +5,6 @@ import logging
 from flask_wtf import FlaskForm
 from bs4 import BeautifulSoup
 from wtforms import *
-from wtforms.validators import *
 from system.db import Database
 
 # For demonstration
@@ -57,6 +56,7 @@ def process_request(
             # scan_result = BeautifulSoup(bin_file_data.decode('charmap'), "html.parser")
             scan_result = BeautifulSoup(bin_file_data.decode('utf-8'), "lxml")
             hosts_list = scan_result.find("nexposereport").find("nodes").findAll("node")
+            vuln_db = scan_result.find("nexposereport").find("vulnerabilitydefinitions")
             for host_obj in hosts_list:
                 ip = host_obj.attrs["address"]
                 ipaddress.ip_address(ip)
@@ -142,35 +142,107 @@ def process_request(
 
                             issues_list = port_obj.find("tests").findAll("test")
                             for issue_obj in issues_list:
-                                issue_name = "Nexpose: {}".format(issue_obj.attrs["id"].replace('-',' '))
+                                issue_name = "{}".format(issue_obj.attrs["id"].replace('-', ' '))
                                 issue_description = str(issue_obj.find("paragraph").get_text()).strip()
 
-                                issue_description = issue_description.replace('\t', ' ').replace('\r','')
-
-                                while '  ' in issue_description:
-                                    issue_description = issue_description.replace('  ',' ')
-
-                                while '\n \n' in issue_description:
-                                    issue_description = issue_description.replace('\n \n', '\n')
-
-                                while '\n\n' in issue_description:
-                                    issue_description = issue_description.replace('\n\n', '\n')
-
-                                issue_cve = ''
+                                issue_cve = []
                                 if 'cve-' in issue_obj.attrs["id"]:
-                                    issue_cve = 'CVE-'+issue_obj.attrs["id"].split('cve-')[1]
+                                    issue_cve.append('CVE-' + '-'.join(issue_obj.attrs["id"].split('cve-')[1].split('-')[:2]))
 
                                 services = {current_port_id: ["0"]}
 
-                                issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_description,
-                                                                            '', 0, current_user['id'],
-                                                                            services, "need to recheck",
-                                                                            current_project['id'], cve=issue_cve)
+                                issue_db = vuln_db.findAll(attrs={"id": issue_obj.attrs["id"]}, recursive=False)
+                                cvss_vector = ''
+                                cvss_score = 0
+                                issue_fix = ''
+                                issue_tech = ''
+                                issue_references = []
+                                if issue_db:
+                                    issue_tech = issue_description
+                                    issue_db = issue_db[0]
+                                    print(issue_db)
+                                    issue_name = issue_db.attrs["title"]
+                                    issue_description = issue_db.find("description").get_text()
+                                    if "cvssvector" in issue_db.attrs:
+                                        cvss_vector = str(issue_db.attrs["cvssvector"])
+                                    if "cvssscore" in issue_db.attrs:
+                                        cvss_score = float(issue_db.attrs["cvssscore"])
+                                    for reference_obj in issue_db.find("references").findAll("reference"):
+                                        if reference_obj.attrs["source"] == "URL":
+                                            issue_references.append(reference_obj.get_text().strip())
+                                        elif reference_obj.attrs["source"] == "CVE":
+                                            issue_cve.append(reference_obj.get_text().strip())
+                                        elif reference_obj.attrs["source"] == "BID":
+                                            pass  # ignore - it has CVE
+                                        elif reference_obj.attrs["source"] == "MSKB":
+                                            pass  # ignore - it has CVE
+                                        elif reference_obj.attrs["source"] == "CERT":
+                                            issue_references.append("https://www.us-cert.gov/ncas/alerts/{}"
+                                                                    .format(reference_obj.get_text().strip()))
+                                        else:
+                                            print(reference_obj.attrs["source"])
+                                    issue_fix = issue_db.find("solution").get_text().strip(" \r\n\t")
+                                    for link_obj in issue_db.find("solution").findAll("URLLink"):
+                                        issue_fix += "\n" + link_obj.attrs["href"].strip()
+                                    issue_fix = issue_fix.strip(" \r\n\t")
+
+                                # description fix
+                                issue_description = issue_description.strip()
+                                issue_description = issue_description.replace('\t', ' ').replace('\r', '')
+                                while '  ' in issue_description:
+                                    issue_description = issue_description.replace('  ', ' ')
+                                while '\n \n' in issue_description:
+                                    issue_description = issue_description.replace('\n \n', '\n')
+                                while '\n\n' in issue_description:
+                                    issue_description = issue_description.replace('\n\n', '\n')
+
+                                # tech fix
+                                issue_tech = issue_tech.strip()
+                                issue_tech = issue_tech.replace('\t', ' ').replace('\r', '')
+                                while '  ' in issue_tech:
+                                    issue_tech = issue_tech.replace('  ', ' ')
+                                while '\n \n' in issue_tech:
+                                    issue_tech = issue_tech.replace('\n \n', '\n')
+                                while '\n\n' in issue_tech:
+                                    issue_tech = issue_tech.replace('\n\n', '\n')
+
+                                # fix fix :)
+                                issue_fix = issue_fix.strip()
+                                issue_fix = issue_fix.replace('\t', ' ').replace('\r', '')
+                                while '  ' in issue_fix:
+                                    issue_fix = issue_fix.replace('  ', ' ')
+                                while '\n \n' in issue_fix:
+                                    issue_fix = issue_fix.replace('\n \n', '\n')
+                                while '\n\n' in issue_fix:
+                                    issue_fix = issue_fix.replace('\n\n', '\n')
+
+                                # refs fix
+                                issue_references = set(issue_references)
+                                # cve fix
+                                issue_cve = set(issue_cve)
+
+                                issue_id = db.insert_new_issue_no_dublicate(
+                                    issue_name, issue_description, '',
+                                    cvss_score, current_user['id'],
+                                    services, "need to recheck",
+                                    current_project['id'],
+                                    cve=','.join(issue_cve), fix=issue_fix,
+                                    technical=issue_tech,
+                                    references='\n'.join(issue_references)
+                                )
+                                if cvss_vector:
+                                    fields_dict = {
+                                        "cvss_vector": {
+                                            "type": "text",
+                                            "val": "CVSS:3.1/" + cvss_vector.strip("()")
+                                        }
+                                    }
+
+                                    db.update_issue_fields(str(issue_id), fields_dict)
 
 
         except OverflowError as e:
             logging.error("Error during parsing report: {}".format(e))
             return "Error during parsing XML report!"
-
 
     return ""
