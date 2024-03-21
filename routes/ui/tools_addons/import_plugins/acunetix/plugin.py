@@ -50,10 +50,10 @@ class ToolArguments(FlaskForm):
     )
 
     auto_resolve = BooleanField(label='auto_resolve',
-                                  description="or automatic resolve ip from PCF server",
-                                  default=False,
-                                  validators=[],
-                                  _meta={"display_row": 2, "display_column": 2})
+                                description="or automatic resolve ip from PCF server",
+                                default=False,
+                                validators=[],
+                                _meta={"display_row": 2, "display_column": 2})
 
 
 ########### Request processing
@@ -70,6 +70,8 @@ def process_request(
         try:
             scan_result = BeautifulSoup(bin_file_data.decode('charmap'), "html.parser").scangroup.scan
             start_url = scan_result.starturl.contents[0]
+            if not start_url.lower().startswith("http"):
+                start_url = "http://" + start_url
             parsed_url = urllib.parse.urlparse(start_url)
             protocol = parsed_url.scheme
             hostname = parsed_url.hostname
@@ -96,9 +98,13 @@ def process_request(
                     IP(input_dict['host'])
                     host = input_dict['host']
                 elif input_dict['auto_resolve'] == 1:
-                    host = socket.gethostbyname(hostname)
+                    try:
+                        host = socket.gethostbyname(hostname)
+                    except Exception as e:
+                        logging.error("Host {} was not resolved!".format(hostname))
+                        return 'Hostname was not resolved!'
                 else:
-                    return 'ip not resolved!'
+                    return 'ip was not resolved!'
 
             # add host
             host_id = db.select_project_host_by_ip(current_project['id'], host)
@@ -153,8 +159,23 @@ def process_request(
                     .replace('<code>', '\n') \
                     .replace('</code>', '\n') \
                     .replace('<pre>', '') \
-                    .replace('</pre>', '')
-                recomendations = issue.recommendation.contents[0]
+                    .replace('</pre>', '') \
+                    .replace('<span class="bb-dark">', '') \
+                    .replace('<span class="bb-navy">', '') \
+                    .replace('<div class="bb-coolbox">', '') \
+                    .replace('</div>', '') \
+                    .replace('</span>', '') \
+                    .replace('<ul>', '') \
+                    .replace('</ul>', '') \
+                    .replace('<li>', '') \
+                    .replace('</li>', '')
+
+                while '\n\n' in issue_description:
+                    issue_description = issue_description.replace('\n\n', '\n')
+                while '  ' in issue_description:
+                    issue_description = issue_description.replace('  ', ' ')
+
+                recomendations = issue.recommendation.contents[0].strip()
                 issue_request = issue.technicaldetails.request.contents[0]
                 references_arr = issue.references.findAll("reference")
                 references_str = ''
@@ -168,14 +189,17 @@ def process_request(
                 cwe = 0
                 if issue.cwe:
                     cwe = int(issue.cwe['id'].replace('CWE-', ''))
-                cvss = float(issue.cvss.score.contents[0])
+                if issue.cvss and issue.cvss.score:
+                    cvss = float(issue.cvss.score.contents[0])
+                elif issue.cvss3 and issue.cvss3.score:
+                    cvss = float(issue.cvss3.score.contents[0])
                 # TODO: check CVE field
 
                 full_info = issue_description
 
                 services = {port_id: ['0']}
                 if hostname_id:
-                    services = {port_id: ['0', hostname_id]}
+                    services = {port_id: [hostname_id]}
 
                 db.insert_new_issue(issue_name,
                                     full_info,

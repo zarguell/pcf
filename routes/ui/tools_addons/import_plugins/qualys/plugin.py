@@ -134,37 +134,49 @@ def process_request(
                                                           current_user['id'], current_project['id'])
                         else:
                             port_id = port_id[0]['id']
-                        cvss = 0
-                        cvss_tmp1 = issue_obj.find('cvss3_base')
-                        cvss_tmp2 = issue_obj.find('cvss3_temporal')
-                        cvss_tmp3 = issue_obj.find('cvss_temporal')
-                        if cvss_tmp1 and cvss_tmp1.text not in ['-', '']:
-                            cvss = float(cvss_tmp1.text)
-                        elif cvss_tmp2 and cvss_tmp2.text not in ['-', '']:
-                            cvss = float(cvss_tmp2.text)
-                        elif cvss_tmp3 and cvss_tmp3.text not in ['-', '']:
-                            cvss = float(cvss_tmp3.text)
+                        for vuln_object in issue_obj.findAll("vuln"):
+                            cvss = 0
+                            cvss_tmp1 = vuln_object.find('cvss3_base')
+                            cvss_tmp2 = vuln_object.find('cvss3_temporal')
+                            cvss_tmp3 = vuln_object.find('cvss_temporal')
+                            if cvss_tmp1 and cvss_tmp1.text not in ['-', '']:
+                                cvss = float(cvss_tmp1.text)
+                            elif cvss_tmp2 and cvss_tmp2.text not in ['-', '']:
+                                cvss = float(cvss_tmp2.text)
+                            elif cvss_tmp3 and cvss_tmp3.text not in ['-', '']:
+                                cvss = float(cvss_tmp3.text)
+                            elif 'severity' in vuln_object.attrs:
+                                sev_acunetix = int(vuln_object.attrs['severity'])
+                                if sev_acunetix == 1:
+                                    cvss = 0.0
+                                elif sev_acunetix == 2:
+                                    cvss = 2.0
+                                elif sev_acunetix == 3:
+                                    cvss = 5.0
+                                elif sev_acunetix == 4:
+                                    cvss = 8.0
+                                elif sev_acunetix == 5:
+                                    cvss = 9.5
 
-                        issue_name = issue_obj.find('title').text
-                        issue_diagnostic = issue_obj.find('diagnosis').text
-                        issue_description = issue_obj.find('consequence').text
-                        issue_solution = beautify_output(issue_obj.find('solution').text)
+                            issue_name = vuln_object.find('title').text
+                            issue_diagnostic = vuln_object.find('diagnosis').text
+                            issue_risks = vuln_object.find('consequence').text
+                            issue_solution = beautify_output(vuln_object.find('solution').text)
 
-                        # TODO: add PoC
-                        issue_output = issue_obj.find('result')
-                        try:
-                            issue_output = issue_obj.find('result').text
-                        except AttributeError:
-                            issue_output = ''
+                            # TODO: add PoC
+                            issue_output = vuln_object.find('result')
+                            try:
+                                issue_output = vuln_object.find('result').text
+                            except AttributeError:
+                                issue_output = ''
 
-                        issue_full_description = 'Diagnosis: \n{} \n\nConsequence: \n{}'.format(issue_diagnostic,
-                                                                                                issue_description)
-                        issue_full_description = beautify_output(issue_full_description)
-                        services = {port_id: ['0']}
-                        issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_full_description, '', cvss,
-                                                                    current_user['id'], services, 'need to recheck',
-                                                                    current_project['id'], '', 0, 'custom',
-                                                                    issue_solution, '')
+                            issue_full_description = 'Diagnosis: \n{}'.format(issue_diagnostic)
+                            issue_full_description = beautify_output(issue_full_description)
+                            services = {port_id: ['0']}
+                            issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_full_description, '', cvss,
+                                                                        current_user['id'], services, 'need to recheck',
+                                                                        current_project['id'], '', 0, 'custom',
+                                                                        issue_solution, '', risks=issue_risks)
 
                 issues_list = host.find('practices')
                 if issues_list:
@@ -178,7 +190,7 @@ def process_request(
 
                         issue_name = issue_obj.find('title').text
                         issue_diagnostic = issue_obj.find('diagnosis').text
-                        issue_description = issue_obj.find('consequence').text
+                        issue_risks = issue_obj.find('consequence').text
                         issue_solution = beautify_output(issue_obj.find('solution').text)
                         # TODO: add PoC
                         issue_output = issue_obj.find('result')
@@ -186,8 +198,7 @@ def process_request(
                             issue_output = issue_obj.find('result').text
                         except AttributeError:
                             issue_output = ''
-                        issue_full_description = 'Diagnosis: \n{} \n\nConsequence: \n{}'.format(issue_diagnostic,
-                                                                                                issue_description)
+                        issue_full_description = 'Diagnosis: \n{}'.format(issue_diagnostic)
 
                         issue_full_description = beautify_output(issue_full_description)
 
@@ -212,6 +223,18 @@ def process_request(
                             cvss = float(cvss_tmp2.text)
                         elif cvss_tmp3 and cvss_tmp3.text not in ['-', '']:
                             cvss = float(cvss_tmp3.text)
+                        elif 'severity' in issue_obj.attrs:
+                            sev_acunetix = int(issue_obj.attrs['severity'])
+                            if sev_acunetix == 1:
+                                cvss = 0.0
+                            elif sev_acunetix == 2:
+                                cvss = 2.0
+                            elif sev_acunetix == 3:
+                                cvss = 5.0
+                            elif sev_acunetix == 4:
+                                cvss = 8.0
+                            elif sev_acunetix == 5:
+                                cvss = 9.5
 
                         # try to detect port
                         port = 0
@@ -235,9 +258,9 @@ def process_request(
                         issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_full_description, cve, cvss,
                                                                     current_user['id'], services, 'need to recheck',
                                                                     current_project['id'], '', 0, 'custom',
-                                                                    issue_solution, '')
+                                                                    issue_solution, '', risks=issue_risks)
 
-        except Exception as e:
+        except OverflowError as e:
             logging.error("Error during parsing report: {}".format(e))
             return "Error during parsing report, check that you upload \"Scan results\" XML file, not \"Reports\" XML."
 
