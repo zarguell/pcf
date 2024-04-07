@@ -3219,14 +3219,30 @@ for module_name in modules:
                             <input type="file" name="{}" placeholder="" multiple accept="{}">
                         """.format(field_kwargs["description"], input_name, input_meta["file_extensions"])
             elif field_class == wtforms.fields.simple.StringField:
-                input_html = """
-                            <label>{}:</label>
-                            <input type="text" name="{}" placeholder="{}" value="{}" {}>""".format(
-                    field_kwargs["description"],
-                    input_name,
-                    field_kwargs['default'] if 'default' in field_kwargs else '',
-                    field_kwargs['default'] if 'default' in field_kwargs else '',
-                    required_str)
+                multiline_field = False if "multiline" not in input_meta else bool(input_meta["multiline"])
+                default_str = field_kwargs['default'] if 'default' in field_kwargs else ''
+                if not multiline_field:
+                    input_html = """
+                                <label>{}:</label>
+                                <input type="text" name="{}" placeholder="{}" value="{}" {}>""".format(
+                        field_kwargs["description"],
+                        input_name,
+                        default_str,
+                        default_str,
+                        required_str)
+                else:
+                    input_html = """
+                                <label>{}:</label>
+                                <textarea name="{}" placeholder="{}" style="min-width: 305px;" {}>{}</textarea>""".format(
+                        field_kwargs["description"],
+                        input_name,
+                        default_str,
+                        required_str,
+                        default_str
+                        .replace("&", "&amp;")
+                        .replace('"', "&quot;")
+                        .replace("<", "&lt;")
+                        .replace(">", "&gt;"))
             elif field_class == wtforms.fields.IntegerField:
                 input_html = """
                             <label>{}:</label>

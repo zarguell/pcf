@@ -1264,6 +1264,14 @@ class Database:
         result = self.return_arr_dict()
         return result
 
+    def select_host_by_hostname_id(self, hostname_id):
+        self.execute(
+            '''SELECT * FROM Hosts WHERE 
+            id=(SELECT host_id FROM Hostnames WHERE id=?)''',
+            (hostname_id,))
+        result = self.return_arr_dict()
+        return result
+
     def select_issue(self, issue_id):
         self.execute(
             '''SELECT * FROM Issues WHERE id=?''',

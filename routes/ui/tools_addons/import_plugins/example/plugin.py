@@ -55,14 +55,14 @@ class ToolArguments(FlaskForm):
                                validators=[
                                    DataRequired(message='This field is required!')
                                ],
-                               _meta={"display_row": 1, "display_column": 2, "file_extensions": ""})
+                               _meta={"display_row": 1, "display_column": 2, "file_extensions": "", "multiline": False})
 
     example_required_text = StringField(label='example_text2',
-                               description="Required text",
-                               validators=[
-                                   DataRequired(message='example_required_text field is required!')
-                               ],
-                               _meta={"display_row": 2, "display_column": 1, "file_extensions": ""})
+                                        description="Required text",
+                                        validators=[
+                                            DataRequired(message='example_required_text field is required!')
+                                        ],
+                                        _meta={"display_row": 2, "display_column": 1, "file_extensions": ""})
 
     # Example number input field
     example_number = IntegerField(label='example_number',  # same as variable name
@@ -123,8 +123,6 @@ def process_request(
 
     # same input/get can be done with almost any data, database functions start with type of request
     # insert_..., select_..., update_..., delete_...
-
-
 
     # get data from config
     if global_config['files']['poc_storage'] == 'database':

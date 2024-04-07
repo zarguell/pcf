@@ -1177,8 +1177,8 @@
                             {% else %}{% autoescape false %}
                             <pre style="overflow: auto"><code
                                     style="max-height: 400px; max-width:800px; margin-left: 10px; margin-right: 10px;">{% if current_poc['storage']=='filesystem' %}
-                                {{ escape(open('static/files/poc/'+current_poc['id']).read().replace('\r','')) }}{% elif current_poc['storage']=='database' %}
-                                {{ escape(b64decode(current_poc['base64']).decode('charmap').replace('\r','')) }}{% endif %}</code></pre>
+                                {{- escape(open('static/files/poc/'+current_poc['id']).read().replace('\r','')) }}{% elif current_poc['storage']=='database' %}
+                                {{- escape(b64decode(current_poc['base64']).decode('charmap').replace('\r','')) }}{% endif %}</code></pre>
                             {% endautoescape %}{% endif %}
                         </td>
                         <td>
