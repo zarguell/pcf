@@ -157,7 +157,7 @@
                             note_text = editor_array[number][0].childNodes[0].innerHTML;
                         } else if (quill_array[number] && quill_array[number].constructor.name === "se") {
                             note_text = quill_array[number].value();
-                        } else {
+                        } else if (editor_array[number] !== null) {
                             note_text = editor_array[number][0].childNodes[0].value;
                         }
                         $.ajax({
