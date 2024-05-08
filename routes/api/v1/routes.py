@@ -1691,7 +1691,7 @@ def project_network_edit(args, current_user=None, current_token=None,
     exists_networks = db.select_project_network_by_ip(current_project['id'], ip, mask)
     for network in exists_networks:
         if network['id'] != current_network['id']:
-            return fail(['Network already exists!'])
+            return fail(['Didn\'t find the network!'])
 
     # check port_id variable
     for port_id in access_from:
@@ -1763,7 +1763,7 @@ def project_network_create(args, current_user=None, current_token=None,
     ip = str(args['ip'])
     mask = int(args['mask'])
     asn = int(args['asn'])
-    name = int(args['name'])
+    name = str(args['name'])
     internal_ip = args['internal_ip']
     cmd = args['cmd']
     access_from = args['access_from']
@@ -1774,7 +1774,7 @@ def project_network_create(args, current_user=None, current_token=None,
 
     # check if network exists
     exists_networks = db.select_project_network_by_ip(current_project['id'], ip, mask)
-    for network in exists_networks:
+    if exists_networks:
         return fail(['Network already exists!'])
 
     # check port_id variable

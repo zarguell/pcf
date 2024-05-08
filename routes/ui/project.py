@@ -1702,7 +1702,7 @@ def project_network_edit(project_id, current_project, current_user,
                                                           form.ip.data, form.mask.data)
         for network in exists_networks:
             if network['id'] != current_network['id']:
-                errors.append('Network exists!')
+                errors.append('Network does not exist!')
 
     # check port_id variable
     if not errors:
