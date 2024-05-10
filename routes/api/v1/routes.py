@@ -2324,11 +2324,13 @@ def project_issue_poc_add(args, current_user=None, current_token=None,
         "type": "text",
         "b64content": "UGVudGVzdCBDb2xsYWJvcmF0aW9uIEZyYW1ld29yaw==",
         "port_id": "6e61925d-891e-4009-8cda-c9b7d78efeeb",
-        "hostname_id": "0a8796a1-6cc8-4063-a09c-6fdff379cf4c"
+        "hostname_id": "0a8796a1-6cc8-4063-a09c-6fdff379cf4c",
+        "filename": "image.png"
     }
     """
     poc_description = args['description']
     poc_type = args['type']
+    poc_filename = args['filename']
     try:
         poc_content = base64.b64decode(args['b64content'])
     except binascii.Error:
@@ -2351,7 +2353,8 @@ def project_issue_poc_add(args, current_user=None, current_token=None,
     f.write(poc_content)
     f.close()
 
-    poc_filename = poc_id + '.png' if poc_type == 'image' else poc_id + '.txt'
+
+
 
     if config['files']['poc_storage'] == 'database':
         remove(poc_path)

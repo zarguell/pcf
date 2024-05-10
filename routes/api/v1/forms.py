@@ -231,10 +231,11 @@ new_poc_args = {
     'access_token': fields.UUID(required=True),
     'description': fields.String(required=False,
                                  missing=''),
-    'type': fields.String(required=True, validate=validate.OneOf(["image", "text"])),
+    'type': fields.String(required=True, validate=validate.OneOf(["image", "text", "document"])),
     'b64content': fields.String(required=True),
     'port_id': fields.String(required=False, missing='0'),
-    'hostname_id': fields.String(required=False, missing='0')
+    'hostname_id': fields.String(required=False, missing='0'),
+    'filename': fields.String(required=True)
 }
 
 get_issue_rules_args = {

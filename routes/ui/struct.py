@@ -23,39 +23,93 @@ import base64
 
 
 @cache.cached(timeout=120)
+@routes.route('/static/files/code/<uuid:file_id>/')
 @routes.route('/static/files/code/<uuid:file_id>')
 def getStaticCodeFile(file_id):
     current_file = db.select_files(str(file_id))[0]
 
-    if current_file['storage'] == 'filesystem':
-        return send_from_directory('static/files/code', str(file_id),
-                                   as_attachment=True,
-                                   attachment_filename=
-                                   current_file['filename'])
+    # bad code but secure
+
+    # if document - need to show file
+    if current_file['type'] == 'document':
+
+        if current_file['storage'] == 'filesystem':
+
+            response = send_from_directory('static/files/code', str(file_id),
+                                           as_attachment=False,
+                                           attachment_filename=
+                                           current_file['filename'])
+        else:
+            response = send_file(
+                io.BytesIO(base64.b64decode(current_file['base64'])),
+                as_attachment=False,
+                attachment_filename=current_file['filename']
+            )
+        if current_file['filename'].lower().endswith('.pdf'):
+            response.headers['Content-Type'] = 'application/pdf'
+        else:
+            response.headers['Content-Type'] = 'application/msword'
+        # else - need to download file
     else:
-        return send_file(
-            io.BytesIO(base64.b64decode(current_file['base64'])),
-            as_attachment=True,
-            attachment_filename=current_file['filename']
-        )
+        if current_file['storage'] == 'filesystem':
+
+            response = send_from_directory('static/files/code', str(file_id),
+                                           as_attachment=True,
+                                           attachment_filename=
+                                           current_file['filename'])
+        else:
+            response = send_file(
+                io.BytesIO(base64.b64decode(current_file['base64'])),
+                as_attachment=True,
+                attachment_filename=current_file['filename']
+            )
+
+    return response
 
 
 @cache.cached(timeout=120)
+@routes.route('/static/files/poc/<uuid:poc_id>/')
 @routes.route('/static/files/poc/<uuid:poc_id>')
 def getStaticPoCFile(poc_id):
     current_poc = db.select_poc(str(poc_id))[0]
-    if current_poc['storage'] == 'filesystem':
-        return send_from_directory('static/files/poc', str(poc_id),
-                                   as_attachment=True,
-                                   attachment_filename=
-                                   current_poc['filename'])
-    else:
 
-        return send_file(
-            io.BytesIO(base64.b64decode(current_poc['base64'])),
-            as_attachment=True,
-            attachment_filename=current_poc['filename']
-        )
+    # bad code but secure
+
+    # if document - need to show file
+    if current_poc['type'] == 'document':
+
+        if current_poc['storage'] == 'filesystem':
+
+            response = send_from_directory('static/files/poc', str(poc_id),
+                                           as_attachment=False,
+                                           attachment_filename=
+                                           current_poc['filename'])
+        else:
+            response = send_file(
+                io.BytesIO(base64.b64decode(current_poc['base64'])),
+                as_attachment=False,
+                attachment_filename=current_poc['filename']
+            )
+        if current_poc['filename'].lower().endswith('.pdf'):
+            response.headers['Content-Type'] = 'application/pdf'
+        else:
+            response.headers['Content-Type'] = 'application/msword'
+    # else - need to download file
+    else:
+        if current_poc['storage'] == 'filesystem':
+
+            response = send_from_directory('static/files/poc', str(poc_id),
+                                           as_attachment=True,
+                                           attachment_filename=
+                                           current_poc['filename'])
+        else:
+            response = send_file(
+                io.BytesIO(base64.b64decode(current_poc['base64'])),
+                as_attachment=True,
+                attachment_filename=current_poc['filename']
+            )
+
+    return response
 
 
 @cache.cached(timeout=120)
@@ -86,7 +140,8 @@ def check_template_access(fn):
     def decorated_view(*args, **kwargs):
         template_id = kwargs['template_id']
         current_user = kwargs['current_user']
-        current_template = db.check_user_issue_template_access(str(template_id), current_user['id'], current_user['email'])
+        current_template = db.check_user_issue_template_access(str(template_id), current_user['id'],
+                                                               current_user['email'])
         if not current_template:
             return redirect('/projects/')
         kwargs['current_template'] = current_template[0]
@@ -782,7 +837,8 @@ def new_issue_templates_form(current_user):
     if not (len(form.variable_value.data) == len(form.variable_type.data) == len(form.variable_name.data)):
         errors.append('Error with variables form!')
 
-    if not (len(form.additional_field_name.data) == len(form.additional_field_type.data) == len(form.additional_field_value.data)):
+    if not (len(form.additional_field_name.data) == len(form.additional_field_type.data) == len(
+            form.additional_field_value.data)):
         errors.append('Error with additional fields form!')
 
     user_uuid = ''
@@ -959,7 +1015,8 @@ def new_issue_rule_form(current_user):
     for replace_rule in rule_json_replace:
         # if template
         if 'id' in replace_rule and is_valid_uuid(replace_rule['id']):
-            current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'], current_user['email'])
+            current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'],
+                                                                   current_user['email'])
             if current_template:
                 template_obj = {
                     'type': 'template',
@@ -1108,7 +1165,8 @@ def import_issue_templates_form(current_user):
                         template_name = str(template_obj['name'])
                         template_description = str(template_obj['description'])
                         template_url_path = str(template_obj['url_path'])
-                        template_cvss = float(template_obj['cvss']) if float(template_obj['cvss']) >= 0 and float(template_obj['cvss']) <= 10 else 0
+                        template_cvss = float(template_obj['cvss']) if float(template_obj['cvss']) >= 0 and float(
+                            template_obj['cvss']) <= 10 else 0
                         template_cwe = int(template_obj['cwe']) if int(template_obj['cwe']) >= 0 else 0
                         template_cve = str(template_obj['cve'])
                         template_status = str(template_obj['status'])
@@ -1243,7 +1301,8 @@ def edit_issue_template_form(current_user, template_id, current_template):
     if not (len(form.variable_value.data) == len(form.variable_type.data) == len(form.variable_name.data)):
         errors.append('Error with variables form!')
 
-    if not (len(form.additional_field_name.data) == len(form.additional_field_type.data) == len(form.additional_field_value.data)):
+    if not (len(form.additional_field_name.data) == len(form.additional_field_type.data) == len(
+            form.additional_field_value.data)):
         errors.append('Error with additional fields form!')
 
     user_uuid = ''
@@ -1497,7 +1556,8 @@ def import_issue_rules_form(current_user):
                         for search_rule in rule_obj['search_rules']:
                             new_obj = {
                                 'field_name': str(search_rule['field_name']),
-                                'type': str(search_rule['type']) if str(search_rule['type']) == 'regexp' else 'substring',
+                                'type': str(search_rule['type']) if str(
+                                    search_rule['type']) == 'regexp' else 'substring',
                                 'val': str(search_rule['val'])
                             }
                             search_rules_json.append(new_obj)
@@ -1507,7 +1567,8 @@ def import_issue_rules_form(current_user):
                             new_obj = {
                                 'field_name': str(extract_rule['field_name']),
                                 'name': str(extract_rule['name']),
-                                'type': str(extract_rule['type']) if str(extract_rule['type']) == 'regexp' else 'substring',
+                                'type': str(extract_rule['type']) if str(
+                                    extract_rule['type']) == 'regexp' else 'substring',
                                 'val': str(extract_rule['val'])
                             }
                             extract_vars_json.append(new_obj)
@@ -1516,17 +1577,23 @@ def import_issue_rules_form(current_user):
                             new_obj = {}
                             if replace_rule['type'] != 'template':
                                 new_obj = {
-                                    'type': str(replace_rule['type']) if str(replace_rule['type']) == 'regexp' else 'substring',
+                                    'type': str(replace_rule['type']) if str(
+                                        replace_rule['type']) == 'regexp' else 'substring',
                                     'search_filter': str(replace_rule['search_filter']),
                                     'replace_string': str(replace_rule['replace_string']),
                                     'field_name': str(replace_rule['field_name']),
                                 }
                             else:
                                 template_id = replace_rule['id']
-                                if is_valid_uuid(template_id) and db.check_user_issue_template_access(template_id, current_user['id'], current_user['email']):
+                                if is_valid_uuid(template_id) and db.check_user_issue_template_access(template_id,
+                                                                                                      current_user[
+                                                                                                          'id'],
+                                                                                                      current_user[
+                                                                                                          'email']):
                                     new_obj = {
                                         'id': template_id,
-                                        'vars': {str(var_name): str(replace_rule['vars'][var_name]) for var_name in replace_rule['vars']},
+                                        'vars': {str(var_name): str(replace_rule['vars'][var_name]) for var_name in
+                                                 replace_rule['vars']},
                                         'type': 'template'
                                     }
                                 else:
@@ -1557,7 +1624,8 @@ def import_issue_rules_form(current_user):
                                     if found_template_id:
                                         new_obj = {
                                             'id': found_template_id,
-                                            'vars': {str(var_name): str(replace_rule['vars'][var_name]) for var_name in replace_rule['vars']}
+                                            'vars': {str(var_name): str(replace_rule['vars'][var_name]) for var_name in
+                                                     replace_rule['vars']}
                                         }
                             if new_obj: replace_rules_json.append(new_obj)
 
@@ -1666,7 +1734,8 @@ def edit_issue_rule_form(current_user, rule_id, current_rule):
     for replace_rule in rule_json_replace:
         # if template
         if 'id' in replace_rule and is_valid_uuid(replace_rule['id']):
-            current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'], current_user['email'])
+            current_template = db.check_user_issue_template_access(replace_rule['id'], current_user['id'],
+                                                                   current_user['email'])
             if current_template:
                 template_obj = {
                     'type': 'template',

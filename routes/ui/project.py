@@ -1246,10 +1246,14 @@ def new_poc_form(project_id, issue_id, current_project, current_user,
         magic_obj = magic.Magic(mime=True)
         magic_type = magic_obj.from_file(tmp_file_path).lower()
         print(magic_type)
-        if 'text' in magic_type.lower():
+        if 'text' in magic_type:
             file_type = 'text'
-        elif 'image' in magic_type.lower():
+        elif 'image' in magic_type:
             file_type = 'image'
+        elif '/pdf' in magic_type:
+            file_type = 'document'
+        elif 'officedocument' in magic_type or 'word' in magic_type or 'msword' in magic_type:
+            file_type = 'document'
         else:
             errors.append('Unknown file format {}'.format(file_type))
             remove(tmp_file_path)
@@ -3535,6 +3539,13 @@ def generate_report(project_id, current_project, current_user):
                     elif current_poc['type'] == 'image':
                         poc_save_path = path.join(poc_save_dir,
                                                   current_poc['id'] + '.png')
+                    elif current_poc['type'] == 'document':
+                        if current_poc['filename'].lower().endswith('.pdf'):
+                            poc_save_path = path.join(poc_save_dir,
+                                                      current_poc['id'] + '.pdf')
+                        else:
+                            poc_save_path = path.join(poc_save_dir,
+                                                      current_poc['id'] + '.docx')
                     if current_poc['storage'] == 'filesystem':
                         poc_server_path = path.join(path.join('./static/files/poc/',
                                                               current_poc['id']))

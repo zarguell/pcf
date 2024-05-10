@@ -608,7 +608,7 @@ class NewFile(FlaskForm):
     description = StringField('description', default='')
 
     filetype = StringField('filetype',
-                           validators=[AnyOf(['binary', 'text', 'image'])],
+                           validators=[AnyOf(['binary', 'text', 'image', 'document'])],
                            default='')
 
 
