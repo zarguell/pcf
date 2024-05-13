@@ -1491,8 +1491,9 @@ def shodan_page_form(project_id, current_project, current_user):
                                 cvss = float(vulns[cve]['cvss']) if 'cvss' in vulns[cve] and vulns[cve]['cvss'] else 0
                                 summary = str(vulns[cve]['summary']) if 'summary' in vulns[cve] else ''
                                 services = {port_id: ["0"]}
-
-                                issue_id = db.insert_new_issue(cve, summary, '',
+                                issue_id = db.insert_new_issue("Shodan: "+cve,
+                                                               "",
+                                                               "",
                                                                cvss,
                                                                current_user['id'],
                                                                services,
