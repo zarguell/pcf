@@ -44,7 +44,7 @@ when carrying out various works for testing!</b>
             </td>
         </tr>
         <tr>
-            <td rowspan=1><a href="http://testing-pcf.herokuapp.com/"><b>🕹️Demo</b></a></td>
+            <td rowspan=1><a href="https://pcf-testing-70cc9832c3de.herokuapp.com/"><b>🕹️Demo</b></a></td>
         </tr>
     </tbody>
 </table>
