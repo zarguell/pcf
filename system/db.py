@@ -1131,7 +1131,7 @@ class Database:
                 (json.dumps(fields_dict), issue_id))
             self.conn.commit()
             self.insert_log('Updated issue {} field "{}"'.format(
-                self.select_issue(issue_id)[0]['name'], field_name)
+                current_issue['name'], field_name)
             )
         return
 
