@@ -758,7 +758,7 @@
                                                   placeholder="Some links with issue information">{{ (current_issue['references']) }}</textarea>
                                     </div>
                                 </div>
-                                </br>Double click to copy
+                                Double click to copy
                                 <div class="ui grid" style="height: 400px; margin-top:-30px;">
                                     <div class="eight wide column">
                                         <div class="ui field">
@@ -960,26 +960,26 @@
                             {% endif %}
                         </div>
                     </div>
-                    <button type="submit" style="float: left;" class="ui button blue"><i class="plus icon"></i>Update
+                    <button type="submit" style="float: left; position: relative; margin-left: 15px;" class="ui button blue"><i class="plus icon"></i>Update
                     </button>
                 </form>
                 <form action="/project/{{ current_project['id'] }}/issue/{{ current_issue['id'] }}/delete_issue"
                       method="post" onsubmit="return delete_prompt(this,'Are you sure to delete issue?')"
                       style="display: inline-block;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="ui button red"><i class="trash icon"></i>Delete</button>
-                    <a href="/share/issue/{{ current_issue['id'] }}/" class="ui button purple"><i
+                    <button type="submit" style="position: relative;" class="ui button red"><i class="trash icon"></i>Delete</button>
+                    <a href="/share/issue/{{ current_issue['id'] }}/"  style="position: relative;" class="ui button purple"><i
                             class="share square icon"></i>Share</a>
                 </form>
                 <form action="/new_template_from_issue" method="post" target="_blank" style="display: inline-block;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <input type="hidden" name="issue_id" value="{{ current_issue['id'] }}"/>
-                    <button type="submit" class="ui button orange" style="align: left;">
+                    <button type="submit" class="ui button orange" style="align: left; position: relative;">
                         <i class="copy icon"></i>New template
                     </button>
                 </form>
                 <a href="/project/{{ current_project['id'] }}/tools/exporter/?issue_name={{ current_issue['id'] }}"
-                   target="_blank" rel="noopener noreferrer" class="ui button green" style="align: left;">
+                   target="_blank" rel="noopener noreferrer" class="ui button green" style="align: left; position: relative;">
                     <i class="ui icon share"></i>Export hosts
                 </a>
             </div>
