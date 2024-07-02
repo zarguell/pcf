@@ -1229,6 +1229,7 @@ class NucleiForm(FlaskForm):
     hosts_description = StringField('hosts_description', default='Added from Nuclei scan')
     hostnames_description = StringField('hostnames_description', default='Added from Nuclei scan')
     ports_description = StringField('ports_description', default='Added from Nuclei scan')
+    severity = NonValidatingSelectMultipleField(StringField('severity'))
 
 
 class NewPath(FlaskForm):

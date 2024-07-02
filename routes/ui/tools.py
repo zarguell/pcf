@@ -1275,7 +1275,7 @@ def shodan_page_form(project_id, current_project, current_user):
                                                                    current_user['id'],
                                                                    ip_version == 6)
                             else:
-                                #network_id = network_id[0]['id']
+                                # network_id = network_id[0]['id']
                                 db.update_network(network_id[0]['id'], current_project['id'], net_ip, net_mask,
                                                   asn, full_network_description, ip_version == 6,
                                                   network_id[0]['internal_ip'],
@@ -1349,8 +1349,10 @@ def shodan_page_form(project_id, current_project, current_user):
                             summary = str(vulns[cve]['summary']) if 'summary' in vulns[cve] else ''
                             services = {port_id: ["0"]}
 
-                            issue_id = db.insert_new_issue_no_dublicate("Shodan: " + cve, summary, '', cvss, current_user['id'],
-                                      services, 'need to check', current_project['id'], cve=cve)
+                            issue_id = db.insert_new_issue_no_dublicate("Shodan: " + cve, summary, '', cvss,
+                                                                        current_user['id'],
+                                                                        services, 'need to check',
+                                                                        current_project['id'], cve=cve)
 
             except shodan.exception.APIError as e:
                 errors.append(e)
@@ -1411,7 +1413,7 @@ def shodan_page_form(project_id, current_project, current_user):
                                                                            'id'],
                                                                        ip_version == 6)
                                 else:
-                                    #network_id = network_id[0]['id']
+                                    # network_id = network_id[0]['id']
                                     db.update_network(network_id[0]['id'], current_project['id'], net_ip, net_mask,
                                                       asn, full_network_description, ip_version == 6,
                                                       network_id[0]['internal_ip'],
@@ -2940,176 +2942,209 @@ def nuclei_page_form(project_id, current_project, current_user):
                 json_data = json.loads('[{}]'.format(bin_data.replace('\r', '').replace('\n', ',')))
             for issue_obj in json_data:
                 # important fields
-                issue_name = 'Nuclei: {}'.format(issue_obj['info']['name'])
+                issue_name = issue_obj['info']['name']
                 issue_tags = 'Tags: {}'.format(', '.join(issue_obj['info']['tags'])) if issue_obj['info'][
                     'tags'] else ""
                 issue_description = issue_obj['info']['description'] if 'description' in issue_obj['info'] else ''
-                issue_references = "Links:\n{}".format(
-                    '\n'.join([' - {}'.format(x) for x in issue_obj['info']['reference']])) if 'reference' in \
-                                                                                               issue_obj['info'] and \
-                                                                                               issue_obj['info'][
-                                                                                                   'reference'] else ""
+                issue_references = '\n'.join([' - {}'.format(x)
+                                              for x in issue_obj['info']['reference']]) \
+                    if 'reference' in issue_obj['info'] and issue_obj['info']['reference'] else ""
                 issue_severity = "info"
                 issue_matcher_name = 'Matched: {}'.format(
                     issue_obj['matcher-name']) if 'matcher-name' in issue_obj else ""
                 issue_cvss = 0.0
-                if issue_severity == 'low':
-                    issue_cvss = 2.0
-                elif issue_severity == 'medium':
-                    issue_cvss = 5.0
-                elif issue_severity == 'high':
-                    issue_cvss = 8.0
-                elif issue_severity == 'critical':
-                    issue_cvss = 10.0
-                issue_type = 'Script type: {}'.format(issue_obj['type']) if issue_obj['type'] else ""
-                issue_curl_cmd = 'Curl: {}'.format(issue_obj["curl-command"]) if "curl-command" in issue_obj else ''
-                issue_ip = issue_obj["ip"] if "ip" in issue_obj else ""  # 142.250.185.78
-                issue_host = issue_obj["host"] if "host" in issue_obj else ''  # https://google.com
-                issue_url = ''
-                issue_protocol = issue_obj["protocol"] if "protocol" in issue_obj else ''  # i dont know key "protocol
-                issue_port = 0
-                issue_hostname = ''
-                issue_cve = issue_obj["cve"] if "cve" in issue_obj else ''
-                issue_cwe = issue_obj["cwe"] if "cwe" in issue_obj else ''
 
-                # validate ip
-                if issue_ip:
-                    try:
-                        ipaddress.ip_address(issue_ip)
-                    except Exception as e:
-                        issue_ip = ''
+                if "info" in issue_obj and "severity" in issue_obj["info"]:
+                    issue_severity = str(issue_obj["info"]["severity"]).lower()
 
-                if issue_host:
-                    # check if url
-                    url_obj = None
-                    try:
-                        url_obj = urlparse(issue_host)
-                    except Exception as e:
-                        # wrong url
-                        pass
-                    if url_obj:
-                        # its web!
+                if issue_severity in form.severity.data:
 
-                        # check protocol
-                        issue_protocol = 'http'
-                        if url_obj.scheme:
-                            issue_protocol = url_obj.scheme
-
-                        # check port
-                        if issue_protocol == 'http':
-                            issue_port = 80
-                        elif issue_protocol == 'https':
-                            issue_port = 443
-                        if url_obj.port:
-                            issue_port = url_obj.port
-
-                        # check url path
-                        if issue_obj["matched-at"].startswith(issue_host):
-                            issue_url = issue_obj["matched-at"][len(issue_host):]
-                        if not issue_url:
-                            issue_path = '/'
-
-                        # ip or hostname
-                        if not issue_ip and url_obj.hostname:
-                            try:
-                                ip_obj = ipaddress.ip_address(url_obj.hostname)
-                                issue_ip = url_obj.hostname
-                            except Exception as e:
-                                issue_hostname = url_obj.hostname
-                                pass
-                        elif url_obj.hostname:
-                            issue_hostname = url_obj.hostname
-                if 'port' in issue_obj:
-                    issue_port = int(issue_obj['port'])
-
-                blacklist_tags = ["template-id", "info", "host", "matched-at",
-                                  "timestamp", "curl-command", "type", "port",
-                                  "matcher-name", "matcher-status", "template",
-                                  "template-url", "protocol", "cve", "cwe", "ip"]
-
-                issue_other_fields = ''
-                for key_name in issue_obj:
-                    if key_name not in blacklist_tags:
-                        issue_other_fields += '{}: {}\n'.format(key_name, str(issue_obj[key_name]))
-
-                if issue_port < 0 or issue_port > 65535:
+                    if issue_severity == 'low':
+                        issue_cvss = 2.0
+                    elif issue_severity == 'medium':
+                        issue_cvss = 5.0
+                    elif issue_severity == 'high':
+                        issue_cvss = 8.0
+                    elif issue_severity == 'critical':
+                        issue_cvss = 10.0
+                    issue_type = 'Script type: {}'.format(issue_obj['type']) if issue_obj['type'] else ""
+                    issue_curl_cmd = 'Curl: {}'.format(issue_obj["curl-command"]) if "curl-command" in issue_obj else ''
+                    issue_ip = issue_obj["ip"] if "ip" in issue_obj else ""  # 142.250.185.78
+                    issue_host = issue_obj["host"] if "host" in issue_obj else ''  # https://google.com
+                    issue_url = ''
+                    issue_protocol = issue_obj[
+                        "protocol"] if "protocol" in issue_obj else ''  # i dont know key "protocol
                     issue_port = 0
-                # resolve ip
-                if not issue_ip and issue_hostname:
-                    if issue_hostname in hostname_dict:
-                        issue_ip = hostname_dict[issue_hostname]
-                    elif auto_resolve:
+                    issue_hostname = ''
+                    issue_cve = issue_obj["cve"] if "cve" in issue_obj else ''
+                    issue_cwe = issue_obj["cwe"] if "cwe" in issue_obj else ''
+
+                    # validate ip
+                    if issue_ip:
                         try:
-                            issue_ip = socket.gethostbyname(issue_hostname)
+                            ipaddress.ip_address(issue_ip)
                         except Exception as e:
+                            issue_ip = ''
+
+                    if issue_host:
+                        # check if url
+                        url_obj = None
+                        try:
+                            url_obj = urlparse(issue_host)
+                        except Exception as e:
+                            # wrong url
                             pass
+                        if url_obj:
+                            # its web!
 
-                # if ip, port (, hostname)
-                # create them in db
-                services = {}
-                if issue_ip:
-                    # create host
-                    current_host = db.select_project_host_by_ip(current_project['id'], issue_ip)
-                    if current_host:
-                        host_id = current_host[0]['id']
-                    else:
-                        host_id = db.insert_host(current_project['id'], issue_ip, current_user['id'],
-                                                 comment=form.hosts_description.data)
+                            # check protocol
+                            issue_protocol = 'http'
+                            if url_obj.scheme:
+                                issue_protocol = url_obj.scheme
 
-                    # create port
-                    current_port = db.select_host_port(host_id, issue_port, True)
-                    if current_port:
-                        port_id = current_port[0]['id']
-                    else:
-                        port_id = db.insert_host_port(host_id, issue_port, True, issue_protocol,
-                                                      form.ports_description.data, current_user['id'],
-                                                      current_project['id'])
+                            # check port
+                            if issue_protocol == 'http':
+                                issue_port = 80
+                            elif issue_protocol == 'https':
+                                issue_port = 443
+                            if url_obj.port:
+                                issue_port = url_obj.port
 
-                    # create hostname
-                    hostname_id = "0"
-                    if issue_hostname:
-                        current_hostname = db.select_ip_hostname(host_id, issue_hostname)
-                        if current_hostname:
-                            hostname_id = current_hostname[0]['id']
+                            # check url path
+                            if "matched-at" in issue_obj:
+                                if issue_obj["matched-at"].startswith(issue_host):
+                                    issue_url = str(issue_obj["matched-at"][len(issue_host):])
+                            if not issue_url:
+                                issue_url = '/'
+
+                            # ip or hostname
+                            if not issue_ip and url_obj.hostname:
+                                try:
+                                    ip_obj = ipaddress.ip_address(url_obj.hostname)
+                                    issue_ip = url_obj.hostname
+                                except Exception as e:
+                                    issue_hostname = url_obj.hostname
+                                    pass
+                            elif url_obj.hostname:
+                                issue_hostname = url_obj.hostname
+                    if 'port' in issue_obj:
+                        issue_port = int(issue_obj['port'])
+
+                    blacklist_tags = ["template-id", "info", "host", "matched-at",
+                                      "timestamp", "curl-command", "type", "port",
+                                      "matcher-name", "matcher-status", "template",
+                                      "template-url", "protocol", "cve", "cwe", "ip"]
+
+                    issue_other_fields = ''
+                    for key_name in issue_obj:
+                        if key_name not in blacklist_tags:
+                            issue_other_fields += '{}: {}\n'.format(key_name, str(issue_obj[key_name]))
+
+                    if issue_port < 0 or issue_port > 65535:
+                        issue_port = 0
+                    # resolve ip
+                    if not issue_ip and issue_hostname:
+                        if issue_hostname in hostname_dict:
+                            issue_ip = hostname_dict[issue_hostname]
+                        elif auto_resolve:
+                            try:
+                                issue_ip = socket.gethostbyname(issue_hostname)
+                            except Exception as e:
+                                pass
+
+                    # if ip, port (, hostname)
+                    # create them in db
+                    services = {}
+                    if issue_ip:
+                        # create host
+                        current_host = db.select_project_host_by_ip(current_project['id'], issue_ip)
+                        if current_host:
+                            host_id = current_host[0]['id']
                         else:
-                            hostname_id = db.insert_hostname(host_id, issue_hostname, form.hostnames_description.data,
-                                                             current_user['id'])
+                            host_id = db.insert_host(current_project['id'], issue_ip, current_user['id'],
+                                                     comment=form.hosts_description.data)
 
-                    services = {port_id: [hostname_id]}
+                        # create port
+                        current_port = db.select_host_port(host_id, issue_port, True)
+                        if current_port:
+                            port_id = current_port[0]['id']
+                        else:
+                            port_id = db.insert_host_port(host_id, issue_port, True, issue_protocol,
+                                                          form.ports_description.data, current_user['id'],
+                                                          current_project['id'])
 
-                # create description
-                issue_full_description = issue_description + '\n'
-                if issue_matcher_name:
-                    issue_full_description += '\n' + issue_matcher_name
-                if issue_tags:
-                    issue_full_description += '\n' + issue_tags
-                if issue_type:
-                    issue_full_description += '\n' + issue_type
-                if issue_curl_cmd:
-                    issue_full_description += '\n' + issue_curl_cmd
-                if issue_references:
-                    issue_full_description += '\n' + issue_references
-                if issue_other_fields:
-                    issue_full_description += '\n' + issue_other_fields
+                        # create hostname
+                        hostname_id = "0"
+                        if issue_hostname:
+                            current_hostname = db.select_ip_hostname(host_id, issue_hostname)
+                            if current_hostname:
+                                hostname_id = current_hostname[0]['id']
+                            else:
+                                hostname_id = db.insert_hostname(host_id, issue_hostname,
+                                                                 form.hostnames_description.data,
+                                                                 current_user['id'])
 
-                # create issue
+                        services = {port_id: [hostname_id]}
 
-                issue_full_description = issue_full_description.strip('\n\r\t ')
+                    # create description
+                    issue_full_description = issue_description + '\n'
 
-                issue_id = db.insert_new_issue_no_dublicate(issue_name,
-                                                            issue_full_description,
-                                                            issue_url,
-                                                            issue_cvss,
-                                                            current_user['id'],
-                                                            services,
-                                                            'Need to recheck',
-                                                            current_project['id'],
-                                                            issue_cve,
-                                                            issue_cwe,
-                                                            'web' if issue_protocol.startswith('http') else 'custom',
-                                                            fix='',
-                                                            param=''
-                                                            )
+                    poc_data = ''
+
+                    if issue_matcher_name:
+                        poc_data += '\n' + issue_matcher_name
+                    if issue_tags:
+                        poc_data += '\n' + issue_tags
+                    if issue_type:
+                        poc_data += '\n' + issue_type
+                    if issue_curl_cmd:
+                        poc_data += '\n' + issue_curl_cmd
+                    if issue_other_fields:
+                        poc_data += '\n' + issue_other_fields
+
+                    # create issue
+
+                    issue_full_description = issue_full_description.strip('\n\r\t ')
+                    poc_data = poc_data.strip('\n\r\t ')
+
+                    issue_id = db.insert_new_issue_no_dublicate(issue_name,
+                                                                issue_full_description,
+                                                                issue_url,
+                                                                issue_cvss,
+                                                                current_user['id'],
+                                                                services,
+                                                                'Need to recheck',
+                                                                current_project['id'],
+                                                                issue_cve,
+                                                                issue_cwe,
+                                                                'web' if issue_protocol.startswith(
+                                                                    'http') else 'custom',
+                                                                fix='',
+                                                                param='',
+                                                                references=issue_references
+                                                                )
+
+                    if poc_data:
+                        port_id = "0"
+                        hostname_id = "0"
+                        if services:
+                            port_id = list(services)[0]
+                            hostname_id = services[port_id][0]
+
+                        if config['files']['poc_storage'] == "database":
+                            poc_id = db.insert_new_poc(port_id, "Nuclei technical data",
+                                                       "text", "poc.txt", issue_id,
+                                                       current_user['id'], hostname_id, storage="database",
+                                                       data=poc_data.encode("charmap", errors="ignore"))
+                        elif config['files']['poc_storage'] == "filesystem":
+                            poc_id = db.insert_new_poc(port_id, "Nuclei technical data",
+                                                       "text", "poc.txt", issue_id,
+                                                       current_user['id'], hostname_id,
+                                                       storage="filesystem")
+                            file_path = './static/files/poc/{}'.format(poc_id)
+                            file_object = open(file_path, 'wb')
+                            file_object.write(poc_data.encode("charmap", errors="ignore"))
+                            file_object.close()
 
     return render_template('project/tools/import/nuclei.html',
                            current_project=current_project,
