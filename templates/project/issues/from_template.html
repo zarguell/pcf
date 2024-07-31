@@ -129,17 +129,30 @@
                         {% set variables = json_unpack(current_template['variables']) %}
                         <div style="overflow: auto; height: 400px; width: 450px;">
                             {% for variable_name in variables %}
-                                <div class="ui field" style="width: 90%" id="template_var">
+                                {% if variables[variable_name]['type'] == 'text' %}
+                                    <div class="ui field" style="width: 90%" id="template_var">
                                     <h4>{{ (variable_name) }} ({{ (variables[variable_name]['type']) }})</h4>
                                     <input type="hidden" name="variable_name" id="template_name" value="{{ (variable_name) }}">
                                     <input type="hidden" name="variable_type" value="{{ (variables[variable_name]['type']) }}">
                                     <div class="field">
                                         <div class="ui input" style="max-width: 400px;">
-                                            <input id="template_value" type="{% if variables[variable_name]['type'] == 'text' %}text{% else %}number{% endif %}" placeholder="Default value" onchange="update_fields();" name="variable_value"
-                                                   value="{% if variables[variable_name]['type'] == 'text' %}{{ (variables[variable_name]['val']) }}{% else %}{{ variables[variable_name]['val'] | int }}{% endif %}">
+                                            <textarea rows="1" id="template_value" placeholder="Default value" onchange="update_fields();" name="variable_value">{{ (variables[variable_name]['val']) }}</textarea>
                                         </div>
                                     </div>
                                 </div>
+                                {% else %}
+                                    <div class="ui field" style="width: 90%" id="template_var">
+                                        <h4>{{ (variable_name) }} ({{ (variables[variable_name]['type']) }})</h4>
+                                        <input type="hidden" name="variable_name" id="template_name" value="{{ (variable_name) }}">
+                                        <input type="hidden" name="variable_type" value="{{ (variables[variable_name]['type']) }}">
+                                        <div class="field">
+                                            <div class="ui input" style="max-width: 400px;">
+                                                <input id="template_value" type="number" placeholder="Default value" onchange="update_fields();" name="variable_value"
+                                                       value="{{ variables[variable_name]['val'] | int }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
                         <button type="submit" class="ui blue button" style="margin-top: 10px;">
