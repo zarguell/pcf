@@ -840,7 +840,8 @@
                                         <i class="hashtag icon"></i>CWE:
                                     </div>
                                     <input type="search" name="cwe" placeholder="123"
-                                           value="{{ (current_issue['cwe']) }}" list="cwe_hints" title="Invalid CWE (0-...)" pattern="[0-9]+">
+                                           value="{{ (current_issue['cwe']) }}" list="cwe_hints"
+                                           title="Invalid CWE (0-...)" pattern="[0-9]+">
                                     <datalist id="cwe_hints">
                                     </datalist>
                                 </div>
@@ -960,15 +961,18 @@
                             {% endif %}
                         </div>
                     </div>
-                    <button type="submit" style="float: left; position: relative; margin-left: 15px;" class="ui button blue"><i class="plus icon"></i>Update
+                    <button type="submit" style="float: left; position: relative; margin-left: 15px;"
+                            class="ui button blue"><i class="plus icon"></i>Update
                     </button>
                 </form>
                 <form action="/project/{{ current_project['id'] }}/issue/{{ current_issue['id'] }}/delete_issue"
                       method="post" onsubmit="return delete_prompt(this,'Are you sure to delete issue?')"
                       style="display: inline-block;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" style="position: relative;" class="ui button red"><i class="trash icon"></i>Delete</button>
-                    <a href="/share/issue/{{ current_issue['id'] }}/"  style="position: relative;" class="ui button purple"><i
+                    <button type="submit" style="position: relative;" class="ui button red"><i class="trash icon"></i>Delete
+                    </button>
+                    <a href="/share/issue/{{ current_issue['id'] }}/" style="position: relative;"
+                       class="ui button purple"><i
                             class="share square icon"></i>Share</a>
                 </form>
                 <form action="/new_template_from_issue" method="post" target="_blank" style="display: inline-block;">
@@ -979,7 +983,8 @@
                     </button>
                 </form>
                 <a href="/project/{{ current_project['id'] }}/tools/exporter/?issue_name={{ current_issue['id'] }}"
-                   target="_blank" rel="noopener noreferrer" class="ui button green" style="align: left; position: relative;">
+                   target="_blank" rel="noopener noreferrer" class="ui button green"
+                   style="align: left; position: relative;">
                     <i class="ui icon share"></i>Export hosts
                 </a>
             </div>
@@ -1133,7 +1138,7 @@
                     margin-bottom: 0px;
                 }
             </style>
-            <div class="ui tab" data-tab="poc">
+            <div class="ui tab" data-tab="poc" style="padding-left: 30px">
                 <table id="poc_list" class="ui table" style="width: 100%">
                     <thead>
                     <tr id="table_header">
@@ -1182,18 +1187,21 @@
                             <div class="ui grid">
                                 <div class="ui sixteen column centered grid">
                                     {% if current_poc['filename'].lower().endswith('.pdf') %}
-                                        <object class="pdf" type="application/pdf" data="/static/files/poc/{{ current_poc['id'] }}" width="100%" height="1200"></object>
+                                        <object class="pdf" type="application/pdf"
+                                                data="/static/files/poc/{{ current_poc['id'] }}" width="100%"
+                                                height="1200"></object>
                                     {% else %}
                                         <script>
 
                                             fetch('/static/files/poc/{{ current_poc['id'] }}')
-                                              .then(res => res.blob()) // Gets the response and returns it as a blob
-                                              .then(docData => {
-                                                docx.renderAsync(docData, document.getElementById("word_container_{{ loop.index }}"))
-                                                .then(x => console.log("docx: finished"));
-                                            });
+                                                .then(res => res.blob()) // Gets the response and returns it as a blob
+                                                .then(docData => {
+                                                    docx.renderAsync(docData, document.getElementById("word_container_{{ loop.index }}"))
+                                                        .then(x => console.log("docx: finished"));
+                                                });
                                         </script>
-                                        <div id="word_container_{{ loop.index }}" style="width: 100%; height: 1200px; overflow: auto;"></div>
+                                        <div id="word_container_{{ loop.index }}"
+                                             style="width: 100%; height: 1200px; overflow: auto;"></div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -1205,14 +1213,16 @@
                             {% endautoescape %}{% endif %}
                         </td>
                         <td>
-                            <a href="/static/files/poc/{{ current_poc['id'] }}" class="ui vertical animated button blue" tabindex="0"
+                            <a href="/static/files/poc/{{ current_poc['id'] }}" class="ui vertical animated button blue"
+                               tabindex="0"
                                style="float:left; margin-top: 5px;">
                                 <div class="hidden content">Download</div>
                                 <div class="visible content">
                                     <i class="download icon"></i>
                                 </div>
                             </a>
-                            <button type="button" class="ui vertical animated button orange" id="edit_poc_button" tabindex="0"
+                            <button type="button" class="ui vertical animated button orange" id="edit_poc_button"
+                                    tabindex="0"
                                     data-value="{{ current_poc['id'] }}" style="float:left; margin-top: 5px;"
                                     onclick="edit_poc(this);">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -1306,7 +1316,7 @@
                 {% endif %}
             </div>
 
-            <div class="ui tab" data-tab="fields">
+            <div class="ui tab" data-tab="fields" style="padding-left: 30px">
                 {% set fields = json_unpack(current_issue['fields']) %}
                 <script>
                     $(document).ready(function () {
@@ -1315,23 +1325,6 @@
                     var fields_list = {{ json_pack(list(fields)) | safe }};
 
                     function add_field() {
-                        html = `<div>
-                                          <h4>__field_name__ (__field_type__)</h4>
-                                          <input type="hidden" name="additional_field_name" value="__field_name__">
-                                          <input type="hidden" name="additional_field_type" value="__field_db_type__">
-                                                <div class="ui two fields">
-                                                    <div class="field">
-                                                        <div class="ui input">
-                                                            <input type="__field_html_type__" placeholder="Field value" name="additional_field_value">
-                                                        </div>
-                                                    </div>
-                                                    <div class="field">
-                                                        <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
-                                                            <i class="trash icon"></i>Delete variable
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                </div>`;
                         name_obj = $('#field_name')[0];
                         field_name = name_obj.value.toString();
                         field_db_type = $('#field_type')[0].value.toString();
@@ -1357,6 +1350,44 @@
                                 field_db_type = 'text';
                                 field_type = 'Text';
                                 break;
+                        }
+                        html = "";
+                        if (field_db_type === "text") {
+                            html = `<div>
+                                              <h4>__field_name__ (__field_type__)</h4>
+                                              <input type="hidden" name="additional_field_name" value="__field_name__">
+                                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
+                                                    <div class="ui two fields">
+                                                        <div class="field">
+                                                            <div class="ui input">
+                                                                <textarea rows="1" placeholder="Field value" name="additional_field_value"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="field">
+                                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
+                                                                <i class="trash icon"></i>Delete variable
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                    </div>`;
+                        } else {
+                            html = `<div>
+                                              <h4>__field_name__ (__field_type__)</h4>
+                                              <input type="hidden" name="additional_field_name" value="__field_name__">
+                                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
+                                                    <div class="ui two fields">
+                                                        <div class="field">
+                                                            <div class="ui input">
+                                                                <input type="__field_html_type__" placeholder="Field value" name="additional_field_value">
+                                                            </div>
+                                                        </div>
+                                                        <div class="field">
+                                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
+                                                                <i class="trash icon"></i>Delete variable
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                    </div>`;
                         }
 
 
@@ -1480,10 +1511,7 @@
                                                     <div class="field">
                                                         <div class="ui input">
                                                             {% if fields[field_name]['type'] == 'text' %}
-                                                                <input type="text"
-                                                                       value="{{ (fields[field_name]['val']) }}"
-                                                                       placeholder="Field value"
-                                                                       name="additional_field_value">
+                                                                <textarea rows="1" placeholder="Field value" name="additional_field_value">{{ (fields[field_name]['val']) }}</textarea>
                                                             {% elif fields[field_name]['type'] == 'float' %}
                                                                 <input type="number" step="any"
                                                                        value="{{ fields[field_name]['val'] | float }}"
@@ -1614,7 +1642,7 @@
                 </div>
             </div>
 
-            <div class="ui tab" data-tab="scores">
+            <div class="ui tab" data-tab="scores" style="padding-left: 30px">
                 <div class="ui top attached tabular menu" style="margin-bottom: 10px">
                     <a class="item active" data-tab="cvss">
                         CVSS
@@ -1753,7 +1781,8 @@
                             <i class="hashtag icon"></i>Vector:
                         </div>
                         <input id="cvss_tab_vector" style="min-width: 350px;" type="text" name="cvss_vector"
-                               placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="{% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}">
+                               placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="
+                                {% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}">
                     </div>
                     <button type="button" onclick="update_cvss();" class="ui blue button"><i class="icon save"></i>Save
                     </button>
@@ -1827,7 +1856,8 @@
                                 </div>
                                 <input id="owasp_vector" style="min-width: 590px;" type="text" name="owasp_vector"
                                        placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3"
-                                       value="{% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
+                                       value="
+                                               {% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
                             </div>
                             <button type="button" onclick="update_owasp();" class="ui blue button"><i
                                     class="icon save"></i>Save

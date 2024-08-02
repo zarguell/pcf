@@ -392,7 +392,7 @@
                                                             <div class="field">
                                                                 <div class="ui input">
                                                                     {% if fields[field_name]['type'] == 'text' %}
-                                                                        <input type="text" id="additional_field-{{ (field_name) }}" class="additional_field" readonly value="{{ (fields[field_name]['val']) }}" placeholder="Field value" name="additional_field_value">
+                                                                        <textarea rows="1" id="additional_field-{{ (field_name) }}" placeholder="Field value" readonly class="additional_field" name="additional_field_value">{{ (fields[field_name]['val']) }}</textarea>
                                                                     {% elif fields[field_name]['type'] == 'float' %}
                                                                         <input type="number" readonly step="any" value="{{ fields[field_name]['val'] | float }}" placeholder="Field value" name="additional_field_value">
                                                                     {% else %}

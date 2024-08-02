@@ -209,8 +209,8 @@ issue_edit_args = {
                             values=fields.List(fields.String(required=False)),
                             required=False,
                             missing=None),
-    "fields": fields.Dict(keys=fields.String(required=True, validate=validate.Regexp('^[a-zA-Z0-9]+$',
-                                                                                     error='Wrong variable name! ^[a-zA-Z0-9]+$')),
+    "fields": fields.Dict(keys=fields.String(required=True, validate=validate.Regexp('^[a-zA-Z0-9_]+$',
+                                                                                     error='Wrong variable name! ^[a-zA-Z0-9_]+$')),
                           values=fields.Dict(
                               keys=fields.String(validate=validate.OneOf(['type', 'val']), required=True),
                               values=fields.String(required=False, missing='')

@@ -43,23 +43,6 @@
         var fields_list = {{ json_pack(list(fields)) | safe}};
 
         function add_field() {
-            html = `<div>
-                              <h4>__field_name__ (__field_type__)</h4>
-                              <input type="hidden" name="additional_field_name" value="__field_name__">
-                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
-                                    <div class="ui two fields">
-                                        <div class="field">
-                                            <div class="ui input">
-                                                <input type="__field_html_type__" placeholder="Field value" name="additional_field_value">
-                                            </div>
-                                        </div>
-                                        <div class="field">
-                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
-                                                <i class="trash icon"></i>Delete variable
-                                            </button>
-                                        </div>
-                                    </div>
-                    </div>`;
             name_obj = $('#field_name')[0];
             field_name = name_obj.value.toString();
             field_db_type = $('#field_type')[0].value.toString();
@@ -86,7 +69,44 @@
                     field_type = 'Text';
                     break;
             }
-
+            html = '';
+            if (field_db_type === "text"){
+                html = `<div>
+                              <h4>__field_name__ (__field_type__)</h4>
+                              <input type="hidden" name="additional_field_name" value="__field_name__">
+                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
+                                    <div class="ui two fields">
+                                        <div class="field">
+                                            <div class="ui input">
+                                                <textarea rows="1" placeholder="Field value" name="additional_field_value"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
+                                                <i class="trash icon"></i>Delete variable
+                                            </button>
+                                        </div>
+                                    </div>
+                    </div>`;
+            } else {
+                html = `<div>
+                              <h4>__field_name__ (__field_type__)</h4>
+                              <input type="hidden" name="additional_field_name" value="__field_name__">
+                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
+                                    <div class="ui two fields">
+                                        <div class="field">
+                                            <div class="ui input">
+                                                <input type="__field_html_type__" placeholder="Field value" name="additional_field_value">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
+                                                <i class="trash icon"></i>Delete variable
+                                            </button>
+                                        </div>
+                                    </div>
+                    </div>`;
+            }
 
             var re = new RegExp("^[a-zA-Z0-9_]+$");
 
@@ -162,26 +182,6 @@
         };
 
         function add_variable() {
-            html = `<div>
-                              <h4>____var_name____ (__var_type__)</h4>
-                              <input type="hidden" name="variable_name" value="__var_name__">
-                              <input type="hidden" name="variable_type" value="__var_db_type__">
-                                    <div class="ui two fields">
-                                        <div class="field">
-                                            <div class="ui input">
-                                                <input type="__var_html_type__" placeholder="Default value" name="variable_value">
-                                            </div>
-                                        </div>
-                                        <div class="field">
-                                            <button class="ui button orange" type="button" onclick="copyToClipboard('____var_name____');">
-                                                <i class="copy icon"></i>Copy name
-                                            </button>
-                                            <button class="ui button red" type="button" onclick="delete_variable(this,'__var_name__');">
-                                                <i class="trash icon"></i>Delete variable
-                                            </button>
-                                        </div>
-                                    </div>
-                    </div>`;
             name_obj = $('#var_name')[0];
             variable_name = name_obj.value.toString();
             variable_db_type = $('#var_type')[0].value.toString();
@@ -208,7 +208,50 @@
                     variable_type = 'Text';
                     break;
             }
-
+            html = "";
+            if (variable_db_type === "text"){
+                html = `<div>
+                              <h4>____var_name____ (__var_type__)</h4>
+                              <input type="hidden" name="variable_name" value="__var_name__">
+                              <input type="hidden" name="variable_type" value="__var_db_type__">
+                                    <div class="ui two fields">
+                                        <div class="field">
+                                            <div class="ui input">
+                                                <textarea rows="1" placeholder="Default value" name="variable_value"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <button class="ui button orange" type="button" onclick="copyToClipboard('____var_name____');">
+                                                <i class="copy icon"></i>Copy name
+                                            </button>
+                                            <button class="ui button red" type="button" onclick="delete_variable(this,'__var_name__');">
+                                                <i class="trash icon"></i>Delete variable
+                                            </button>
+                                        </div>
+                                    </div>
+                    </div>`;
+            } else {
+                html = `<div>
+                              <h4>____var_name____ (__var_type__)</h4>
+                              <input type="hidden" name="variable_name" value="__var_name__">
+                              <input type="hidden" name="variable_type" value="__var_db_type__">
+                                    <div class="ui two fields">
+                                        <div class="field">
+                                            <div class="ui input">
+                                                <input type="__var_html_type__" placeholder="Default value" name="variable_value">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <button class="ui button orange" type="button" onclick="copyToClipboard('____var_name____');">
+                                                <i class="copy icon"></i>Copy name
+                                            </button>
+                                            <button class="ui button red" type="button" onclick="delete_variable(this,'__var_name__');">
+                                                <i class="trash icon"></i>Delete variable
+                                            </button>
+                                        </div>
+                                    </div>
+                    </div>`;
+            }
 
             var re = new RegExp("^[a-zA-Z0-9\\-]+$");
 
@@ -568,10 +611,16 @@
                                             <input type="hidden" name="additional_field_type" value="{{ fields[field_name]['type'] }}">
                                             <div class="ui two fields">
                                                 <div class="field">
-                                                    <div class="ui input">
-                                                        <input type="{% if fields[field_name]['type'] == 'text' %}text{% else %}number{% endif %}"
-                                                               value="{% if fields[field_name]['type'] == 'text' %}{{ fields[field_name]['val'] }}{% else %}{{ fields[field_name]['val'] | int }}{% endif %}" placeholder="Field value" name="additional_field_value">
-                                                    </div>
+                                                    {% if fields[field_name]['type'] == 'text' %}
+                                                        <div class="ui input">
+                                                            <textarea rows="1" placeholder="Field value" name="additional_field_value">{{ (fields[field_name]['val']) }}</textarea>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="ui input">
+                                                            <input type="{% if fields[field_name]['type'] == 'text' %}text{% else %}number{% endif %}"
+                                                                   value="{% if fields[field_name]['type'] == 'text' %}{{ fields[field_name]['val'] }}{% else %}{{ fields[field_name]['val'] | int }}{% endif %}" placeholder="Field value" name="additional_field_value">
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="field">
                                                     <button class="ui button red" type="button" onclick="delete_field(this,'{{ (field_name) }}');">
@@ -632,8 +681,12 @@
                                             <div class="ui two fields">
                                                 <div class="field">
                                                     <div class="ui input">
-                                                        <input type="{% if variables[variable_name]['type'] == 'text' %}text{% else %}number{% endif %}" placeholder="Default value" name="variable_value"
-                                                               value="{% if variables[variable_name]['type'] == 'text' %}{{ variables[variable_name]['val'] }}{% else %}{{ variables[variable_name]['val'] | int }}{% endif %}">
+                                                        {% if variables[variable_name]['type'] == 'text' %}
+                                                            <textarea rows="1" placeholder="Default value" name="variable_value">{{ variables[variable_name]['val'] }}</textarea>
+                                                        {% else %}
+                                                            <input type="number" placeholder="Default value" name="variable_value"
+                                                               value="{{ variables[variable_name]['val'] | int }}">
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                                 <div class="field">

@@ -47,23 +47,7 @@
         var fields_list = [];
 
         function add_field() {
-            html = `<div>
-                              <h4>__field_name__ (__field_type__)</h4>
-                              <input type="hidden" name="additional_field_name" value="__field_name__">
-                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
-                                    <div class="ui two fields">
-                                        <div class="field">
-                                            <div class="ui input">
-                                                <input type="__field_html_type__" placeholder="Field value" name="additional_field_value">
-                                            </div>
-                                        </div>
-                                        <div class="field">
-                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
-                                                <i class="trash icon"></i>Delete variable
-                                            </button>
-                                        </div>
-                                    </div>
-                    </div>`;
+            html = "";
             name_obj = $('#field_name')[0];
             field_name = name_obj.value.toString();
             field_db_type = $('#field_type')[0].value.toString();
@@ -89,6 +73,43 @@
                     field_db_type = 'text';
                     field_type = 'Text';
                     break;
+            }
+            if (field_db_type === "text") {
+                html = `<div>
+                              <h4>__field_name__ (__field_type__)</h4>
+                              <input type="hidden" name="additional_field_name" value="__field_name__">
+                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
+                                    <div class="ui two fields">
+                                        <div class="field">
+                                            <div class="ui input">
+                                                <textarea rows="1" placeholder="Field value" name="additional_field_value"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
+                                                <i class="trash icon"></i>Delete variable
+                                            </button>
+                                        </div>
+                                    </div>
+                    </div>`;
+            } else {
+                html = `<div>
+                              <h4>__field_name__ (__field_type__)</h4>
+                              <input type="hidden" name="additional_field_name" value="__field_name__">
+                              <input type="hidden" name="additional_field_type" value="__field_db_type__">
+                                    <div class="ui two fields">
+                                        <div class="field">
+                                            <div class="ui input">
+                                                <input type="__field_html_type__" placeholder="Field value" name="additional_field_value">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <button class="ui button red" type="button" onclick="delete_field(this,'__field_name__');">
+                                                <i class="trash icon"></i>Delete variable
+                                            </button>
+                                        </div>
+                                    </div>
+                    </div>`;
             }
 
 
@@ -522,7 +543,8 @@
                                     <div class="ui label" style="width: 160px;">
                                         <i class="hashtag icon"></i>CWE:
                                     </div>
-                                    <input type="search" name="cwe" pattern="[0-9]+" placeholder="123" list="cwe_hints" title="Invalid CWE (0-...)">
+                                    <input type="search" name="cwe" pattern="[0-9]+" placeholder="123" list="cwe_hints"
+                                           title="Invalid CWE (0-...)">
                                     <datalist id="cwe_hints">
                                     </datalist>
                                 </div>

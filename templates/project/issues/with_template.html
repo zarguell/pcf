@@ -144,17 +144,15 @@
                                            value="{{ (variables[variable_name]['type']) }}">
                                     <div class="field">
                                         <div class="ui input" style="max-width: 400px;">
-                                            <input id="template_value"
-                                                   type="{% if variables[variable_name]['type'] == 'text' %}text{% else %}number{% endif %}"
+                                            {% if variables[variable_name]['type'] == 'text' %}
+                                                <textarea id="template_value" rows="1" placeholder="Default value" name="variable_value" onchange="update_fields();">{{ variables[variable_name]['val'] }}</textarea>
+                                            {% else %}
+                                                <input id="template_value"
+                                                   type="number"
                                                    placeholder="Default value" onchange="update_fields();"
                                                    name="variable_value"
-                                                   value="
-
-
-
-
-
-                                                           {% if variables[variable_name]['type'] == 'text' %}{{ (variables[variable_name]['val']) }}{% else %}{{ variables[variable_name]['val'] | int }}{% endif %}">
+                                                   value="{{ variables[variable_name]['val'] | int }}">
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -436,12 +434,11 @@
                                                                 <div class="field">
                                                                     <div class="ui input">
                                                                         {% if fields[field_name]['type'] == 'text' %}
-                                                                            <input type="text"
-                                                                                   id="additional_field-{{ (field_name) }}"
-                                                                                   class="additional_field" readonly
-                                                                                   value="{{ (fields[field_name]['val']) }}"
-                                                                                   placeholder="Field value"
-                                                                                   name="additional_field_value">
+                                                                            <textarea rows="1"
+                                                                                      id="additional_field-{{ (field_name) }}"
+                                                                                      class="additional_field" readonly
+                                                                                      placeholder="Field value"
+                                                                                      name="additional_field_value">{{ (fields[field_name]['val']) }}</textarea>
                                                                         {% elif fields[field_name]['type'] == 'float' %}
                                                                             <input type="number" readonly step="any"
                                                                                    value="{{ fields[field_name]['val'] | float }}"
@@ -727,12 +724,11 @@
                                                                 <div class="field">
                                                                     <div class="ui input">
                                                                         {% if fields[field_name]['type'] == 'text' %}
-                                                                            <input type="text"
-                                                                                   id="additional_field-{{ (field_name) }}"
-                                                                                   class="additional_field" readonly
-                                                                                   value="{{ (fields[field_name]['val']) }}"
-                                                                                   placeholder="Field value"
-                                                                                   name="additional_field_value">
+                                                                            <textarea rows="1"
+                                                                                      id="additional_field-{{ (field_name) }}"
+                                                                                      class="additional_field" readonly
+                                                                                      placeholder="Field value"
+                                                                                      name="additional_field_value">{{ (fields[field_name]['val']) }}</textarea>
                                                                         {% elif fields[field_name]['type'] == 'float' %}
                                                                             <input type="number" readonly step="any"
                                                                                    value="{{ fields[field_name]['val'] | float }}"
