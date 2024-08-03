@@ -1511,7 +1511,8 @@
                                                     <div class="field">
                                                         <div class="ui input">
                                                             {% if fields[field_name]['type'] == 'text' %}
-                                                                <textarea rows="1" placeholder="Field value" name="additional_field_value">{{ (fields[field_name]['val']) }}</textarea>
+                                                                <textarea rows="1" placeholder="Field value"
+                                                                          name="additional_field_value">{{ (fields[field_name]['val']) }}</textarea>
                                                             {% elif fields[field_name]['type'] == 'float' %}
                                                                 <input type="number" step="any"
                                                                        value="{{ fields[field_name]['val'] | float }}"
@@ -1782,6 +1783,7 @@
                         </div>
                         <input id="cvss_tab_vector" style="min-width: 350px;" type="text" name="cvss_vector"
                                placeholder="CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N" value="
+
                                 {% if 'cvss_vector' in issue_fields %}{{ issue_fields['cvss_vector']['val'] }}{% endif %}">
                     </div>
                     <button type="button" onclick="update_cvss();" class="ui blue button"><i class="icon save"></i>Save
@@ -1857,7 +1859,7 @@
                                 <input id="owasp_vector" style="min-width: 590px;" type="text" name="owasp_vector"
                                        placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3"
                                        value="
-                                               {% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
+                                               {%- if 'owasp_vector' in issue_fields -%}{{- issue_fields['owasp_vector']['val'] -}}{%- endif -%}">
                             </div>
                             <button type="button" onclick="update_owasp();" class="ui blue button"><i
                                     class="icon save"></i>Save

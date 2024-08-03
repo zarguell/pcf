@@ -770,7 +770,7 @@
                                        name="owasp_vector"
                                        placeholder="SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:2/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3"
                                        value="
-                                               {% if 'owasp_vector' in issue_fields %}{{ issue_fields['owasp_vector']['val'] }}{% endif %}">
+                                               {%- if 'owasp_vector' in issue_fields -%}{{- issue_fields['owasp_vector']['val'] -}}{%- endif -%}">
                             </div>
                             <div>
                                 <b>VECTOR: </b><a id="score" target="_blank">({% if 'owasp_vector' in issue_fields %}
