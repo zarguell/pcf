@@ -1665,7 +1665,7 @@ class Database:
             '''INSERT INTO Notes(
             id,project_id,name,text,user_id,host_id,type) 
                VALUES (?,?,?,?,?,?,?)''',
-            (note_id, project_id, name, text, user_id, host_id,note_type)
+            (note_id, project_id, name, text, user_id, host_id, note_type)
         )
         self.conn.commit()
         self.insert_log('Created new note "{}"'.format(name))
@@ -2230,7 +2230,7 @@ class Database:
     def delete_port_safe(self, port_id):
         # delete port
 
-        #port_id = str(port_id)
+        # port_id = str(port_id)
         # fast fix - better dont do it :)
 
         self.execute(
@@ -3058,13 +3058,17 @@ class Database:
 
             if curr_poc['storage'] == 'filesystem':
                 f = open(path.join('./static/files/poc/', curr_poc['id']), 'rb')
-                content_b = f.read().decode('charmap')
+                content_b = f.read().decode('charmap', errors='ignore') if curr_poc['type'] != 'text' \
+                    else f.read().decode('utf-8', errors='ignore')
                 f.close()
             elif curr_poc['storage'] == 'database':
-                content_b = base64.b64decode(curr_poc['base64']).decode('charmap')
+                content_b = base64.b64decode(curr_poc['base64']).decode('charmap', errors='ignore') if curr_poc['type'] != 'text' \
+                    else base64.b64decode(curr_poc['base64']).decode('utf-8', errors='ignore')
             poc_obj['content'] = content_b
-            poc_obj['content_base64'] = b64encode(content_b.encode("charmap"))
-            poc_obj['content_hex'] = content_b.encode("charmap").hex()
+            poc_obj['content_base64'] = b64encode(content_b.encode("charmap")) if curr_poc['type'] != 'text' \
+                else b64encode(content_b.encode("utf-8"))
+            poc_obj['content_hex'] = content_b.encode("charmap").hex() if curr_poc['type'] != 'text' \
+                else content_b.encode("utf-8").hex()
             result['pocs'][curr_poc['id']] = poc_obj
 
         # grouped_issues
@@ -3377,7 +3381,7 @@ class Database:
             stats_dict['project']['percents'] = 100
         elif stats_dict['project']['start_date'] < curr_time < stats_dict['project']['end_date']:
             stats_dict['project']['percents'] = int(((curr_time - stats_dict['project']['start_date']) / (
-                        stats_dict['project']['end_date'] - stats_dict['project']['start_date'])) * 100)
+                    stats_dict['project']['end_date'] - stats_dict['project']['start_date'])) * 100)
 
         stats_dict['project']['percents'] = 100 - stats_dict['project']['percents']
         project_ports = self.select_project_ports(project_id)
