@@ -852,6 +852,11 @@ def edit_issue_with_template_form(project_id, issue_id, template_id, current_pro
 
         services = json.loads(current_issue['services'])
 
+        issue_fields["pcf_last_used_template"] = {
+            "type": "text",
+            "val": current_template['id']
+        }
+
         db.update_issue_fields(current_issue['id'], issue_fields)
         db.update_issue(current_issue['id'], issue_name,
                         issue_description, issue_url_path,
@@ -3866,6 +3871,11 @@ def project_create_issue_from_template_form(project_id, current_project, current
         for field_name in issue_fields:
             if issue_fields[field_name]['type'] == 'text':
                 issue_fields[field_name]['val'] = replace_tpl_text(issue_fields[field_name]['val'])
+
+        issue_fields["pcf_last_used_template"] = {
+                "type": "text",
+                "val": current_template['id']
+        }
 
         issue_id = db.insert_new_issue(issue_name, issue_description,
                                        issue_url_path, issue_cvss,

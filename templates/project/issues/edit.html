@@ -987,6 +987,14 @@
                    style="align: left; position: relative;">
                     <i class="ui icon share"></i>Export hosts
                 </a>
+                {%  set issue_fields = json_unpack(current_issue['fields']) %}
+                {% if 'pcf_last_used_template' in issue_fields and is_valid_uuid(issue_fields['pcf_last_used_template']['val'].strip()) %}
+                    <a href="/issue_template/{{ issue_fields['pcf_last_used_template']['val'].strip() }}/"
+                       target="_blank" rel="noopener noreferrer" class="ui button inverted"
+                       style="align: left; position: relative;">
+                        <i class="ui icon edit"></i>Edit template
+                    </a>
+                {% endif %}
             </div>
             <script>
 
