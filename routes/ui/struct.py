@@ -1271,7 +1271,8 @@ def import_issue_templates_form(current_user):
 def edit_issue_template(current_user, template_id, current_template):
     return render_template('edit_issue_template.html',
                            tab_name='Edit template',
-                           current_template=current_template)
+                           current_template=current_template,
+                           current_user=current_user)
 
 
 @routes.route('/issue_template/<uuid:template_id>/', methods=['POST'])
@@ -1394,7 +1395,8 @@ def edit_issue_template_form(current_user, template_id, current_template):
 
     return render_template('edit_issue_template.html',
                            tab_name='Edit template',
-                           current_template=current_template)
+                           current_template=current_template,
+                           current_user=current_user)
 
 
 @routes.route('/new_template_from_issue', methods=['POST'])
