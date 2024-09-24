@@ -377,11 +377,11 @@
                                     {% if current_port['port'] != 0 %}
                                         <tr>
                                             <td id="port_num_{{ loop.index }}"
-                                                data-order="{{ current_port['port'] }}">{{ current_port['port'] }}/
-                                                {% if current_port['is_tcp'] %}tcp{% else %}udp{% endif %}</td>
-                                            <td id="port_service_{{ loop.index }}">{{ (current_port['service']) }}</td>
+                                                data-order="{{ current_port['port'] }}">{{- current_port['port'] -}}/
+                                                {%- if current_port['is_tcp'] -%}tcp{%- else -%}udp{%- endif -%}</td>
+                                            <td id="port_service_{{ loop.index }}">{{- (current_port['service']) -}}</td>
                                             <td id="port_description_{{ loop.index }}"
-                                                style="word-break: break-all; white-space:pre-wrap;">{{ (current_port['description']) }}</td>
+                                                style="word-break: break-all; white-space:pre-wrap;">{{- (current_port['description']) -}}</td>
                                             <td>
                                                 {% set threats = db.select_port_issues_stats(current_port['id']) %}
                                                 {% if threats['critical'] %}
