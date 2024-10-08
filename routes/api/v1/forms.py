@@ -166,7 +166,7 @@ issue_create_args = {
     "description": fields.String(required=False, missing=''),
     "cve": fields.String(required=False, missing=''),
     "cwe": fields.Integer(required=False, missing=0),
-    "status": fields.String(required=False, missing='need to recheck'),
+    "status": fields.String(required=False, missing=''),
     "fix": fields.String(required=False, missing=''),
     "type": fields.String(required=False, missing='custom'),
     "param": fields.String(required=False, missing=''),

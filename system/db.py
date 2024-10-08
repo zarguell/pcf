@@ -1139,7 +1139,7 @@ class Database:
                                 issue_type='custom', fix='', param='', technical='', risks='', references='',
                                 intruder=''):
         self.execute(
-            '''SELECT * FROM Issues WHERE name=? AND description=? AND url_path=? AND cvss=? AND status=? 
+            '''SELECT * FROM Issues WHERE name=? AND description=? AND url_path=? AND cvss=? AND status LIKE '%' || ? || '%' 
             AND project_id=? AND cve=? AND cwe=? AND type=? AND fix=? AND param=? AND technical=? AND
             risks=? AND "references"=? AND intruder=?''',
             (name, description, url_path, cvss, status, project_id, cve, cwe, issue_type, fix, param,
@@ -1169,6 +1169,9 @@ class Database:
         issue_dublicates = self.search_issue_dublicates(name, description, url_path, cvss, status, project_id,
                                                         cve, cwe, issue_type, fix, param, technical, risks,
                                                         references, intruder)
+
+        if status == '':
+            status = 'Need to recheck'
 
         if issue_dublicates:
             dublicate_id = issue_dublicates[0]['id']

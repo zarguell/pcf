@@ -2105,6 +2105,7 @@ def project_issue_create(args, current_user=None, current_token=None,
 
         if add_fields_dict:
             db.update_issue_fields(issue_id, old_fields)
+        return {"status": "ok", "issue_id": issue_id}
 
     else:
         issue_id = db.insert_new_issue(name, description, url_path,
