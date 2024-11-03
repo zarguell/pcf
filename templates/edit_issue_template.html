@@ -758,7 +758,7 @@
                     </div>
                 </div>
                 <div class="ui tab" data-tab="original_issue">
-                    {% if is_valid_uuid(issue_id) %}
+                    {% if issue_id and is_valid_uuid(issue_id) %}
                         {% set current_issue = db.select_issue(issue_id)[0] %}
                         {% if db.check_user_project_access(current_issue['project_id'], current_user['id']) %}
                             <script>
