@@ -2977,7 +2977,7 @@ def nuclei_page_form(project_id, current_project, current_user):
                     issue_port = 0
                     issue_hostname = ''
                     issue_cve = issue_obj["cve"] if "cve" in issue_obj else ''
-                    issue_cwe = issue_obj["cwe"] if "cwe" in issue_obj else ''
+                    issue_cwe = issue_obj["cwe"] if "cwe" in issue_obj else 0
 
                     # validate ip
                     if issue_ip:

@@ -616,7 +616,7 @@ class Database:
         full_result = []
         for i in range(len(hostnames_separated)):
             sql = '''SELECT id,hostname,(SELECT ip FROM hosts WHERE id=host_id) AS ip, (SELECT project_id FROM hosts WHERE id=host_id) as project_id
-            FROM Hostnames WHERE project_id=? AND ('''
+            FROM Hostnames WHERE ('''
             args_list = [project_id]
             for x in range(len(hostnames_separated[i])):
                 if x == 0:
