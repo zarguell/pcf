@@ -617,7 +617,7 @@ class Database:
         for i in range(len(hostnames_separated)):
             sql = '''SELECT id,hostname,(SELECT ip FROM hosts WHERE id=host_id) AS ip, (SELECT project_id FROM hosts WHERE id=host_id) as project_id
             FROM Hostnames WHERE ('''
-            args_list = [project_id]
+            args_list = []
             for x in range(len(hostnames_separated[i])):
                 if x == 0:
                     sql += '(host_id=(SELECT id FROM hosts WHERE ip = ? AND project_id=?) AND hostname=?) '
