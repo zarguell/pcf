@@ -2981,7 +2981,8 @@ class Database:
                               self.select_ip_hostnames(host['id'])],
                 'ports': [x['id'] for x in self.select_host_ports(host['id'])],
                 'comment': host['comment'],
-                'issues': [x['id'] for x in self.select_host_issues(host['id'])]
+                'issues': [x['id'] for x in self.select_host_issues(host['id'])],
+                'os': host['os']
             }
             result['hosts'][host['ip']] = host_obj
 

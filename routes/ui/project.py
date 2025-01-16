@@ -14,6 +14,7 @@ from system.crypto_functions import gen_uuid, md5_hex_str, sha1_hex_str, \
     sha256_hex_str, sha512_hex_str, md5_crypt_str, des_crypt_str, \
     sha512_crypt_str, sha256_crypt_str, nt_hex_str, lm_hex_str, rabbitmq_md5_str
 from system.security_functions import run_function_timeout, latex_str_escape, sql_to_regexp, extract_to_regexp
+from system.report_template_options import group_issues_by
 from os import path, remove, stat, makedirs, walk
 from flask import Response, jsonify
 import magic
@@ -3320,11 +3321,13 @@ def generate_report(project_id, current_project, current_user):
                                 "format_date": lambda unix_time,
                                                       str_format: datetime.datetime.fromtimestamp(
                                     int(unix_time)).strftime(str_format),
+                                "latex_escape": latex_str_escape,
                                 "docx_image": docx_image,
                                 "docx_link": docx_link,
                                 "ips_in_subnets": lambda ip_arr, network_arr: True in [
                                     ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for ip in ip_arr
-                                    for network in network_arr]
+                                    for network in network_arr],
+                                "group_issues_by": group_issues_by
                             }
                         },
                         jinja_env=SandboxedEnvironment(autoescape=True)
@@ -3481,12 +3484,14 @@ def generate_report(project_id, current_project, current_user):
                                                         "format_date": lambda unix_time,
                                                                               str_format: datetime.datetime.fromtimestamp(
                                                             int(unix_time)).strftime(str_format),
+                                                        "latex_escape": latex_str_escape,
                                                         "docx_image": docx_image,
                                                         "docx_link": docx_link,
                                                         "ips_in_subnets": lambda ip_arr, network_arr: True in [
                                                             ipaddress.ip_address(ip) in ipaddress.ip_network(network,
                                                                                                              False) for
-                                                            ip in ip_arr for network in network_arr]
+                                                            ip in ip_arr for network in network_arr],
+                                                        "group_issues_by": group_issues_by
                                                     }
                                                 },
                                                 jinja_env=SandboxedEnvironment(autoescape=True)
@@ -3516,7 +3521,8 @@ def generate_report(project_id, current_project, current_user):
                                                 "latex_escape": latex_str_escape,
                                                 "ips_in_subnets": lambda ip_arr, network_arr: True in [
                                                     ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for
-                                                    ip in ip_arr for network in network_arr]
+                                                    ip in ip_arr for network in network_arr],
+                                                "group_issues_by": group_issues_by
                                             }
                                         )
                                         f = open(file_path, 'w', encoding='utf-8')
@@ -3622,8 +3628,10 @@ def generate_report(project_id, current_project, current_user):
                                                                               str_format: datetime.datetime.fromtimestamp(
                                                             int(unix_time)).strftime(str_format),
                                                         "latex_escape": latex_str_escape,
-                                                        "ip_in_subnet": lambda ip, network: ipaddress.ip_address(
-                                                            ip) in ipaddress.ip_network(network, False)
+                                                        "ips_in_subnet": lambda ip_arr, network_arr: True in [
+                                                    ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for
+                                                    ip in ip_arr for network in network_arr],
+                                                        "group_issues_by": group_issues_by
                                                     }
                                                     )
                 if rendered_txt:

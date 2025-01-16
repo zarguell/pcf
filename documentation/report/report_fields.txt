@@ -43,6 +43,7 @@
 	3.2 ports [port_id,...]
 	3.3 comment
 	3.4 issues [issue_id,...]
+	3.5 os
 
 4. pocs {poc_id}
 	4.1 filename
@@ -127,11 +128,11 @@
 	13.8 teams # [team_id,...]
 	13.9 services # {port_id:["0", hostname_id],...}
 
-
-Functions
-
-latex_escape(s: str) -> str # escape string to insert it inside latex template
-docx_image(image_id: poc_uuid, width=None: millimeters, height=None: millimeters) # insert image to docx with resizing
-format_date(unix_time: int, str_format: str) -> str # convert UNIX-time into date string
-ips_in_subnets(ips_arr: list, networks_arr: list) -> bool # If at least 1 ip is at least in 1 network
-docx_link(link_test: str, link_href:str) # Converts link to Richtext (clickable links). You need to use it etc at {{r ... rt}}
+14. functions {function_name}  # Usage functions["latex_escape"](...)
+	14.1 latex_escape(s: str) -> str # escape string to insert it inside latex template
+	14.2 docx_image(image_id: poc_uuid, width=None: millimeters, height=None: millimeters) # insert image to docx with resizing
+	14.3 format_date(unix_time: int, str_format: str) -> str # convert UNIX-time into date string
+	14.5 ips_in_subnets(ips_arr: list, networks_arr: list) -> bool # If at least 1 ip is at least in 1 network
+	14.6 docx_link(link_test: str, link_href: str) # Converts link to Richtext (clickable links). You need to use it etc at {{r ... rt}}
+	14.7 group_issues_by(issues_list: list, group_field_name: str) -> dict # Returns list of grouped issues by specific field.
+	   # Usage example:  {{ functions["group_issues_by"](issues,"cvss")[5.0]}} - it will return [issue_id1, issue_id2, ...] and each issue_id will be with cvss==5.0
