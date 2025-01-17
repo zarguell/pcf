@@ -14,5 +14,5 @@ def group_issues_by(issues_dict, field_name):
             group_val = issue_obj[field_name]
         if group_val not in result_arr:
             result_arr[group_val] = []
-        result_arr[group_val].append(issue_obj["id"])
+        result_arr[group_val].append(issue_id)
     return result_arr

@@ -136,3 +136,4 @@
 	14.6 docx_link(link_test: str, link_href: str) # Converts link to Richtext (clickable links). You need to use it etc at {{r ... rt}}
 	14.7 group_issues_by(issues_list: list, group_field_name: str) -> dict # Returns list of grouped issues by specific field.
 	   # Usage example:  {{ functions["group_issues_by"](issues,"cvss")[5.0]}} - it will return [issue_id1, issue_id2, ...] and each issue_id will be with cvss==5.0
+	   # Additional fields must start with "field_<name>". Example: {{ functions["group_issues_by"](issues,"field_PentestComment") }}
