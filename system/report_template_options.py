@@ -9,9 +9,9 @@ def group_issues_by(issues_dict, field_name):
     for issue_id in issues_dict:
         issue_obj = issues_dict[issue_id]
         if additional_field:
-            group_val = issue_obj["fields"][field_name]["val"]
+            group_val = issue_obj["fields"][field_name]["val"] if field_name in issue_obj["fields"] else ''
         else:
-            group_val = issue_obj[field_name]
+            group_val = issue_obj[field_name] if field_name in issue_obj else ''
         if group_val not in result_arr:
             result_arr[group_val] = []
         result_arr[group_val].append(issue_id)
