@@ -249,7 +249,7 @@ def process_request(
                                                                 vuln_path, vuln_cvss,
                                                                 current_user['id'],
                                                                 services,
-                                                                'need to recheck',
+                                                                'Need to recheck',
                                                                 current_project['id'],
                                                                 '', vuln_cwe, 'web', full_fix, vuln_args)
                     # create PoC

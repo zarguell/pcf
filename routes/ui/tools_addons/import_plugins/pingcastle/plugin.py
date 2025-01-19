@@ -164,7 +164,7 @@ def process_request(
                     issue_cvss = 9.5
 
                 issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_full_description, '', issue_cvss,
-                                                            current_user['id'], dc_ports_dict, 'need to recheck',
+                                                            current_user['id'], dc_ports_dict, 'Need to recheck',
                                                             current_project['id'], fix=issue_fix,
                                                             technical=issue_technical_description,
                                                             references=issue_links)

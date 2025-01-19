@@ -110,6 +110,6 @@ def process_request(
             issue_id = db.insert_new_issue_no_dublicate('Scanvus: {}'.format(script_name),
                                                         vuln_desc_full, '', vuln_cvss_num, current_user['id'],
                                                         vuln_services,
-                                                        'need to recheck', current_project['id'], cve=vuln_cves
+                                                        'Need to recheck', current_project['id'], cve=vuln_cves
                                                         )
     return ""

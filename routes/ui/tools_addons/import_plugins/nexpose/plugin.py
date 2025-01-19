@@ -224,7 +224,7 @@ def process_request(
                                 issue_id = db.insert_new_issue_no_dublicate(
                                     issue_name, issue_description, '',
                                     cvss_score, current_user['id'],
-                                    services, "need to recheck",
+                                    services, "Need to recheck",
                                     current_project['id'],
                                     cve=','.join(issue_cve), fix=issue_fix,
                                     technical=issue_tech,

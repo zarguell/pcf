@@ -150,7 +150,7 @@ def process_request(
                     }
                     db.insert_new_issue_no_dublicate(issue_name, full_description, '', issue_cvss,
                                                      current_user['id'],
-                                                     services, 'need to recheck', current_project['id'], cve_str,
+                                                     services, 'Need to recheck', current_project['id'], cve_str,
                                                      0, 'custom', issue_solution, '', references='\n'.join(links_list))
 
         except Exception as e:

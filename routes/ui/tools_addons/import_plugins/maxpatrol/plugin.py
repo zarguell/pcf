@@ -145,7 +145,7 @@ def process_request(
 
                                     issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_description_full,
                                                                                 '', cvss3, current_user['id'],
-                                                                                services, "need to recheck",
+                                                                                services, "Need to recheck",
                                                                                 current_project['id'], issue_cve,
                                                                                 fix=issue_fix)
                                     if cvss3_decomp:

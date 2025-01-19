@@ -5563,7 +5563,7 @@
             "type": "string",
             "description": "Status of issue",
             "example": "Comfirmed",
-            "default": "need to recheck"
+            "default": "Need to recheck"
           },
           "type": {
             "type": "string",
@@ -5729,7 +5729,7 @@
             "type": "string",
             "description": "Status of issue",
             "example": "Comfirmed",
-            "default": "need to recheck"
+            "default": "Need to recheck"
           },
           "type": {
             "type": "string",
@@ -7800,7 +7800,7 @@
             "type": "string",
             "description": "Status of issue",
             "example": "Comfirmed",
-            "default": "need to recheck"
+            "default": "Need to recheck"
           },
           "type": {
             "type": "string",

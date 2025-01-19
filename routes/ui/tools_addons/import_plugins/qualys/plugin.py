@@ -174,7 +174,7 @@ def process_request(
                             issue_full_description = beautify_output(issue_full_description)
                             services = {port_id: ['0']}
                             issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_full_description, '', cvss,
-                                                                        current_user['id'], services, 'need to recheck',
+                                                                        current_user['id'], services, 'Need to recheck',
                                                                         current_project['id'], '', 0, 'custom',
                                                                         issue_solution, '', risks=issue_risks)
 
@@ -256,7 +256,7 @@ def process_request(
                             port_id = port_id[0]['id']
                         services = {port_id: ['0']}
                         issue_id = db.insert_new_issue_no_dublicate(issue_name, issue_full_description, cve, cvss,
-                                                                    current_user['id'], services, 'need to recheck',
+                                                                    current_user['id'], services, 'Need to recheck',
                                                                     current_project['id'], '', 0, 'custom',
                                                                     issue_solution, '', risks=issue_risks)
 

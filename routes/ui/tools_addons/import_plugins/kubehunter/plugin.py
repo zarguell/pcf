@@ -209,7 +209,7 @@ def process_request(
                                                                      issue_cvss,
                                                                      current_user['id'],
                                                                      services,
-                                                                     'need to recheck',
+                                                                     'Need to recheck',
                                                                      current_project['id'],
                                                                      '',
                                                                      0,

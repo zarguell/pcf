@@ -257,7 +257,7 @@ def nmap_page_form(project_id, current_project, current_user):
                                                                                      'cvss'] if 'cvss' in issue else 0.0,
                                                                                  current_user['id'],
                                                                                  {port_id: ['0']},
-                                                                                 'need to recheck',
+                                                                                 'Need to recheck',
                                                                                  current_project['id'],
                                                                                  cve=issue[
                                                                                      'cve'] if 'cve' in issue else '',
@@ -354,7 +354,7 @@ def nmap_page_form(project_id, current_project, current_user):
                                                                          issue['cvss'] if 'cvss' in issue else 0.0,
                                                                          current_user['id'],
                                                                          {host_zero_port['id']: ['0']},
-                                                                         'need to recheck',
+                                                                         'Need to recheck',
                                                                          current_project['id'],
                                                                          cve=issue['cve'] if 'cve' in issue else '',
                                                                          cwe=issue['cwe'] if 'cwe' in issue else 0,

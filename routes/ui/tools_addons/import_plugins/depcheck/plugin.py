@@ -105,7 +105,7 @@ def process_request(
                                            + '\n\nVulnerable versions: \n' + all_software_str
 
                         issue_id = db.insert_new_issue(name, full_description, filepath, cvss, current_user['id'],
-                                                       '{}', 'need to recheck', current_project['id'], cve, cwe,
+                                                       '{}', 'Need to recheck', current_project['id'], cve, cwe,
                                                        'custom', '', filename)
         except Exception as e:
             logging.error("Exception during file import: {}".format(e))
