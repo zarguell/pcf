@@ -2568,6 +2568,12 @@ class Database:
                 unique_results.append(port)
         return unique_results
 
+    def select_project_host_ip_dict(self, project_id):
+        result_dict = {}
+        hosts_list = self.select_project_hosts(project_id)
+        for host_obj in hosts_list:
+            result_dict[host_obj['id']] = host_obj['ip']
+        return result_dict
     def select_project_ports_grouped(self, project_id):
         all_ports = self.select_project_ports(project_id)
         # port, is_tcp, service, description, host_id:[]
