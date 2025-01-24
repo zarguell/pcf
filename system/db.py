@@ -3264,6 +3264,23 @@ class Database:
         result = self.return_arr_dict()
         return result
 
+    def select_project_hostnames_dict(self, project_id):
+        self.execute(
+            '''SELECT * FROM Hostnames WHERE host_id IN (SELECT id FROM Hosts WHERE project_id=?)''',
+            (project_id,)
+        )
+        result = self.return_arr_dict()
+
+        hosts_dict = {}
+
+        for hostname_obj in result:
+            if hostname_obj['host_id'] not in hosts_dict:
+                hosts_dict[hostname_obj['host_id']] = []
+            hosts_dict[hostname_obj['host_id']].append(hostname_obj)
+
+
+        return hosts_dict
+
     def select_project_pair_host_port(self, project_id):
         self.execute(
             '''SELECT Ports.id as port_id,
