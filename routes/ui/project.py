@@ -14,7 +14,7 @@ from system.crypto_functions import gen_uuid, md5_hex_str, sha1_hex_str, \
     sha256_hex_str, sha512_hex_str, md5_crypt_str, des_crypt_str, \
     sha512_crypt_str, sha256_crypt_str, nt_hex_str, lm_hex_str, rabbitmq_md5_str
 from system.security_functions import run_function_timeout, latex_str_escape, sql_to_regexp, extract_to_regexp
-from system.report_template_options import group_issues_by
+from system.report_template_options import group_issues_by, csv_escape, issue_targets_list
 from os import path, remove, stat, makedirs, walk
 from flask import Response, jsonify
 import magic
@@ -2967,8 +2967,9 @@ def project_reports(project_id, current_project, current_user):
     example_files = {
         "./documentation/report/examples/security_analysis_docx/example.docx": ".docx - example report",
         "./documentation/report/examples/security_analysis_latex/security_analysis_latex.zip": ".tex - example report",
-        "./documentation/report/examples/simple_txt/ip_hostnames_list.txt": ".txt - ip,hostname1,hostname2\\n",
-        "./documentation/report/examples/simple_txt/ip_port_list_csv.txt": ".txt - ip;port;service;comment\\n"
+        "./documentation/report/examples/simple_txt/ip_hostnames_list.txt": ".csv - ip,hostname1,hostname2\\n",
+        "./documentation/report/examples/simple_txt/ip_port_list_csv.txt": ".csv - ip;port;service;comment\\n",
+        "./documentation/report/examples/simple_txt/issues_list_csv.txt": ".csv - Issue name,Status,Description,...\\n"
     }
 
     return render_template('project/reports/index.html',
@@ -3327,7 +3328,9 @@ def generate_report(project_id, current_project, current_user):
                                 "ips_in_subnets": lambda ip_arr, network_arr: True in [
                                     ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for ip in ip_arr
                                     for network in network_arr],
-                                "group_issues_by": group_issues_by
+                                "group_issues_by": group_issues_by,
+                                "csv_escape": csv_escape,
+                                "issue_targets_list": issue_targets_list
                             }
                         },
                         jinja_env=SandboxedEnvironment(autoescape=True)
@@ -3491,7 +3494,9 @@ def generate_report(project_id, current_project, current_user):
                                                             ipaddress.ip_address(ip) in ipaddress.ip_network(network,
                                                                                                              False) for
                                                             ip in ip_arr for network in network_arr],
-                                                        "group_issues_by": group_issues_by
+                                                        "group_issues_by": group_issues_by,
+                                                        "csv_escape": csv_escape,
+                                                        "issue_targets_list": issue_targets_list
                                                     }
                                                 },
                                                 jinja_env=SandboxedEnvironment(autoescape=True)
@@ -3522,7 +3527,9 @@ def generate_report(project_id, current_project, current_user):
                                                 "ips_in_subnets": lambda ip_arr, network_arr: True in [
                                                     ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for
                                                     ip in ip_arr for network in network_arr],
-                                                "group_issues_by": group_issues_by
+                                                "group_issues_by": group_issues_by,
+                                                "csv_escape": csv_escape,
+                                                "issue_targets_list": issue_targets_list
                                             }
                                         )
                                         f = open(file_path, 'w', encoding='utf-8')
@@ -3629,9 +3636,12 @@ def generate_report(project_id, current_project, current_user):
                                                             int(unix_time)).strftime(str_format),
                                                         "latex_escape": latex_str_escape,
                                                         "ips_in_subnet": lambda ip_arr, network_arr: True in [
-                                                    ipaddress.ip_address(ip) in ipaddress.ip_network(network, False) for
-                                                    ip in ip_arr for network in network_arr],
-                                                        "group_issues_by": group_issues_by
+                                                            ipaddress.ip_address(ip) in ipaddress.ip_network(network,
+                                                                                                             False) for
+                                                            ip in ip_arr for network in network_arr],
+                                                        "group_issues_by": group_issues_by,
+                                                        "csv_escape": csv_escape,
+                                                        "issue_targets_list": issue_targets_list
                                                     }
                                                     )
                 if rendered_txt:
@@ -3881,8 +3891,8 @@ def project_create_issue_from_template_form(project_id, current_project, current
                 issue_fields[field_name]['val'] = replace_tpl_text(issue_fields[field_name]['val'])
 
         issue_fields["pcf_last_used_template"] = {
-                "type": "text",
-                "val": current_template['id']
+            "type": "text",
+            "val": current_template['id']
         }
 
         issue_id = db.insert_new_issue(issue_name, issue_description,

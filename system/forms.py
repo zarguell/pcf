@@ -793,7 +793,8 @@ class ReportGenerate(FlaskForm):
                                        "./documentation/report/examples/security_analysis_docx/example.docx",
                                        "./documentation/report/examples/security_analysis_latex/security_analysis_latex.zip",
                                        "./documentation/report/examples/simple_txt/ip_hostnames_list.txt",
-                                       "./documentation/report/examples/simple_txt/ip_port_list_csv.txt"
+                                       "./documentation/report/examples/simple_txt/ip_port_list_csv.txt",
+                                       "./documentation/report/examples/simple_txt/issues_list_csv.txt"
                                    ])],
                                    default='',
                                    )

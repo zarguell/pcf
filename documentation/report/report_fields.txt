@@ -137,3 +137,7 @@
 	14.7 group_issues_by(issues_list: list, group_field_name: str) -> dict # Returns list of grouped issues by specific field.
 	   # Usage example:  {{ functions["group_issues_by"](issues,"cvss")[5.0]}} - it will return [issue_id1, issue_id2, ...] and each issue_id will be with cvss==5.0
 	   # Additional fields must start with "field_<name>". Example: {{ functions["group_issues_by"](issues,"field_PentestComment") }}
+    14.8 csv_escape(s: str) -> str # escape string to insert it inside csv template
+    14.9 issue_targets_list(issue_obj: dict, hostnames: dict, ports: dict) -> list # Returns list with vulnerable host strings ip:port or hostname:port
+       # Usage example: {{ "\n".join(functions["issue_targets_list"](issues[issue_id], hostnames, ports)) }}
+       # Example function return: ["8.8.8.8:53/udp", "1.2.4.5:80", "google.com:443"]

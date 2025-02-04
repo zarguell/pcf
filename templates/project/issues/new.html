@@ -241,7 +241,7 @@
             }
             if (count > 1000) {
                 text_html = shown_html + `<div class="ui item" data-value="item1" id="ip_row">
-                                <label>Too much results (${count})..</label>
+                                <label>Too many results (${count})..</label>
                             </div>`;
             }
             list_elem.innerHTML += shown_html + text_html;
@@ -293,11 +293,10 @@
             }
             if (count > 1000) {
                 text_html = shown_html + `<div class="ui item" data-value="item1" id="hostname_row">
-                                <label>Too much results (${count})..</label>
+                                <label>Too many results (${count})..</label>
                             </div>`;
-            } else {
-                list_elem.innerHTML += shown_html + text_html;
             }
+            list_elem.innerHTML += shown_html + text_html;
 
             $('#hostname_row').checkbox();
             $('.ui.checkbox').checkbox();
