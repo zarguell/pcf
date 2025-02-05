@@ -2959,16 +2959,21 @@ class Database:
             (SELECT id FROM Hosts WHERE project_id=?)''',
             (project_id,))
         tmp_sql_result = self.return_arr_dict()
+        host_to_hostnames = {}
         for hostname in tmp_sql_result:
             hostname_obj = {
                 'hostname': hostname['hostname'],
                 'comment': hostname['description']
             }
             result['hostnames'][hostname['id']] = hostname_obj
+            if hostname['host_id'] not in host_to_hostnames:
+                host_to_hostnames[hostname['host_id']] = []
+            host_to_hostnames[hostname['host_id']].append(hostname)
 
         # port
         result['ports'] = {}
         project_ports = self.select_project_ports(project_id)
+        host_to_ports = {}
         for port in project_ports:
             port_obj = {
                 'port': port['port'],
@@ -2977,24 +2982,61 @@ class Database:
                 'service': port['service']
             }
             result['ports'][port['id']] = port_obj
+            if port['host_id'] not in host_to_ports:
+                host_to_ports[port['host_id']] = []
+            host_to_ports[port['host_id']].append(port)
 
-        # hosts
-        result['hosts'] = {}
-        project_hosts = self.select_project_hosts(project_id)
-        for host in project_hosts:
-            host_obj = {
-                'hostnames': [x['id'] for x in
-                              self.select_ip_hostnames(host['id'])],
-                'ports': [x['id'] for x in self.select_host_ports(host['id'])],
-                'comment': host['comment'],
-                'issues': [x['id'] for x in self.select_host_issues(host['id'])],
-                'os': host['os']
-            }
-            result['hosts'][host['ip']] = host_obj
+        # pocs
+        result['pocs'] = {}
+        project_pocs = self.select_project_pocs(project_id)
+        port_to_host = {}
+        hosts = self.select_project_hosts(project_id)
+        hosts_dict = {x['id']: x for x in hosts}
+        issue_to_poc = {}
+        for port_obj in project_ports:
+            port_to_host[port_obj['id']] = hosts_dict[port_obj['host_id']]
+
+        for curr_poc in project_pocs:
+            poc_obj = {'filename': curr_poc['filename'],
+                       'url': '/static/files/poc/' + curr_poc['id'],
+                       'comment': curr_poc['description'],
+                       'path': '',
+                       'services': {},
+                       'filetype': curr_poc['type'],
+                       'priority': curr_poc['priority']}
+
+            if curr_poc['port_id'] != '0':
+                service_obj = {}
+                host = port_to_host[curr_poc['port_id']]
+                service_obj['ip'] = host['ip']
+                service_obj['is_ip'] = ('0' == curr_poc['hostname_id'])
+                service_obj['hostnames'] = []
+                if curr_poc['hostname_id'] != '0':
+                    service_obj['hostnames'] = [curr_poc['hostname_id']]
+                poc_obj['services'][curr_poc['port_id']] = service_obj
+
+            if curr_poc['storage'] == 'filesystem':
+                f = open(path.join('./static/files/poc/', curr_poc['id']), 'rb')
+                content_b = f.read().decode('charmap', errors='ignore') if curr_poc['type'] != 'text' \
+                    else f.read().decode('utf-8', errors='ignore')
+                f.close()
+            elif curr_poc['storage'] == 'database':
+                content_b = base64.b64decode(curr_poc['base64']).decode('charmap', errors='ignore') if curr_poc['type'] != 'text' \
+                    else base64.b64decode(curr_poc['base64']).decode('utf-8', errors='ignore')
+            poc_obj['content'] = content_b
+            poc_obj['content_base64'] = b64encode(content_b.encode("charmap")) if curr_poc['type'] != 'text' \
+                else b64encode(content_b.encode("utf-8"))
+            poc_obj['content_hex'] = content_b.encode("charmap").hex() if curr_poc['type'] != 'text' \
+                else content_b.encode("utf-8").hex()
+            result['pocs'][curr_poc['id']] = poc_obj
+            if curr_poc['issue_id'] not in issue_to_poc:
+                issue_to_poc[curr_poc['issue_id']] = []
+            issue_to_poc[curr_poc['issue_id']].append(curr_poc)
 
         # issues
         result['issues'] = {}
         project_issues = self.select_project_issues(project_id)
+        host_to_issues = {}
         for issue in project_issues:
             issue_obj = {
                 'name': issue['name'],
@@ -3003,7 +3045,7 @@ class Database:
                 'cwe': issue['cwe'],
                 'cvss': issue['cvss'],
                 'url_path': issue['url_path'],
-                'pocs': [x['id'] for x in self.select_issue_pocs(issue['id'])],
+                'pocs': [x['id'] for x in issue_to_poc[issue['id']]] if issue['id'] in issue_to_poc else [],
                 'status': issue['status'],
                 'fix': issue['fix'],
                 'type': issue['type'],
@@ -3033,56 +3075,34 @@ class Database:
 
             for port_id in services:
                 service_obj = {}
-                host = self.select_host_by_port_id(port_id)[0]
+                host = port_to_host[port_id]
                 service_obj['ip'] = host['ip']
                 service_obj['is_ip'] = '0' in services[port_id]
                 service_obj['hostnames'] = [x for x in services[port_id]
                                             if x != '0']
                 issue_obj['services'][port_id] = service_obj
 
+                if host['id'] not in host_to_issues:
+                    host_to_issues[host['id']] = []
+                if issue['id'] not in host_to_issues[host['id']]:
+                    host_to_issues[host['id']].append(issue['id'])
+
             result['issues'][issue['id']] = issue_obj
 
-        # pocs
-
-        result['pocs'] = {}
-
-        project_pocs = self.select_project_pocs(project_id)
-        for curr_poc in project_pocs:
-            poc_obj = {'filename': curr_poc['filename'],
-                       'url': '/static/files/poc/' + curr_poc['id'],
-                       'comment': curr_poc['description'],
-                       'path': '',
-                       'services': {},
-                       'filetype': curr_poc['type'],
-                       'priority': curr_poc['priority']}
-
-            if curr_poc['port_id'] != '0':
-                service_obj = {}
-                host = self.select_host_by_port_id(curr_poc['port_id'])[0]
-                service_obj['ip'] = host['ip']
-                service_obj['is_ip'] = ('0' == curr_poc['hostname_id'])
-                service_obj['hostnames'] = []
-                if curr_poc['hostname_id'] != '0':
-                    service_obj['hostnames'] = [curr_poc['hostname_id']]
-                poc_obj['services'][curr_poc['port_id']] = service_obj
-
-            if curr_poc['storage'] == 'filesystem':
-                f = open(path.join('./static/files/poc/', curr_poc['id']), 'rb')
-                content_b = f.read().decode('charmap', errors='ignore') if curr_poc['type'] != 'text' \
-                    else f.read().decode('utf-8', errors='ignore')
-                f.close()
-            elif curr_poc['storage'] == 'database':
-                content_b = base64.b64decode(curr_poc['base64']).decode('charmap', errors='ignore') if curr_poc['type'] != 'text' \
-                    else base64.b64decode(curr_poc['base64']).decode('utf-8', errors='ignore')
-            poc_obj['content'] = content_b
-            poc_obj['content_base64'] = b64encode(content_b.encode("charmap")) if curr_poc['type'] != 'text' \
-                else b64encode(content_b.encode("utf-8"))
-            poc_obj['content_hex'] = content_b.encode("charmap").hex() if curr_poc['type'] != 'text' \
-                else content_b.encode("utf-8").hex()
-            result['pocs'][curr_poc['id']] = poc_obj
+        # hosts
+        result['hosts'] = {}
+        project_hosts = self.select_project_hosts(project_id)
+        for host in project_hosts:
+            host_obj = {
+                'hostnames': [x['id'] for x in host_to_hostnames[host['id']]] if host['id'] in host_to_hostnames else [],
+                'ports': [x['id'] for x in host_to_ports[host['id']]] if host['id'] in host_to_ports else [],
+                'comment': host['comment'],
+                'issues': host_to_issues[host['id']] if host['id'] in host_to_issues else [],
+                'os': host['os']
+            }
+            result['hosts'][host['ip']] = host_obj
 
         # grouped_issues
-
         result['grouped_issues'] = {}
 
         for issue_id in result['issues']:
@@ -3145,7 +3165,7 @@ class Database:
             access_obj = json.loads(current_network['access_from'])
             for port_id in access_obj:
                 service_obj = {}
-                host = self.select_host_by_port_id(port_id)[0]
+                host = port_to_host[port_id]
                 service_obj['ip'] = host['ip']
                 service_obj['is_ip'] = '0' in access_obj[port_id]
                 service_obj['hostnames'] = [x for x in access_obj[port_id]
@@ -3172,7 +3192,7 @@ class Database:
 
             for port_id in services:
                 service_obj = {}
-                host = self.select_host_by_port_id(port_id)[0]
+                host = port_to_host[port_id]
                 service_obj['ip'] = host['ip']
                 service_obj['is_ip'] = '0' in services[port_id]
                 service_obj['hostnames'] = [x for x in services[port_id]
