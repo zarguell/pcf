@@ -219,7 +219,7 @@
                 if (list_hosts[i]['checked']) {
                     check_str = 'checked';
                 }
-                if (s.includes(search_field.toLowerCase()) || search_field === '') {
+                if (s.toLowerCase().includes(search_field.toLowerCase()) || search_field === '') {
 
                     inner = `<div class="ui item checkbox" data-value="item1" id="ip_row">
                                 <input type="checkbox" name="ip_port-${i}" value="${list_hosts[i]['port_id']}" ${check_str} onchange="switch_host('${list_hosts[i]['port_id']}','0')">
@@ -271,7 +271,7 @@
                 if (list_hosts[i]['checked']) {
                     check_str = 'checked';
                 }
-                if (s.includes(search_field.toLowerCase()) || search_field === '') {
+                if (s.toLowerCase().includes(search_field.toLowerCase()) || search_field === '') {
 
                     inner = `<div class="ui item checkbox" data-value="item1" id="hostname_row">
                                 <input type="checkbox" name="host_port-${i}" value="${list_hosts[i]['port_id']}:${list_hosts[i]['hostname_id']}" ${check_str} onchange="switch_host('${list_hosts[i]['port_id']}','${list_hosts[i]['hostname_id']}')">

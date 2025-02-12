@@ -404,7 +404,7 @@
                     if (list_hosts[i]['checked']) {
                         check_str = 'checked';
                     }
-                    if (s.includes(search_field.toLowerCase()) || search_field === '') {
+                    if (s.toLowerCase().includes(search_field.toLowerCase()) || search_field === '') {
 
                         inner = `<div class="ui item checkbox" data-value="item1" id="host_row">
                                 <input type="checkbox" value="${list_hosts[i]['id']}" ${check_str} onchange="switch_included_host('${list_hosts[i]["id"]}');">
@@ -448,7 +448,7 @@
                     if (list_hosts[i]['checked']) {
                         check_str = 'checked';
                     }
-                    if (s.includes(search_field.toLowerCase()) || search_field === '') {
+                    if (s.toLowerCase().includes(search_field.toLowerCase()) || search_field === '') {
 
                         inner = `<div class="ui item checkbox" data-value="item1" id="host_row">
                                 <input type="checkbox" value="${list_hosts[i]['id']}" ${check_str} onchange="switch_excluded_host('${list_hosts[i]["id"]}');">
@@ -492,7 +492,7 @@
                     if (list_networks[i]['checked']) {
                         check_str = 'checked';
                     }
-                    if (s.includes(search_field.toLowerCase()) || search_field === '') {
+                    if (s.toLowerCase().includes(search_field.toLowerCase()) || search_field === '') {
 
                         inner = `<div class="ui item checkbox" data-value="item1" id="network_row">
                                 <input type="checkbox" value="${list_networks[i]['network']}" ${check_str} onchange="switch_network_include('${list_networks[i]["network"]}');">
@@ -536,7 +536,7 @@
                     if (list_networks[i]['checked']) {
                         check_str = 'checked';
                     }
-                    if (s.includes(search_field.toLowerCase()) || search_field === '') {
+                    if (s.toLowerCase().includes(search_field.toLowerCase()) || search_field === '') {
 
                         inner = `<div class="ui item checkbox" data-value="item1" id="network_row">
                                 <input type="checkbox" value="${list_networks[i]['network']}" ${check_str} onchange="switch_network_exclude('${list_networks[i]["network"]}');">
@@ -581,7 +581,7 @@
                     if (scripts_list[i]['checked']) {
                         check_str = 'checked';
                     }
-                    if (s.includes(search_field.toLowerCase()) || search_field === '') {
+                    if (s.toLowerCase().includes(search_field.toLowerCase()) || search_field === '') {
 
                         inner = `<div class="ui item checkbox" data-value="item1" id="scripts_row">
                                 <input type="checkbox" value="${scripts_list[i]['script']}" ${check_str} onchange="switch_nmap_scripts('${scripts_list[i]["script"]}');">
