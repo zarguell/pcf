@@ -903,6 +903,11 @@ class Database:
 
         # delete issue
         self.delete_issue(issue_id, project_id)
+
+        if str(config_dict()['main']['auto_delete_poc']).strip() == '1':
+            pocs_list = self.select_issue_pocs(issue_id)
+            for poc_obj in pocs_list:
+                self.delete_poc(poc_obj['id'])
         return
 
     def delete_hostname_safe(self, hostname_id):
