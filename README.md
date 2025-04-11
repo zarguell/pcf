@@ -108,6 +108,7 @@ when carrying out various works for testing!</b>
 | aiodnsbrute                                                                                                                    | Import           | Import JSON/CSV results (ip, hostname)                                                                  |
 | Advanced Port Scanner                                                                                                          | Import           | Import XML results (ip, hostname, port)                                                                 |
 | RedCheck                                                                                                                       | Import           | Import CSV results (ip, port, security issues)                                                          |
+| MaxPatrol VM                                                                                                                   | Import           | Import XML results (ip, port, hostname, os, security issues)                                            |
 
 ## 🙋 Table of Contents
 

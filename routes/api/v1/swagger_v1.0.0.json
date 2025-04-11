@@ -242,8 +242,6 @@
             "in": "path",
             "description": "Registered user UUID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -338,8 +336,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -393,8 +389,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -448,8 +442,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -503,8 +495,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -558,8 +548,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -613,8 +601,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -668,8 +654,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -723,8 +707,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -778,8 +760,6 @@
             "in": "path",
             "description": "Team ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -874,8 +854,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -929,8 +907,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1025,8 +1001,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1080,8 +1054,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1092,8 +1064,6 @@
             "in": "path",
             "description": "Host UUID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1147,8 +1117,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1159,8 +1127,6 @@
             "in": "path",
             "description": "Host UUID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1214,8 +1180,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1226,8 +1190,6 @@
             "in": "path",
             "description": "Host UUID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1281,8 +1243,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1336,8 +1296,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1391,8 +1349,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1403,8 +1359,6 @@
             "in": "path",
             "description": "Port ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1458,8 +1412,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1470,8 +1422,6 @@
             "in": "path",
             "description": "Port ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1525,8 +1475,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1537,8 +1485,6 @@
             "in": "path",
             "description": "Port ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1592,8 +1538,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1647,8 +1591,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1659,8 +1601,6 @@
             "in": "path",
             "description": "Network ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1714,8 +1654,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1726,8 +1664,6 @@
             "in": "path",
             "description": "Network ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1781,8 +1717,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1793,8 +1727,6 @@
             "in": "path",
             "description": "Network ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1848,8 +1780,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1903,8 +1833,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -1958,8 +1886,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2013,8 +1939,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2025,8 +1949,6 @@
             "in": "path",
             "description": "Issue ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2080,8 +2002,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2135,8 +2055,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2147,8 +2065,6 @@
             "in": "path",
             "description": "Issue ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2202,8 +2118,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2214,8 +2128,6 @@
             "in": "path",
             "description": "Issue ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2269,8 +2181,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2281,8 +2191,6 @@
             "in": "path",
             "description": "Issue ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2336,8 +2244,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2348,8 +2254,6 @@
             "in": "path",
             "description": "Issue ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2360,8 +2264,6 @@
             "in": "path",
             "description": "PoC ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2415,8 +2317,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2427,8 +2327,6 @@
             "in": "path",
             "description": "Issue ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2439,8 +2337,6 @@
             "in": "path",
             "description": "PoC ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2494,8 +2390,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2549,8 +2443,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2645,8 +2537,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2700,8 +2590,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2755,8 +2643,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2767,8 +2653,6 @@
             "in": "path",
             "description": "Task ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2812,8 +2696,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2824,8 +2706,6 @@
             "in": "path",
             "description": "Task ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2879,8 +2759,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2891,8 +2769,6 @@
             "in": "path",
             "description": "Task ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2936,8 +2812,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -2981,8 +2855,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3026,8 +2898,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3071,8 +2941,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3116,8 +2984,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3161,8 +3027,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3206,8 +3070,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3251,8 +3113,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3296,8 +3156,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3341,8 +3199,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3386,8 +3242,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3431,8 +3285,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3476,8 +3328,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3521,8 +3371,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3566,8 +3414,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3611,8 +3457,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3656,8 +3500,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3701,8 +3543,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3746,8 +3586,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3791,8 +3629,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3836,8 +3672,6 @@
             "in": "path",
             "description": "Project ID",
             "required": true,
-            "style": "simple",
-            "explode": false,
             "schema": {
               "type": "string",
               "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
@@ -3850,6 +3684,49 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/tool_aiodnsbrute_body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_41"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project/{project_id}/tool/maxpatrol_vm/": {
+      "post": {
+        "tags": [
+          "tools"
+        ],
+        "summary": "Integration with MaxPatrol VM tool",
+        "description": "Import XML data from MaxPatrol VM tool\n",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Import report functionality",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/tool_maxpatrol_vm_body"
               }
             }
           }
@@ -5563,7 +5440,7 @@
             "type": "string",
             "description": "Status of issue",
             "example": "Comfirmed",
-            "default": "Need to recheck"
+            "default": "need to recheck"
           },
           "type": {
             "type": "string",
@@ -5729,7 +5606,7 @@
             "type": "string",
             "description": "Status of issue",
             "example": "Comfirmed",
-            "default": "Need to recheck"
+            "default": "need to recheck"
           },
           "type": {
             "type": "string",
@@ -5945,7 +5822,8 @@
       },
       "poc_add_body": {
         "required": [
-          "access_token"
+          "access_token",
+          "filename"
         ],
         "type": "object",
         "properties": {
@@ -5980,6 +5858,11 @@
             "description": "UUID of hostname",
             "example": "ad236cdb-f645-456c-918c-dd8d8085ae95",
             "default": "0"
+          },
+          "filename": {
+            "type": "string",
+            "description": "PoC filename",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
           }
         }
       },
@@ -7321,6 +7204,44 @@
           }
         }
       },
+      "tool_maxpatrol_vm_body": {
+        "required": [
+          "access_token",
+          "xml_files"
+        ],
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "API access token",
+            "example": "ad236cdb-f645-456c-918c-dd8d8085ae95"
+          },
+          "xml_files": {
+            "type": "string",
+            "description": "One(!) report .xml file, encoded to base64",
+            "example": "PD4=",
+            "default": ""
+          },
+          "hosts_description": {
+            "type": "string",
+            "description": "New host description",
+            "example": "New MaxPatrol VM scan",
+            "default": "Added from MaxPatrol scan"
+          },
+          "ports_description": {
+            "type": "string",
+            "description": "New port description",
+            "example": "New MaxPatrol VM scan",
+            "default": "Added from MaxPatrol scan"
+          },
+          "hostnames_description": {
+            "type": "string",
+            "description": "New port description",
+            "example": "New MaxPatrol VM scan",
+            "default": "Added from MaxPatrol scan"
+          }
+        }
+      },
       "inline_response_200_3_teams": {
         "type": "object",
         "properties": {
@@ -7800,7 +7721,7 @@
             "type": "string",
             "description": "Status of issue",
             "example": "Comfirmed",
-            "default": "Need to recheck"
+            "default": "need to recheck"
           },
           "type": {
             "type": "string",
