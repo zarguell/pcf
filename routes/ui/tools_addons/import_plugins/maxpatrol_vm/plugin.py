@@ -159,7 +159,7 @@ def process_request(
                                                             issue_fix, "", issue_tech_info)
 
 
-        except Exception as ValueError:
+        except Exception as e:
             logging.error("Error during parsing report: {}".format(e))
             return "Error during parsing XML report!"
     return ""
