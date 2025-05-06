@@ -758,7 +758,7 @@ class EditHTTPSniffer(FlaskForm):
 
 class AddConfig(FlaskForm):
     config_name = StringField('config_name',
-                              validators=[AnyOf(['shodan', 'zeneye'])])
+                              validators=[AnyOf(['shodan', 'zeneye', 'chatgpt', 'gemini', 'deepseek'])])
     config_value = StringField('config_value',
                                validators=[
                                    DataRequired(message='Data required!')])

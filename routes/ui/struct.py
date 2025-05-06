@@ -351,6 +351,18 @@ def profile_form(current_user):
                     display_name = 'Zeneye API key'
                     visible = 0
 
+                if config_name == 'chatgpt':
+                    display_name = 'ChatGPT AI API token'
+                    visible = 0
+
+                if config_name == 'gemini':
+                    display_name = 'Gemini AI API token'
+                    visible = 0
+
+                if config_name == 'deepseek':
+                    display_name = 'DeepSeek AI API token'
+                    visible = 0
+
                 # check if exist
                 same_config = db.select_configs(user_id=current_user['id'],
                                                 name=config_name)
@@ -600,6 +612,18 @@ def team_page_form(team_id, current_team, current_user):
 
                 if config_name == 'zeneye':
                     display_name = 'Zeneye API key'
+                    visible = 0
+
+                if config_name == 'chatgpt':
+                    display_name = 'ChatGPT AI API token'
+                    visible = 0
+
+                if config_name == 'gemini':
+                    display_name = 'Gemini AI API token'
+                    visible = 0
+
+                if config_name == 'deepseek':
+                    display_name = 'DeepSeek AI API token'
                     visible = 0
 
                 # check if exist
